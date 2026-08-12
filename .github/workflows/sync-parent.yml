@@ -1,0 +1,120 @@
+name: Sync parent submodule pointer
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-parent-${{ github.repository }}
+  cancel-in-progress: true
+
+env:
+  PARENT_REPOSITORY: isselab/agentic-feature-traced-datasets
+  TEMPLATE_REPOSITORY: isselab/agentic-dataset-template
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect generated dataset
+        id: dataset
+        shell: bash
+        run: |
+          if [ "$GITHUB_REPOSITORY" = "$TEMPLATE_REPOSITORY" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Template repository is not synchronized."
+          elif [ -f .github/.bootstrap ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Template/bootstrap repository is not synchronized."
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Register or update the dataset in a parent pull request
+        if: steps.dataset.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.PARENT_REPO_PAT }}
+          DATASET_REPOSITORY: ${{ github.repository }}
+          DATASET_NAME: ${{ github.event.repository.name }}
+          DATASET_SHA: ${{ github.sha }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::PARENT_REPO_PAT is unavailable. Private repositories on GitHub Free cannot use organization Actions secrets; make the dataset public, add PARENT_REPO_PAT as a repository secret, or upgrade the organization plan, then rerun this workflow."
+            exit 1
+          fi
+          if ! parent_can_push="$(gh api "repos/$PARENT_REPOSITORY" --jq '.permissions.push // false' 2>/dev/null)" || [ "$parent_can_push" != true ]; then
+            echo "::error::PARENT_REPO_PAT cannot push to $PARENT_REPOSITORY. Use an approved fine-grained PAT with resource owner isselab, access to the parent repository, Contents: read and write, and Pull requests: read and write."
+            exit 1
+          fi
+          gh auth setup-git
+          gh repo clone "$PARENT_REPOSITORY" "$RUNNER_TEMP/parent"
+          cd "$RUNNER_TEMP/parent"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          dataset_path="datasets/$DATASET_NAME"
+          if [ -f .gitmodules ] && git config -f .gitmodules --get-regexp "^submodule\\..*\\.path$" 2>/dev/null | grep -Fq " $dataset_path"; then
+            registered_in_main=true
+            branch="automation/sync-$DATASET_NAME"
+            title="Update $DATASET_NAME to ${DATASET_SHA:0:12}"
+            message="$title"
+          else
+            registered_in_main=false
+            branch="add/$DATASET_NAME"
+            title="Add $DATASET_NAME dataset"
+            message="$title"
+          fi
+
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            remote_branch=true
+            git fetch origin "$branch"
+            git checkout -B "$branch" "origin/$branch"
+          else
+            remote_branch=false
+            git checkout -b "$branch"
+          fi
+
+          if ! { [ -f .gitmodules ] && git config -f .gitmodules --get-regexp "^submodule\\..*\\.path$" 2>/dev/null | grep -Fq " $dataset_path"; }; then
+            git submodule add "https://github.com/$DATASET_REPOSITORY.git" "$dataset_path"
+          fi
+          git submodule update --init "$dataset_path"
+          git -C "$dataset_path" fetch origin "$DATASET_SHA"
+          git -C "$dataset_path" checkout --detach "$DATASET_SHA"
+          python scripts/render_catalog.py
+          git add .gitmodules README.md "$dataset_path"
+
+          if git diff --cached --quiet; then
+            echo "::notice::Parent already points to $DATASET_SHA."
+            if [ "$remote_branch" = false ]; then
+              exit 0
+            fi
+          else
+            git commit -m "$message"
+            git push --set-upstream origin "$branch"
+          fi
+
+          if [ "$registered_in_main" = true ]; then
+            body="Automated submodule update to [$DATASET_SHA](https://github.com/$DATASET_REPOSITORY/commit/$DATASET_SHA)."
+          else
+            body="Automated registration of [$DATASET_REPOSITORY](https://github.com/$DATASET_REPOSITORY) as a submodule."
+          fi
+          pr_number="$(gh pr list --repo "$PARENT_REPOSITORY" --head "$branch" --state open --json number --jq '.[0].number')"
+          if [ -n "$pr_number" ]; then
+            gh pr edit "$pr_number" \
+              --repo "$PARENT_REPOSITORY" \
+              --title "$title" \
+              --body "$body"
+          else
+            gh pr create \
+              --repo "$PARENT_REPOSITORY" \
+              --base main \
+              --head "$branch" \
+              --title "$title" \
+              --body "$body"
+          fi

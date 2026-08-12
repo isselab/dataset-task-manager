@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/isselab/agentic-dataset-template/schema/ground-truth.schema.json",
+  "title": "Manually validated feature-traceability ground truth",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "feature_model",
+    "folder_mappings",
+    "file_mappings",
+    "validation"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "feature_model": { "$ref": "#/$defs/artifact" },
+    "folder_mappings": { "$ref": "#/$defs/artifact" },
+    "file_mappings": { "$ref": "#/$defs/artifact" },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reviewers", "notes"],
+      "properties": {
+        "status": { "enum": ["draft", "reviewed", "adjudicated"] },
+        "reviewers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "date": { "type": "string", "format": "date" }
+            }
+          }
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "format"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "format": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

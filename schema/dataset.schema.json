@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/isselab/agentic-dataset-template/schema/dataset.schema.json",
+  "title": "Agentic feature-evolution dataset manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "name",
+    "title",
+    "description",
+    "repository",
+    "license",
+    "created",
+    "authors",
+    "provenance",
+    "benchmark",
+    "contents"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": { "const": "2.0" },
+    "name": { "type": "string", "pattern": "^[A-Za-z0-9._-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "repository": {
+      "type": "string",
+      "pattern": "^https://github\\.com/[^/]+/[^/]+/?$"
+    },
+    "license": { "type": "string", "minLength": 1 },
+    "created": { "type": "string", "format": "date" },
+    "authors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "orcid": { "type": "string" }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["collection_method", "source"],
+      "properties": {
+        "collection_method": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 }
+      }
+    },
+    "benchmark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "execution_model",
+        "initial_version",
+        "ground_truth_policy"
+      ],
+      "properties": {
+        "execution_model": { "const": "sequential" },
+        "initial_version": {
+          "type": "string",
+          "pattern": "^v[0-9]{3,}$"
+        },
+        "ground_truth_policy": { "type": "string", "minLength": 1 }
+      }
+    },
+    "contents": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subject", "steps", "documentation"],
+      "properties": {
+        "subject": { "type": "string", "minLength": 1 },
+        "steps": { "type": "string", "minLength": 1 },
+        "documentation": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

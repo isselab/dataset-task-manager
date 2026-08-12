@@ -1,0 +1,29 @@
+{
+  "$schema": "schema/dataset.schema.json",
+  "schema_version": "2.0",
+  "name": "replace-with-repository-name",
+  "title": "Replace with dataset title",
+  "description": "Replace with a concise description of this feature-evolution dataset.",
+  "repository": "https://github.com/isselab/replace-with-repository-name",
+  "license": "MIT",
+  "created": "2026-01-01",
+  "authors": [
+    {
+      "name": "Replace with author or research group"
+    }
+  ],
+  "provenance": {
+    "collection_method": "Describe how the initial project, evolution prompts, and ground truth were created.",
+    "source": "Describe the source project or generation process."
+  },
+  "benchmark": {
+    "execution_model": "sequential",
+    "initial_version": "v000",
+    "ground_truth_policy": "Each step stores the expected post-step traceability artifacts."
+  },
+  "contents": {
+    "subject": "project",
+    "steps": "benchmark/steps.json",
+    "documentation": "docs"
+  }
+}

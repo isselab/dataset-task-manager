@@ -1,0 +1,24 @@
+{
+  "$schema": "../../../schema/evolution-step.schema.json",
+  "id": "step-001",
+  "sequence": 1,
+  "before_version": "v000",
+  "after_version": "v001",
+  "prompts": [
+    {
+      "order": 1,
+      "path": "prompts/001.md"
+    }
+  ],
+  "scenario_types": ["add"],
+  "expected_changes": [
+    {
+      "id": "change-001",
+      "operation": "add",
+      "features_before": [],
+      "features_after": ["Replace with feature name"],
+      "description": "Replace with the intended feature-level change."
+    }
+  ],
+  "ground_truth": "ground-truth"
+}

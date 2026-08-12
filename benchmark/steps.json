@@ -1,0 +1,9 @@
+{
+  "$schema": "../schema/steps.schema.json",
+  "steps": [
+    {
+      "id": "step-001",
+      "path": "steps/step-001/step.json"
+    }
+  ]
+}
