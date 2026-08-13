@@ -1,0 +1,9 @@
+.app-root {
+    -fx-background-color: #f6f8fa;
+}
+
+.app-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f2937;
+}
