@@ -7,3 +7,10 @@
     -fx-font-weight: bold;
     -fx-text-fill: #1f2937;
 }
+
+/* &begin[TaskManagement] */
+.task-title {
+    -fx-font-size: 15px;
+    -fx-text-fill: #1f2937;
+}
+/* &end[TaskManagement] */

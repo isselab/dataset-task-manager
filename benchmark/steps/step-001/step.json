@@ -16,8 +16,8 @@
       "id": "change-001",
       "operation": "add",
       "features_before": [],
-      "features_after": ["Replace with feature name"],
-      "description": "Replace with the intended feature-level change."
+      "features_after": ["TaskManager, TaskManagement, CreateTasks, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
+      "description": "Adds label management to the task manager, including creating labels, assigning labels to tasks, and persisting labels and their task assignments."
     }
   ],
   "ground_truth": "ground-truth"
