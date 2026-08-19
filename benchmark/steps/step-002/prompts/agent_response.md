@@ -330,3 +330,232 @@ Ok
 Changed files: src/main/java/MainController.java, src/main/java/Task.java, src/main/java/TaskService.java, src/main/java/JsonTaskPersistence.java.
 
 ─ Worked for 3m 43s ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+Add a status ﬁlter that can show all tasks, only open tasks, or only completed tasks.
+
+
+• Using Agent HAnS. I’ll re-check the repository and current feature model, reload the required feature/annotation skills, then add the status filter with annotated changes.
+
+• Ran git rev-parse --is-inside-work-tree
+└ true
+
+• Called agent-hans.get-feature-model({"projectPath":"D:\\Master\\Masterarbeit\\datasets-repos\\dataset-task-manager\\project"})
+└ TaskManager
+TaskManagement
+CreateTasks
+KeywordSearch
+Labels
+CreateLabels
+AssignTaskLabels
+PersistLabels
+
+
+• Ran Get-Content -Raw '.agents/skills/feature-model/SKILL.md'; Write-Output "`n---ANNOTATION---`n"; Get-Content -Raw '.agents/skills/embedded-feature-annotation/SKILL.md'
+└ ---
+name: feature-model-skill
+… +118 lines (ctrl + t to view transcript)
+}
+
+
+• Ran git status --short; Get-Content -Raw src/main/java/Task.java; Get-Content -Raw src/main/java/MainController.java
+└ public final class Task {
+private final String id;
+… +120 lines (ctrl + t to view transcript)
+}
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The current task model has no completion state, so I’ll add a persisted completed flag and a row-level completion toggle. The new status selector will combine with the existing keyword search, offering All, Open, and Completed
+views.
+
+• Edited 5 files (+78 -8)
+└ .feature-model (+1 -0)
+4          KeywordSearch
+5 +        StatusFilter
+6      Labels
+
+└ src\main\java\JsonTaskPersistence.java (+26 -1)
+36              else json.append('\"').append(escape(task.getLabelId())).append('\"');
+37 +            // &begin[StatusFilter]
+38 +            json.append(",\"completed\":").append(task.isCompleted());
+39 +            // &end[StatusFilter]
+40              json.append('}');
+⋮
+109                  String labelId = atString("null") ? readNull() : readString();
+110 +                // &begin[StatusFilter]
+111 +                boolean completed = false;
+112 +                if (at(',')) {
+113 +                    expect(',');
+114 +                    expectField("completed");
+115 +                    completed = readBoolean();
+116 +                }
+117 +                // &end[StatusFilter]
+118                  expect('}');
+108 -                result.add(new Task(id, title, description, labelId));
+119 +                result.add(new Task(id, title, description, labelId, completed));
+120                  consumeComma();
+⋮
+156          private String readNull() { position += 4; return null; }
+157 +        // &begin[StatusFilter]
+158 +        private boolean readBoolean() {
+159 +            skipWhitespace();
+160 +            if (json.startsWith("true", position)) {
+161 +                position += 4;
+162 +                return true;
+163 +            }
+164 +            if (json.startsWith("false", position)) {
+165 +                position += 5;
+166 +                return false;
+167 +            }
+168 +            throw new IllegalArgumentException();
+169 +        }
+170 +        // &end[StatusFilter]
+171          private boolean atString(String value) { skipWhitespace(); return json.startsWith(value, position); }
+
+└ src\main\java\MainController.java (+20 -5)
+3  import javafx.scene.control.Button;
+4 +import javafx.scene.control.ComboBox;
+5  import javafx.scene.control.Label;
+⋮
+46          FilteredList<Task> filteredTasks = new FilteredList<>(taskService.getTasks());
+46 -        searchInput.textProperty().addListener((observable, oldValue, newValue) -> {
+47 -            String keyword = newValue.trim().toLowerCase();
+48 -            filteredTasks.setPredicate(task -> keyword.isEmpty()
+47 +        // &begin[StatusFilter]
+48 +        ComboBox<String> statusFilter = new ComboBox<>();
+49 +        statusFilter.getItems().addAll("All tasks", "Open tasks", "Completed tasks");
+50 +        statusFilter.getSelectionModel().selectFirst();
+51 +        Runnable applyTaskFilters = () -> {
+52 +            String keyword = searchInput.getText().trim().toLowerCase();
+53 +            String status = statusFilter.getValue();
+54 +            filteredTasks.setPredicate(task -> (keyword.isEmpty()
+55                      || task.getTitle().toLowerCase().contains(keyword)
+50 -                    || task.getDescription().toLowerCase().contains(keyword));
+56 +                    || task.getDescription().toLowerCase().contains(keyword))
+57 +                    && (!"Open tasks".equals(status) || !task.isCompleted())
+58 +                    && (!"Completed tasks".equals(status) || task.isCompleted()));
+59 +        };
+60 +        statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> applyTaskFilters.run());
+61 +        // &end[StatusFilter]
+62 +        searchInput.textProperty().addListener((observable, oldValue, newValue) -> {
+63 +            applyTaskFilters.run();
+64          });
+⋮
+88          HBox.setHgrow(labelInput, Priority.ALWAYS);
+76 -        VBox content = new VBox(16, title, taskForm, searchInput, new Label("Labels"), labelForm, taskList); // &line[KeywordSearch]
+89 +        HBox taskFilters = new HBox(8, searchInput, statusFilter); // &line[StatusFilter]
+90 +        HBox.setHgrow(searchInput, Priority.ALWAYS);
+91 +        VBox content = new VBox(16, title, taskForm, taskFilters, new Label("Labels"), labelForm, taskList); // &line[KeywordSearch]
+92          content.setPadding(new Insets(24));
+
+└ src\main\java\Task.java (+20 -0)
+5      private String labelId;
+6 +    // &begin[StatusFilter]
+7 +    private boolean completed;
+8 +    // &end[StatusFilter]
+9
+⋮
+18      public Task(String id, String title, String description, String labelId) {
+19 +        this(id, title, description, labelId, false);
+20 +    }
+21 +
+22 +    // &begin[StatusFilter]
+23 +    public Task(String id, String title, String description, String labelId, boolean completed) {
+24          this.id = id;
+⋮
+27          this.labelId = labelId;
+28 +        this.completed = completed;
+29      }
+30 +    // &end[StatusFilter]
+31
+⋮
+47
+48 +    // &begin[StatusFilter]
+49 +    public boolean isCompleted() {
+50 +        return completed;
+51 +    }
+52 +
+53 +    public void setCompleted(boolean completed) {
+54 +        this.completed = completed;
+55 +    }
+56 +    // &end[StatusFilter]
+57 +
+58      public void setLabelId(String labelId) {
+
+└ src\main\java\TaskDialogController.java (+11 -2)
+3  import javafx.scene.control.ChoiceBox;
+4 +import javafx.scene.control.CheckBox;
+5  import javafx.scene.control.Label;
+⋮
+42          });
+42 -        HBox row = new HBox(12, taskTitle, selector);
+43 +        // &begin[StatusFilter]
+44 +        CheckBox completed = new CheckBox("Completed");
+45 +        completed.setSelected(task.isCompleted());
+46 +        completed.setOnAction(event -> {
+47 +            task.setCompleted(completed.isSelected());
+48 +            persistence.save(taskService, labelService);
+49 +        });
+50 +        // &end[StatusFilter]
+51 +        HBox row = new HBox(12, taskTitle, completed, selector); // &line[StatusFilter]
+52          row.setAlignment(Pos.CENTER_LEFT);
+⋮
+59      }
+51 -}
+60 +}
+
+• Ran git diff --check; git diff --stat; rg -n '&(begin|end|line)\[' src/main/java .feature-model; Get-Content -Raw src/main/java/Task.java
+└  project/.feature-model                          |  1 +
+project/src/main/java/JsonTaskPersistence.java  | 27 ++++++++++++++++++++++++-
+… +106 lines (ctrl + t to view transcript)
+warning: in the working copy of 'project/src/main/java/Task.java', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'project/src/main/java/TaskDialogController.java', LF will be replaced by CRLF the next time Git touches it
+
+• Edited src\main\java\MainController.java (+2 -2)
+46          FilteredList<Task> filteredTasks = new FilteredList<>(taskService.getTasks());
+47 +        // &end[KeywordSearch]
+48          // &begin[StatusFilter]
+⋮
+64              applyTaskFilters.run();
+64 -        });
+65 +        }); // &line[KeywordSearch]
+66          ListView<Task> taskList = new ListView<>(filteredTasks);
+66 -        // &end[KeywordSearch]
+67          taskList.setCellFactory(view -> new TaskDialogController(taskService, labelService, persistence));
+
+• Ran mvn test
+└ mvn : Die Benennung "mvn" wurde nicht als Name eines Cmdlet, einer Funktion, einer Skriptdatei oder eines ausführbaren
+Programms erkannt. Überprüfen Sie die Schreibweise des Namens, oder ob der Pfad korrekt ist (sofern enthalten), und
+… +5 lines (ctrl + t to view transcript)
++ FullyQualifiedErrorId : CommandNotFoundException
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The status filter is implemented and legacy task JSON remains readable because missing completion fields default to open. git diff --check is clean; Maven verification is still unavailable because mvn is not installed. I’m
+submitting the required Agent HAnS summary.
+
+
+• Called
+└ agent-hans.summary-gui({"projectPath":"D:\\Master\\Masterarbeit\\datasets-repos\\dataset-task-manager\\project","title":"Task Manager - Add status task filter","description":"Added a persisted task completion status, a row-
+level Completed toggle, and a status selector for All tasks, Open tasks, or Completed tasks. The status filter combines with keyword search and remains backward-compatible with older task files.","changedFiles":
+[".feature-model","src/main/java/MainController.java","src/main/java/Task.java","src/main/java/TaskDialogController.java","src/main/java/JsonTaskPersistence.java"],"featureChanges":
+[{"featureName":"StatusFilter","featurePath":["TaskManager","TaskManagement","StatusFilter"],"changeType":"added","changeDescription":"Users can mark tasks completed and filter the main task list to all, open, or
+completed tasks."},{"featureName":"TaskManagement","featurePath":["TaskManager","TaskManagement"],"changeType":"modified","changeDescription":"The main task list now combines status filtering with the existing task
+search."}]})
+Ok
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• Implemented the status filter.
+
+- Added All tasks, Open tasks, and Completed tasks options.
+- Added completion toggles to task rows.
+- Persisted completion status with backward compatibility.
+- Combined status filtering with keyword search.
+- Added and annotated the StatusFilter feature.
+- git diff --check passes.
+- Maven tests could not run because Maven is unavailable.
+
+─ Worked for 1m 42s ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

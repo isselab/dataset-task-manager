@@ -8,6 +8,10 @@
     {
       "order": 1,
       "path": "prompts/001.md"
+    },
+    {
+      "order": 1,
+      "path": "prompts/002.md"
     }
   ],
   "scenario_types": ["add"],
@@ -15,9 +19,16 @@
     {
       "id": "change-001",
       "operation": "add",
-      "features_before": ["TaskManager, TaskManagement, CreateTasks, KeywordSearch, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
-      "features_after": ["TaskManager, TaskManagement, CreateTasks, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
+      "features_before": ["TaskManager, TaskManagement, CreateTasks, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
+      "features_after": ["TaskManager, TaskManagement, CreateTasks, KeywordSearch, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
       "description": "Add keyword search"
+    },
+    {
+      "id": "change-002",
+      "operation": "add",
+      "features_before": ["TaskManager, TaskManagement, CreateTasks, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
+      "features_after": ["TaskManager, TaskManagement, CreateTasks, KeywordSearch, StatusFilter, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
+      "description": "Add status filter"
     }
   ],
   "ground_truth": "ground-truth"

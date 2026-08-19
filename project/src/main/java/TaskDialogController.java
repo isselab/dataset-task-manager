@@ -1,6 +1,7 @@
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
@@ -39,7 +40,15 @@ public final class TaskDialogController extends ListCell<Task> {
             persistence.save(taskService, labelService);
             updateItem(task, false);
         });
-        HBox row = new HBox(12, taskTitle, selector);
+        // &begin[StatusFilter]
+        CheckBox completed = new CheckBox("Completed");
+        completed.setSelected(task.isCompleted());
+        completed.setOnAction(event -> {
+            task.setCompleted(completed.isSelected());
+            persistence.save(taskService, labelService);
+        });
+        // &end[StatusFilter]
+        HBox row = new HBox(12, taskTitle, completed, selector);
         row.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(taskTitle, Priority.ALWAYS);
         setGraphic(row);

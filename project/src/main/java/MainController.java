@@ -1,6 +1,7 @@
 import javafx.geometry.Insets;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -43,14 +44,26 @@ public final class MainController {
         TextField searchInput = new TextField();
         searchInput.setPromptText("Search tasks by title or description");
         FilteredList<Task> filteredTasks = new FilteredList<>(taskService.getTasks());
-        searchInput.textProperty().addListener((observable, oldValue, newValue) -> {
-            String keyword = newValue.trim().toLowerCase();
-            filteredTasks.setPredicate(task -> keyword.isEmpty()
-                    || task.getTitle().toLowerCase().contains(keyword)
-                    || task.getDescription().toLowerCase().contains(keyword));
-        });
-        ListView<Task> taskList = new ListView<>(filteredTasks);
         // &end[KeywordSearch]
+        // &begin[StatusFilter]
+        ComboBox<String> statusFilter = new ComboBox<>();
+        statusFilter.getItems().addAll("All tasks", "Open tasks", "Completed tasks");
+        statusFilter.getSelectionModel().selectFirst();
+        Runnable applyTaskFilters = () -> {
+            String keyword = searchInput.getText().trim().toLowerCase();
+            String status = statusFilter.getValue();
+            filteredTasks.setPredicate(task -> (keyword.isEmpty()
+                    || task.getTitle().toLowerCase().contains(keyword)
+                    || task.getDescription().toLowerCase().contains(keyword))
+                    && (!"Open tasks".equals(status) || !task.isCompleted())
+                    && (!"Completed tasks".equals(status) || task.isCompleted()));
+        };
+        statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> applyTaskFilters.run());
+        searchInput.textProperty().addListener((observable, oldValue, newValue) -> {
+            applyTaskFilters.run();
+        });
+        // &end[StatusFilter]
+        ListView<Task> taskList = new ListView<>(filteredTasks);
         taskList.setCellFactory(view -> new TaskDialogController(taskService, labelService, persistence));
         VBox.setVgrow(taskList, Priority.ALWAYS);
 
@@ -73,7 +86,9 @@ public final class MainController {
         HBox.setHgrow(descriptionInput, Priority.ALWAYS);
         HBox labelForm = new HBox(8, labelInput, addLabel);
         HBox.setHgrow(labelInput, Priority.ALWAYS);
-        VBox content = new VBox(16, title, taskForm, searchInput, new Label("Labels"), labelForm, taskList); // &line[KeywordSearch]
+        HBox taskFilters = new HBox(8, searchInput, statusFilter); // &line[StatusFilter]
+        HBox.setHgrow(searchInput, Priority.ALWAYS);
+        VBox content = new VBox(16, title, taskForm, taskFilters, new Label("Labels"), labelForm, taskList); // &line[KeywordSearch]
         content.setPadding(new Insets(24));
         content.getStyleClass().add("app-root");
         return new BorderPane(content);

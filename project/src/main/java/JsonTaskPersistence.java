@@ -34,6 +34,7 @@ public final class JsonTaskPersistence {
                     .append(escape(task.getDescription())).append("\",\"labelId\":");
             if (task.getLabelId() == null) json.append("null");
             else json.append('\"').append(escape(task.getLabelId())).append('\"');
+            json.append(",\"completed\":").append(task.isCompleted());
             json.append('}');
         }
         json.append("]}");
@@ -104,8 +105,14 @@ public final class JsonTaskPersistence {
                 }
                 expectField("labelId");
                 String labelId = atString("null") ? readNull() : readString();
+                boolean completed = false;
+                if (at(',')) {
+                    expect(',');
+                    expectField("completed");
+                    completed = readBoolean();
+                }
                 expect('}');
-                result.add(new Task(id, title, description, labelId));
+                result.add(new Task(id, title, description, labelId, completed));
                 consumeComma();
             }
             return result;
@@ -143,6 +150,18 @@ public final class JsonTaskPersistence {
         }
 
         private String readNull() { position += 4; return null; }
+        private boolean readBoolean() {
+            skipWhitespace();
+            if (json.startsWith("true", position)) {
+                position += 4;
+                return true;
+            }
+            if (json.startsWith("false", position)) {
+                position += 5;
+                return false;
+            }
+            throw new IllegalArgumentException();
+        }
         private boolean atString(String value) { skipWhitespace(); return json.startsWith(value, position); }
         private boolean at(char character) { skipWhitespace(); return json.charAt(position) == character; }
         private void consumeComma() { skipWhitespace(); if (position < json.length() && json.charAt(position) == ',') position++; }

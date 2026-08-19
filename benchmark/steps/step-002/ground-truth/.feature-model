@@ -2,6 +2,7 @@ TaskManager
     TaskManagement
         CreateTasks
         KeywordSearch
+        StatusFilter
     Labels
         CreateLabels
         AssignTaskLabels
