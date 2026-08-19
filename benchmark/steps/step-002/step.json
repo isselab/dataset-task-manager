@@ -1,17 +1,13 @@
 {
   "$schema": "../../../schema/evolution-step.schema.json",
-  "id": "step-001",
-  "sequence": 1,
-  "before_version": "v000",
-  "after_version": "v001",
+  "id": "step-002",
+  "sequence": 2,
+  "before_version": "v001",
+  "after_version": "v002",
   "prompts": [
     {
       "order": 1,
       "path": "prompts/001.md"
-    },
-    {
-      "order": 2,
-      "path": "prompts/002.md"
     }
   ],
   "scenario_types": ["add"],
@@ -19,9 +15,9 @@
     {
       "id": "change-001",
       "operation": "add",
-      "features_before": [],
+      "features_before": ["TaskManager, TaskManagement, CreateTasks, KeywordSearch, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
       "features_after": ["TaskManager, TaskManagement, CreateTasks, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
-      "description": "Adds label management to the task manager, including creating labels, assigning labels to tasks, and persisting labels and their task assignments."
+      "description": "Add keyword search"
     }
   ],
   "ground_truth": "ground-truth"

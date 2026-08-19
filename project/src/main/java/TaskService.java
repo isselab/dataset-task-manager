@@ -13,7 +13,11 @@ public final class TaskService {
 
     // &begin[CreateTasks]
     public Task createTask(String title) {
-        Task task = new Task(UUID.randomUUID().toString(), title.trim());
+        return createTask(title, "");
+    }
+
+    public Task createTask(String title, String description) {
+        Task task = new Task(UUID.randomUUID().toString(), title.trim(), description == null ? "" : description.trim(), null);
         tasks.add(task);
         return task;
     }

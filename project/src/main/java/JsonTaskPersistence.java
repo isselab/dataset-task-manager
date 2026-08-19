@@ -30,7 +30,8 @@ public final class JsonTaskPersistence {
             if (i > 0) json.append(',');
             Task task = taskService.getTasks().get(i);
             json.append("{\"id\":\"").append(escape(task.getId())).append("\",\"title\":\"")
-                    .append(escape(task.getTitle())).append("\",\"labelId\":");
+                    .append(escape(task.getTitle())).append("\",\"description\":\"")
+                    .append(escape(task.getDescription())).append("\",\"labelId\":");
             if (task.getLabelId() == null) json.append("null");
             else json.append('\"').append(escape(task.getLabelId())).append('\"');
             json.append('}');
@@ -96,10 +97,15 @@ public final class JsonTaskPersistence {
                 expect(',');
                 String title = readStringField("title");
                 expect(',');
+                String description = "";
+                if (atString("\"description\"")) {
+                    description = readStringField("description");
+                    expect(',');
+                }
                 expectField("labelId");
                 String labelId = atString("null") ? readNull() : readString();
                 expect('}');
-                result.add(new Task(id, title, labelId));
+                result.add(new Task(id, title, description, labelId));
                 consumeComma();
             }
             return result;
