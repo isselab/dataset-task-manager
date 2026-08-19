@@ -1,3 +1,7 @@
+package service;
+
+import model.Label;
+import model.Task;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -23,7 +27,7 @@ public final class TaskService {
     }
     // &end[CreateTasks]
 
-    void restore(Task task) {
+    public void restore(Task task) {
         tasks.add(task);
     }
 

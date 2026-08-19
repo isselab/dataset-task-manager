@@ -1,3 +1,5 @@
+package model;
+
 public final class Task {
     private final String id;
     private final String title;

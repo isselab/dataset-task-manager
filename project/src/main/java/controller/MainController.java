@@ -1,3 +1,9 @@
+package controller;
+
+import model.Task;
+import persistence.JsonTaskPersistence;
+import service.LabelService;
+import service.TaskService;
 import javafx.geometry.Insets;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.Button;

@@ -1,3 +1,9 @@
+package controller;
+
+import model.Task;
+import persistence.JsonTaskPersistence;
+import service.LabelService;
+import service.TaskService;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.ChoiceBox;
