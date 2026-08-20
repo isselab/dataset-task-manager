@@ -8,6 +8,7 @@ import javafx.geometry.Insets;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -76,9 +77,10 @@ public final class MainController {
         // &begin[CreateLabels]
         TextField labelInput = new TextField();
         labelInput.setPromptText("New label");
+        ColorPicker labelColor = new ColorPicker(javafx.scene.paint.Color.web("#4f46e5"));
         Button addLabel = new Button("Create label");
         addLabel.setOnAction(event -> {
-            if (labelService.createLabel(labelInput.getText()) != null) {
+            if (labelService.createLabel(labelInput.getText(), labelColor.getValue().toString()) != null) {
                 labelInput.clear();
                 persistence.save(taskService, labelService);
                 taskList.refresh();
@@ -90,7 +92,7 @@ public final class MainController {
         HBox taskForm = new HBox(8, taskInput, descriptionInput, addTask); // &line[CreateTasks]
         HBox.setHgrow(taskInput, Priority.ALWAYS);
         HBox.setHgrow(descriptionInput, Priority.ALWAYS);
-        HBox labelForm = new HBox(8, labelInput, addLabel);
+        HBox labelForm = new HBox(8, labelInput, labelColor, addLabel);
         HBox.setHgrow(labelInput, Priority.ALWAYS);
         HBox taskFilters = new HBox(8, searchInput, statusFilter); // &line[StatusFilter]
         HBox.setHgrow(searchInput, Priority.ALWAYS);

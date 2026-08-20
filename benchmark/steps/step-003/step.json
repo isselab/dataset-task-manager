@@ -1,0 +1,28 @@
+{
+  "$schema": "../../../schema/evolution-step.schema.json",
+  "id": "step-003",
+  "sequence": 3,
+  "before_version": "v002",
+  "after_version": "v003",
+  "prompts": [
+    {
+      "order": 1,
+      "path": "prompts/001.md"
+    },
+    {
+      "order": 2,
+      "path": "prompts/002.md"
+    }
+  ],
+  "scenario_types": ["add"],
+  "expected_changes": [
+    {
+      "id": "change-001",
+      "operation": "add",
+      "features_before": ["TaskManager, TaskManagement, CreateTasks, KeywordSearch, StatusFilter, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
+      "features_after": ["TaskManager, TaskManagement, CreateTasks, KeywordSearch, StatusFilter, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
+      "description": "Add label colors and enable multiple selection"
+    }
+  ],
+  "ground_truth": "ground-truth"
+}

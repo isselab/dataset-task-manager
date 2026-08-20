@@ -33,11 +33,11 @@ public final class TaskService {
 
     // &begin[AssignTaskLabels]
     public void assignLabel(Task task, Label label) {
-        task.setLabelId(label == null ? null : label.id());
+        if (label != null) task.addLabelId(label.id());
+    }
+
+    public void removeLabel(Task task, Label label) {
+        if (label != null) task.removeLabelId(label.id());
     }
     // &end[AssignTaskLabels]
-
-    public void removeLabel(Task task) {
-        task.setLabelId(null);
-    }
 }

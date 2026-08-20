@@ -29,7 +29,8 @@ public final class JsonTaskPersistence {
             if (i > 0) json.append(',');
             Label label = labelService.getLabels().get(i);
             json.append("{\"id\":\"").append(escape(label.id())).append("\",\"name\":\"")
-                    .append(escape(label.name())).append("\"}");
+                    .append(escape(label.name())).append("\",\"color\":\"")
+                    .append(escape(label.color())).append("\"}");
         }
         json.append("],\"tasks\":[");
         for (int i = 0; i < taskService.getTasks().size(); i++) {
@@ -37,9 +38,12 @@ public final class JsonTaskPersistence {
             Task task = taskService.getTasks().get(i);
             json.append("{\"id\":\"").append(escape(task.getId())).append("\",\"title\":\"")
                     .append(escape(task.getTitle())).append("\",\"description\":\"")
-                    .append(escape(task.getDescription())).append("\",\"labelId\":");
-            if (task.getLabelId() == null) json.append("null");
-            else json.append('\"').append(escape(task.getLabelId())).append('\"');
+                    .append(escape(task.getDescription())).append("\",\"labelIds\":[");
+            for (int labelIndex = 0; labelIndex < task.getLabelIds().size(); labelIndex++) {
+                if (labelIndex > 0) json.append(',');
+                json.append('\"').append(escape(task.getLabelIds().get(labelIndex))).append('\"');
+            }
+            json.append(']');
             json.append(",\"completed\":").append(task.isCompleted());
             json.append('}');
         }
@@ -77,6 +81,7 @@ public final class JsonTaskPersistence {
 
         private JsonReader(String json) { this.json = json; }
 
+
         private List<Label> readLabels() {
             position = json.indexOf("\"labels\"");
             if (position < 0) throw new IllegalArgumentException();
@@ -87,8 +92,13 @@ public final class JsonTaskPersistence {
                 String id = readStringField("id");
                 expect(',');
                 String name = readStringField("name");
+                String color = "#4f46e5";
+                if (at(',')) {
+                    expect(',');
+                    color = readStringField("color");
+                }
                 expect('}');
-                result.add(new Label(id, name));
+                result.add(new Label(id, name, color));
                 consumeComma();
             }
             return result;
@@ -109,8 +119,15 @@ public final class JsonTaskPersistence {
                     description = readStringField("description");
                     expect(',');
                 }
-                expectField("labelId");
-                String labelId = atString("null") ? readNull() : readString();
+                List<String> labelIds;
+                if (atString("\"labelIds\"")) {
+                    expectField("labelIds");
+                    labelIds = readStringArray();
+                } else {
+                    expectField("labelId");
+                    String legacyLabelId = atString("null") ? readNull() : readString();
+                    labelIds = legacyLabelId == null ? List.of() : List.of(legacyLabelId);
+                }
                 boolean completed = false;
                 if (at(',')) {
                     expect(',');
@@ -118,7 +135,7 @@ public final class JsonTaskPersistence {
                     completed = readBoolean();
                 }
                 expect('}');
-                result.add(new Task(id, title, description, labelId, completed));
+                result.add(new Task(id, title, description, labelIds, completed));
                 consumeComma();
             }
             return result;
@@ -127,6 +144,17 @@ public final class JsonTaskPersistence {
         private String readStringField(String field) {
             expectField(field);
             return readString();
+        }
+
+        private List<String> readStringArray() {
+            expect('[');
+            List<String> values = new ArrayList<>();
+            while (!at(']')) {
+                values.add(readString());
+                consumeComma();
+            }
+            expect(']');
+            return values;
         }
 
         private void expectField(String field) {
