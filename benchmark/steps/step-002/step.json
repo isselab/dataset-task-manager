@@ -18,27 +18,27 @@
       "path": "prompts/003.md"
     }
   ],
-  "scenario_types": ["add"],
+  "scenario_types": ["add", "relocate"],
   "expected_changes": [
     {
       "id": "change-001",
       "operation": "add",
-      "features_before": ["TaskManager, TaskManagement, CreateTasks, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
-      "features_after": ["TaskManager, TaskManagement, CreateTasks, KeywordSearch, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
+      "features_before": [],
+      "features_after": ["KeywordSearch"],
       "description": "Add keyword search"
     },
     {
       "id": "change-002",
       "operation": "add",
-      "features_before": ["TaskManager, TaskManagement, CreateTasks, KeywordSearch, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
-      "features_after": ["TaskManager, TaskManagement, CreateTasks, KeywordSearch, StatusFilter, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
+      "features_before": [],
+      "features_after": ["StatusFilter"],
       "description": "Add status filter"
     },
     {
       "id": "change-003",
       "operation": "relocate",
-      "features_before": ["TaskManager, TaskManagement, CreateTasks, KeywordSearch, StatusFilter, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
-      "features_after": ["TaskManager, TaskManagement, CreateTasks, KeywordSearch, StatusFilter, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
+      "features_before": ["TaskManager"],
+      "features_after": ["TaskManager"],
       "description": "Relocate project structure"
     }
   ],

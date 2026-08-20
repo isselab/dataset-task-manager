@@ -14,13 +14,13 @@
       "path": "prompts/002.md"
     }
   ],
-  "scenario_types": ["add"],
+  "scenario_types": ["modify"],
   "expected_changes": [
     {
       "id": "change-001",
-      "operation": "add",
-      "features_before": ["TaskManager, TaskManagement, CreateTasks, KeywordSearch, StatusFilter, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
-      "features_after": ["TaskManager, TaskManagement, CreateTasks, KeywordSearch, StatusFilter, Labels, CreateLabels, AssignTaskLabels, PersistLabels"],
+      "operation": "modify",
+      "features_before": ["AssignTaskLabels", "Labels"],
+      "features_after": ["AssignTaskLabels", "Labels"],
       "description": "Add label colors and enable multiple selection"
     }
   ],
