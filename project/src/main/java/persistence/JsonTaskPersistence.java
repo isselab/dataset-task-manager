@@ -2,6 +2,7 @@ package persistence;
 
 import model.Label;
 import model.Task;
+import model.TaskPriority;
 import service.LabelService;
 import service.TaskService;
 import java.io.IOException;
@@ -38,7 +39,8 @@ public final class JsonTaskPersistence {
             Task task = taskService.getTasks().get(i);
             json.append("{\"id\":\"").append(escape(task.getId())).append("\",\"title\":\"")
                     .append(escape(task.getTitle())).append("\",\"description\":\"")
-                    .append(escape(task.getDescription())).append("\",\"labelIds\":[");
+                    .append(escape(task.getDescription())).append("\",\"priority\":\"")
+                    .append(task.getPriority().name()).append("\",\"labelIds\":[");
             for (int labelIndex = 0; labelIndex < task.getLabelIds().size(); labelIndex++) {
                 if (labelIndex > 0) json.append(',');
                 json.append('\"').append(escape(task.getLabelIds().get(labelIndex))).append('\"');
@@ -119,6 +121,11 @@ public final class JsonTaskPersistence {
                     description = readStringField("description");
                     expect(',');
                 }
+                TaskPriority priority = TaskPriority.MEDIUM;
+                if (atString("\"priority\"")) {
+                    priority = TaskPriority.valueOf(readStringField("priority"));
+                    expect(',');
+                }
                 List<String> labelIds;
                 if (atString("\"labelIds\"")) {
                     expectField("labelIds");
@@ -135,7 +142,7 @@ public final class JsonTaskPersistence {
                     completed = readBoolean();
                 }
                 expect('}');
-                result.add(new Task(id, title, description, labelIds, completed));
+                result.add(new Task(id, title, description, labelIds, completed, priority)); // &line[TaskPriority]
                 consumeComma();
             }
             return result;

@@ -1,6 +1,7 @@
 package controller;
 
 import model.Task;
+import model.TaskPriority;
 import persistence.JsonTaskPersistence;
 import service.LabelService;
 import service.TaskService;
@@ -37,6 +38,15 @@ public final class TaskDialogController extends ListCell<Task> {
         }
         Label taskTitle = new Label(task.getTitle());
         taskTitle.getStyleClass().add("task-title");
+        // &begin[TaskPriority]
+        ChoiceBox<TaskPriority> prioritySelector = new ChoiceBox<>();
+        prioritySelector.getItems().addAll(TaskPriority.values());
+        prioritySelector.setValue(task.getPriority());
+        prioritySelector.setOnAction(event -> {
+            task.setPriority(prioritySelector.getValue());
+            persistence.save(taskService, labelService);
+        });
+        // &end[TaskPriority]
         // &begin[AssignTaskLabels]
         ChoiceBox<LabelOption> selector = new ChoiceBox<>();
         selector.getItems().add(new LabelOption(null, "Add label..."));
@@ -70,7 +80,7 @@ public final class TaskDialogController extends ListCell<Task> {
         });
         // &end[StatusFilter]
         VBox labels = new VBox(4, labelChips, selector);
-        HBox row = new HBox(12, taskTitle, completed, labels);
+        HBox row = new HBox(12, taskTitle, prioritySelector, completed, labels); // &line[TaskPriority]
         row.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(taskTitle, Priority.ALWAYS);
         setGraphic(row);
@@ -92,4 +102,3 @@ public final class TaskDialogController extends ListCell<Task> {
         }
     }
 }
-

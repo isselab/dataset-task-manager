@@ -2,6 +2,7 @@ package service;
 
 import model.Label;
 import model.Task;
+import model.TaskPriority;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -21,7 +22,8 @@ public final class TaskService {
     }
 
     public Task createTask(String title, String description) {
-        Task task = new Task(UUID.randomUUID().toString(), title.trim(), description == null ? "" : description.trim(), null);
+        Task task = new Task(UUID.randomUUID().toString(), title.trim(), description == null ? "" : description.trim(),
+                null, false, TaskPriority.MEDIUM); // &line[TaskPriority]
         tasks.add(task);
         return task;
     }

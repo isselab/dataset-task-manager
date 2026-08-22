@@ -1,0 +1,24 @@
+{
+  "$schema": "../../../schema/evolution-step.schema.json",
+  "id": "step-004",
+  "sequence": 3,
+  "before_version": "v003",
+  "after_version": "v004",
+  "prompts": [
+    {
+      "order": 1,
+      "path": "prompts/001.md"
+    }
+  ],
+  "scenario_types": ["add"],
+  "expected_changes": [
+    {
+      "id": "change-001",
+      "operation": "add",
+      "features_before": [],
+      "features_after": ["TaskPriority"],
+      "description": "Add priorities to tasks"
+    }
+  ],
+  "ground_truth": "ground-truth"
+}
