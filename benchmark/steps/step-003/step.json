@@ -12,9 +12,13 @@
     {
       "order": 2,
       "path": "prompts/002.md"
+    },
+    {
+      "order": 3,
+      "path": "prompts/003.md"
     }
   ],
-  "scenario_types": ["modify"],
+  "scenario_types": ["modify", "add"],
   "expected_changes": [
     {
       "id": "change-001",
@@ -22,6 +26,13 @@
       "features_before": ["AssignTaskLabels", "Labels"],
       "features_after": ["AssignTaskLabels", "Labels"],
       "description": "Add label colors and enable multiple selection"
+    },
+    {
+      "id": "change-002",
+      "operation": "add",
+      "features_before": [],
+      "features_after": ["RenameLabels", "RemoveLabels"],
+      "description": "Add rename and delete options to labels"
     }
   ],
   "ground_truth": "ground-truth"

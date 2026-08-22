@@ -583,3 +583,273 @@ Ok
 - Agent HAnS summary recorded.
 
 ─ Worked for 1m 42s ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+Users must be able to rename and delete labels. Renaming a label must update every task that uses it. Deleting
+a label must remove that label from all tasks but must never delete the tasks themselves. Existing saved data from the previous version should still
+load correctly.
+
+
+• Using Agent HAnS. I’ll inspect the repository state first, then load the current feature model and the required feature/annotation instructions before changing anything.
+
+• Ran git rev-parse --is-inside-work-tree
+└ true
+
+• Called agent-hans.get-feature-model({"projectPath":"D:\\Master\\Masterarbeit\\datasets-repos\\dataset-task-manager\\project"})
+└ TaskManager
+TaskManagement
+CreateTasks
+KeywordSearch
+StatusFilter
+Labels
+CreateLabels
+AssignTaskLabels
+PersistLabels
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The project is a Git repository, and the current feature model includes task management plus label creation, assignment, and persistence. I’m now loading the feature-model and embedded-annotation guidance required before
+inspecting or editing implementation files.
+
+• Ran Get-Content -Raw 'D:\Master\Masterarbeit\datasets-repos\dataset-task-manager\project\.agents\skills\feature-model\SKILL.md'
+└ ---
+name: feature-model-skill
+… +37 lines (ctrl + t to view transcript)
+When removing the Authentication feature, the usual rule is to not touch other feature annotations, but in this case, it can be inferred that this line is highly linked to authentication and can therefore also be removed.
+
+
+• Ran Get-Content -Raw 'D:\Master\Masterarbeit\datasets-repos\dataset-task-manager\project\.agents\skills\embedded-feature-annotation\SKILL.md'
+└ ---
+name: embedded-feature-annotation-skill
+… +75 lines (ctrl + t to view transcript)
+}
+
+
+• Ran rg --files -g '!node_modules' -g '!dist' -g '!build'
+└ pom.xml
+AGENTS.md
+… +8 lines (ctrl + t to view transcript)
+src\main\java\controller\MainController.java
+src\main\java\app\TaskManagerApplication.java
+
+• Ran Get-ChildItem -Recurse -File | Where-Object { $_.FullName -notmatch '\\.git\\' } | Select-String -Pattern '&begin|&end|&line|class |label|Label|Task' | Select-Object -First 240
+└
+.feature-model:1:TaskManager
+… +265 lines (ctrl + t to view transcript)
+
+
+
+• Ran Get-Content -Raw src\main\java\model\Task.java; Get-Content -Raw src\main\java\model\Label.java; Get-Content -Raw src\main\java\service\LabelService.java; Get-Content -Raw src\main\java\service\TaskService.java;
+│ Get-Content -Raw src\main\java\persistence\JsonTaskPersistence.java
+└ package model;
+
+    … +363 lines (ctrl + t to view transcript)
+    }
+
+
+• Ran Get-Content -Raw src\main\java\controller\MainController.java; Get-Content -Raw src\main\java\controller\TaskDialogController.java; Get-Content -Raw src\main\resources\taskmanager\styles.css; Get-Content -Raw pom.xml
+└ package controller;
+
+    … +262 lines (ctrl + t to view transcript)
+    </project>
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The existing app stores task label IDs, already supports legacy labelId task data, and renders labels inline with each task. I’ll add explicit rename/delete label features, centralize their task-reference updates in the label
+service, and add label-management controls while preserving the existing persistence fallback behavior.
+
+• Ran git status --short
+└ (no output)
+
+• Edited 2 files (+30 -0)
+└ .feature-model (+2 -0)
+7          CreateLabels
+8 +        RenameLabels
+9 +        DeleteLabels
+10          AssignTaskLabels
+
+└ src\main\java\service\LabelService.java (+28 -0)
+3  import model.Label;
+4 +import model.Task;
+5  import javafx.collections.FXCollections;
+⋮
+15      }
+16 +
+17      // &begin[CreateLabels]
+⋮
+32
+33 +    // &begin[RenameLabels]
+34 +    public boolean renameLabel(Label label, String name, ObservableList<Task> tasks) {
+35 +        if (label == null || name == null) return false;
+36 +        String normalized = name.trim();
+37 +        if (normalized.isEmpty() || labels.stream()
+38 +                .anyMatch(existing -> existing != label && existing.name().equalsIgnoreCase(normalized))) {
+39 +            return false;
+40 +        }
+41 +        Label renamed = new Label(label.id(), normalized, label.color());
+42 +        int index = labels.indexOf(label);
+43 +        if (index < 0) return false;
+44 +        labels.set(index, renamed);
+45 +        return true;
+46 +    }
+47 +    // &end[RenameLabels]
+48 +
+49 +    // &begin[DeleteLabels]
+50 +    public boolean deleteLabel(Label label, ObservableList<Task> tasks) {
+51 +        if (label == null || !labels.remove(label)) return false;
+52 +        if (tasks != null) {
+53 +            tasks.forEach(task -> task.removeLabelId(label.id()));
+54 +        }
+55 +        return true;
+56 +    }
+57 +    // &end[DeleteLabels]
+58 +
+59      public void restore(Label label) {
+
+• Edited src\main\java\controller\MainController.java (+41 -1)
+13  import javafx.scene.control.ListView;
+14 +import javafx.scene.control.ListCell;
+15  import javafx.scene.control.TextField;
+⋮
+92
+93 +        // &begin[RenameLabels]
+94 +        ListView<model.Label> labelList = new ListView<>(labelService.getLabels());
+95 +        labelList.setPlaceholder(new Label("No labels"));
+96 +        labelList.setCellFactory(view -> new ListCell<>() {
+97 +            @Override
+98 +            protected void updateItem(model.Label label, boolean empty) {
+99 +                super.updateItem(label, empty);
+100 +                if (empty || label == null) {
+101 +                    setGraphic(null);
+102 +                    return;
+103 +                }
+104 +                TextField nameInput = new TextField(label.name());
+105 +                Button rename = new Button("Rename");
+106 +                rename.setOnAction(event -> {
+107 +                    if (labelService.renameLabel(label, nameInput.getText(), taskService.getTasks())) {
+108 +                        persistence.save(taskService, labelService);
+109 +                        labelList.refresh();
+110 +                        taskList.refresh();
+111 +                    }
+112 +                });
+113 +                Button delete = new Button("Delete");
+114 +                delete.setOnAction(event -> {
+115 +                    if (labelService.deleteLabel(label, taskService.getTasks())) {
+116 +                        persistence.save(taskService, labelService);
+117 +                        taskList.refresh();
+118 +                    }
+119 +                });
+120 +                HBox row = new HBox(8, nameInput, rename, delete);
+121 +                HBox.setHgrow(nameInput, Priority.ALWAYS);
+122 +                setGraphic(row);
+123 +            }
+124 +        });
+125 +        labelList.setPrefHeight(120);
+126 +        // &end[RenameLabels]
+127 +
+128 +        // &begin[DeleteLabels]
+129 +        labelList.setOnMouseClicked(event -> labelList.refresh());
+130 +        // &end[DeleteLabels]
+131 +
+132          HBox taskForm = new HBox(8, taskInput, descriptionInput, addTask); // &line[CreateTasks]
+⋮
+138          HBox.setHgrow(searchInput, Priority.ALWAYS);
+99 -        VBox content = new VBox(16, title, taskForm, taskFilters, new Label("Labels"), labelForm, taskList); // &line[KeywordSearch]
+139 +        VBox content = new VBox(16, title, taskForm, taskFilters, new Label("Labels"), labelForm, labelList, taskList); // &line[KeywordSearch]
+140          content.setPadding(new Insets(24));
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The implementation now has model-level rename/delete operations and visible controls for each label. Renaming preserves the label ID, so every task reference automatically points to the renamed label; deleting removes that ID
+from all tasks and leaves the task objects untouched. I’m checking the diff and compiling next.
+
+• Ran git diff -- .feature-model src/main/java/service/LabelService.java src/main/java/controller/MainController.java; mvn test
+└ diff --git a/project/.feature-model b/project/.feature-model
+index ec67545..a776933 100644
+… +140 lines (ctrl + t to view transcript)
++ FullyQualifiedErrorId : CommandNotFoundException
+
+
+• Edited src\main\java\controller\MainController.java (+2 -6)
+112                  });
+113 -                Button delete = new Button("Delete");
+114 -                delete.setOnAction(event -> {
+113 +                Button delete = new Button("Delete"); // &line[DeleteLabels]
+114 +                delete.setOnAction(event -> { // &line[DeleteLabels]
+115                      if (labelService.deleteLabel(label, taskService.getTasks())) {
+⋮
+126          // &end[RenameLabels]
+127 -
+128 -        // &begin[DeleteLabels]
+129 -        labelList.setOnMouseClicked(event -> labelList.refresh());
+130 -        // &end[DeleteLabels]
+127
+
+• Ran Get-Command java,javac,mvn,mvnw -ErrorAction SilentlyContinue | Select-Object Name,Source; git diff --check; git status --short
+└
+M .feature-model
+… +9 lines (ctrl + t to view transcript)
+warning: in the working copy of 'project/src/main/java/controller/MainController.java', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'project/src/main/java/service/LabelService.java', LF will be replaced by CRLF the next time Git touches it
+
+• Edited 2 files (+2 -2)
+└ src\main\java\controller\MainController.java (+1 -1)
+13  import javafx.scene.control.ListView;
+14 -import javafx.scene.control.ListCell;
+14 +import javafx.scene.control.ListCell; // &line[RenameLabels]
+15  import javafx.scene.control.TextField;
+
+└ src\main\java\service\LabelService.java (+1 -1)
+3  import model.Label;
+4 -import model.Task;
+4 +import model.Task; // &line[RenameLabels]
+5  import javafx.collections.FXCollections;
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• Compilation couldn’t be run because Maven is not installed in the environment; Java itself is available. I’ve still run whitespace checks and am doing a final annotation/feature-model verification, then I’ll report the exact
+changed files and validation status.
+
+• Ran $features = (Get-Content .feature-model | Where-Object { $_.Trim() -and $_ -notmatch '^\s*#' } | ForEach-Object { $_.Trim() }); $annotations = (rg -o '&(?:begin|end|line)\[[A-Za-z0-9]+\]' src | ForEach-Object { $_ -replace
+│ '.*\[','' -replace '\]$','' } | Sort-Object -Unique); 'Feature model:'; $features; 'Annotations:'; $annotations; 'Unknown annotations:'; Compare-Object -ReferenceObject $features -DifferenceObject $annotations -PassThru |
+│ Where-Object { $_ -in $annotations }; git diff --check; git diff --stat
+└ Feature model:
+TaskManager
+… +28 lines (ctrl + t to view transcript)
+warning: in the working copy of 'project/src/main/java/controller/MainController.java', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'project/src/main/java/service/LabelService.java', LF will be replaced by CRLF the next time Git touches it
+
+
+• Called
+└ agent-hans.summary-gui({"projectPath":"D:\\Master\\Masterarbeit\\datasets-repos\\dataset-task-manager\\project","title":"Task Manager - Add label rename and deletion","description":"Added label rename and deletion. Renaming
+preserves label IDs so all task references resolve to the new name; deletion removes the label ID from every task without deleting tasks. Existing legacy labelId persistence loading remains supported.","changedFiles":
+[".feature-model","src/main/java/controller/MainController.java","src/main/java/service/LabelService.java"],"featureChanges":[{"featureName":"Labels","featurePath":
+["TaskManager","Labels"],"changeType":"modified","changeDescription":"Extended label management with rename and delete operations."},{"featureName":"RenameLabels","featurePath":
+["TaskManager","Labels","RenameLabels"],"changeType":"added","changeDescription":"Users can rename labels while preserving task references."},{"featureName":"DeleteLabels","featurePath":
+["TaskManager","Labels","DeleteLabels"],"changeType":"added","changeDescription":"Users can delete labels and remove them from tasks without deleting tasks."}]})
+Ok
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• Using Agent HAnS.
+
+Implemented:
+
+- Added label rename and delete features.
+- Renaming preserves IDs, so all task references remain valid.
+- Deleting removes the label from tasks without deleting tasks.
+- Added UI controls for renaming/deleting labels.
+- Preserved legacy saved-data loading.
+- Added feature annotations and updated the feature model.
+
+Changed files:
+
+- .feature-model
+- src/main/java/service/LabelService.java
+- src/main/java/controller/MainController.java
+
+git diff --check passed. Maven tests could not run because Maven is not installed.
+
+─ Worked for 3m 27s ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

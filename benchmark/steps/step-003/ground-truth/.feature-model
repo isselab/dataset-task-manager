@@ -5,5 +5,7 @@ TaskManager
         StatusFilter
     Labels
         CreateLabels
+        RenameLabels
+        DeleteLabels
         AssignTaskLabels
         PersistLabels

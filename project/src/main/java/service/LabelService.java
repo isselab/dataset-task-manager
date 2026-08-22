@@ -1,6 +1,7 @@
 package service;
 
 import model.Label;
+import model.Task; // &line[RenameLabels]
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -12,6 +13,7 @@ public final class LabelService {
     public ObservableList<Label> getLabels() {
         return labels;
     }
+
     // &begin[CreateLabels]
     public Label createLabel(String name) {
         return createLabel(name, "#4f46e5");
@@ -27,6 +29,32 @@ public final class LabelService {
         return label;
     }
     // &end[CreateLabels]
+
+    // &begin[RenameLabels]
+    public boolean renameLabel(Label label, String name, ObservableList<Task> tasks) {
+        if (label == null || name == null) return false;
+        String normalized = name.trim();
+        if (normalized.isEmpty() || labels.stream()
+                .anyMatch(existing -> existing != label && existing.name().equalsIgnoreCase(normalized))) {
+            return false;
+        }
+        Label renamed = new Label(label.id(), normalized, label.color());
+        int index = labels.indexOf(label);
+        if (index < 0) return false;
+        labels.set(index, renamed);
+        return true;
+    }
+    // &end[RenameLabels]
+
+    // &begin[DeleteLabels]
+    public boolean deleteLabel(Label label, ObservableList<Task> tasks) {
+        if (label == null || !labels.remove(label)) return false;
+        if (tasks != null) {
+            tasks.forEach(task -> task.removeLabelId(label.id()));
+        }
+        return true;
+    }
+    // &end[DeleteLabels]
 
     public void restore(Label label) {
         labels.add(label);
