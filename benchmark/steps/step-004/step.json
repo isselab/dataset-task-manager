@@ -8,6 +8,10 @@
     {
       "order": 1,
       "path": "prompts/001.md"
+    },
+    {
+      "order": 2,
+      "path": "prompts/002.md"
     }
   ],
   "scenario_types": ["add"],
@@ -18,6 +22,13 @@
       "features_before": [],
       "features_after": ["TaskPriority"],
       "description": "Add priorities to tasks"
+    },
+    {
+      "id": "change-002",
+      "operation": "modify",
+      "features_before": ["TaskPriority"],
+      "features_after": ["TaskPriority"],
+      "description": "Modify priority listing"
     }
   ],
   "ground_truth": "ground-truth"

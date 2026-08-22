@@ -33,6 +33,11 @@ public final class TaskService {
         tasks.add(task);
     }
 
+    public void refreshTask(Task task) {
+        int index = tasks.indexOf(task);
+        if (index >= 0) tasks.set(index, task);
+    }
+
     // &begin[AssignTaskLabels]
     public void assignLabel(Task task, Label label) {
         if (label != null) task.addLabelId(label.id());

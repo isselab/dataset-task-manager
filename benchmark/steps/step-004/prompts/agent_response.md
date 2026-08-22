@@ -777,3 +777,154 @@ Key files: src/main/java/model/Task.java, src/main/java/model/TaskPriority.java,
 Maven was unavailable in the environment, so the build could not be executed.
 
 ─ Worked for 6m 05s ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+In the normal task list and in search or ﬁltered results, open tasks should be ordered by priority from HIGH to LOW
+while completed tasks remain below open tasks. Priority must be persisted between application restarts.
+
+
+• Using Agent HAnS. I’ll verify the repository state, reload the feature model and annotation guidance, then update task ordering and persistence while preserving the existing priority behavior.
+
+• Ran git rev-parse --is-inside-work-tree; git status --short
+└ true
+
+• Called agent-hans.get-feature-model({"projectPath":"D:\\Master\\Masterarbeit\\datasets-repos\\dataset-task-manager\\project"})
+└ TaskManager
+TaskManagement
+CreateTasks
+TaskPriority
+KeywordSearch
+StatusFilter
+Labels
+CreateLabels
+RenameLabels
+DeleteLabels
+AssignTaskLabels
+PersistLabels
+
+
+• Ran Get-Content -Raw .agents/skills/feature-model/SKILL.md; "`n---ANNOTATION---`n"; Get-Content -Raw .agents/skills/embedded-feature-annotation/SKILL.md; "`n---FEATURE MODEL---`n"; Get-Content -Raw .feature-model
+└ ---
+name: feature-model-skill
+… +134 lines (ctrl + t to view transcript)
+PersistLabels
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The existing TaskPriority feature already covers the requested behavior, so no feature-model addition is needed. I’ll add a stable sorted view after filtering—completed status first, then priority HIGH→LOW—and ensure priority
+edits notify the observable task list so the row reorders immediately and the saved value remains durable.
+
+• Ran Get-Content -Raw src/main/java/controller/MainController.java; "`n--- DIALOG ---"; Get-Content -Raw src/main/java/controller/TaskDialogController.java; "`n--- SERVICE ---"; Get-Content -Raw src/main/java/service/
+│ TaskService.java; "`n--- PERSISTENCE PRIORITY ---"; rg -n -C 3 "priority|TaskPriority" src/main/java/persistence/JsonTaskPersistence.java src/main/java/model/Task.java
+└ package controller;
+
+    … +382 lines (ctrl + t to view transcript)
+    src/main/java/persistence/JsonTaskPersistence.java-147-            }
+    src/main/java/persistence/JsonTaskPersistence.java-148-            return result;
+
+• Edited 3 files (+18 -1)
+└ src\main\java\controller\MainController.java (+9 -1)
+3  import model.Task;
+4 +import model.TaskPriority; // &line[TaskPriority]
+5  import persistence.JsonTaskPersistence;
+⋮
+9  import javafx.collections.transformation.FilteredList;
+10 +import javafx.collections.transformation.SortedList; // &line[TaskPriority]
+11  import javafx.scene.control.Button;
+⋮
+21  import javafx.scene.layout.VBox;
+22 +import java.util.Comparator; // &line[TaskPriority]
+23
+⋮
+76          // &end[StatusFilter]
+74 -        ListView<Task> taskList = new ListView<>(filteredTasks);
+77 +        // &begin[TaskPriority]
+78 +        SortedList<Task> sortedTasks = new SortedList<>(filteredTasks);
+79 +        sortedTasks.setComparator(Comparator.comparing(Task::isCompleted)
+80 +                .thenComparing(Task::getPriority, Comparator.reverseOrder()));
+81 +        // &end[TaskPriority]
+82 +        ListView<Task> taskList = new ListView<>(sortedTasks);
+83          taskList.setCellFactory(view -> new TaskDialogController(taskService, labelService, persistence));
+
+└ src\main\java\controller\TaskDialogController.java (+2 -0)
+46              task.setPriority(prioritySelector.getValue());
+47 +            taskService.refreshTask(task);
+48              persistence.save(taskService, labelService);
+⋮
+79              task.setCompleted(completed.isSelected());
+80 +            taskService.refreshTask(task);
+81              persistence.save(taskService, labelService);
+
+└ src\main\java\service\TaskService.java (+7 -0)
+35
+36 +    // &begin[TaskPriority]
+37 +    public void refreshTask(Task task) {
+38 +        int index = tasks.indexOf(task);
+39 +        if (index >= 0) tasks.set(index, task);
+40 +    }
+41 +    // &end[TaskPriority]
+42 +
+43      // &begin[AssignTaskLabels]
+
+• Edited src\main\java\controller\TaskDialogController.java (+1 -1)
+46              task.setPriority(prioritySelector.getValue());
+47 -            taskService.refreshTask(task);
+47 +            taskService.refreshTask(task); // &line[TaskPriority]
+48              persistence.save(taskService, labelService);
+
+• Ran rg -n -C 3 "refreshTask" src/main/java/controller/TaskDialogController.java; git diff --check; git diff --stat; git status --short
+└ 44-        prioritySelector.setValue(task.getPriority());
+45-        prioritySelector.setOnAction(event -> {
+… +24 lines (ctrl + t to view transcript)
+warning: in the working copy of 'project/src/main/java/controller/TaskDialogController.java', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'project/src/main/java/service/TaskService.java', LF will be replaced by CRLF the next time Git touches it
+
+• Edited src\main\java\controller\TaskDialogController.java (+2 -2)
+46              task.setPriority(prioritySelector.getValue());
+47 -            taskService.refreshTask(task); // &line[TaskPriority]
+47 +            taskService.refreshTask(task);
+48              persistence.save(taskService, labelService);
+⋮
+79              task.setCompleted(completed.isSelected());
+80 -            taskService.refreshTask(task);
+80 +            taskService.refreshTask(task); // &line[TaskPriority]
+81              persistence.save(taskService, labelService);
+
+• Ran git diff --check; git diff -- src/main/java/controller/MainController.java src/main/java/controller/TaskDialogController.java src/main/java/service/TaskService.java; "`n--- annotations ---"; $features =
+│ Get-Content .feature-model | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }; $annotations = rg -o '&(?:begin|end|line)\[[A-Za-z0-9]+\]' src | ForEach-Object { [regex]::Match($_,
+│ '\[([A-Za-z0-9]+)\]').Groups[1].Value } | Sort-Object -Unique; "Unknown:"; $annotations | Where-Object { $_ -notin $features }; "All annotation features exist: " + (($annotations | Where-Object { $_ -notin
+│ … +1 lines
+└ diff --git a/project/src/main/java/controller/MainController.java b/project/src/main/java/controller/MainController.java
+index cf3c0b5..dad2b64 100644
+… +84 lines (ctrl + t to view transcript)
+warning: in the working copy of 'project/src/main/java/controller/TaskDialogController.java', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'project/src/main/java/service/TaskService.java', LF will be replaced by CRLF the next time Git touches it
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The sorted view now applies after every search/status predicate, so all result modes use the same ordering. Priority and completion changes refresh the observable source list, causing immediate reordering; JSON persistence
+remains unchanged and continues to save/load the priority field. Annotation validation passes.
+
+
+• Called
+└ agent-hans.summary-gui({"projectPath":"D:\\Master\\Masterarbeit\\datasets-repos\\dataset-task-manager\\project","title":"Task Manager - Order tasks by priority","description":"Added a sorted task view that keeps open tasks
+above completed tasks and orders open tasks HIGH to LOW in normal, searched, and filtered results. Task changes refresh the observable list so priority/completion edits reorder immediately; existing JSON priority
+persistence is retained.","changedFiles":["src/main/java/controller/MainController.java","src/main/java/controller/TaskDialogController.java","src/main/java/service/TaskService.java"],"featureChanges":
+[{"featureName":"TaskPriority","featurePath":["TaskManager","TaskManagement","TaskPriority"],"changeType":"modified","changeDescription":"Added HIGH-to-LOW ordering for open tasks, completed-task placement below open
+tasks, and immediate list refresh after priority or completion edits."}]})
+Ok
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• Implemented task ordering:
+
+- Open tasks appear before completed tasks.
+- Open tasks are ordered HIGH → MEDIUM → LOW.
+- Ordering applies to normal, searched, and filtered lists.
+- Changing priority or completion immediately reorders the list.
+- Existing JSON persistence preserves priorities across restarts.
+
+Maven is unavailable in the environment, so the build could not be run.
+
+─ Worked for 1m 36s ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+

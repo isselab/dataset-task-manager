@@ -44,6 +44,7 @@ public final class TaskDialogController extends ListCell<Task> {
         prioritySelector.setValue(task.getPriority());
         prioritySelector.setOnAction(event -> {
             task.setPriority(prioritySelector.getValue());
+            taskService.refreshTask(task);
             persistence.save(taskService, labelService);
         });
         // &end[TaskPriority]
@@ -76,6 +77,7 @@ public final class TaskDialogController extends ListCell<Task> {
         completed.setSelected(task.isCompleted());
         completed.setOnAction(event -> {
             task.setCompleted(completed.isSelected());
+            taskService.refreshTask(task);
             persistence.save(taskService, labelService);
         });
         // &end[StatusFilter]
