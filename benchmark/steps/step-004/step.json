@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schema/evolution-step.schema.json",
   "id": "step-004",
-  "sequence": 3,
+  "sequence": 4,
   "before_version": "v003",
   "after_version": "v004",
   "prompts": [
