@@ -7,10 +7,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.UUID;
+import repository.TaskRepository;
 
 
 public final class TaskService {
+    private final TaskRepository repository;
     private final ObservableList<Task> tasks = FXCollections.observableArrayList();
+
+    public TaskService(TaskRepository repository) {
+        this.repository = repository;
+    }
 
     public ObservableList<Task> getTasks() {
         return tasks;
@@ -31,6 +37,14 @@ public final class TaskService {
 
     public void restore(Task task) {
         tasks.add(task);
+    }
+
+    public void load() {
+        repository.load().forEach(this::restore);
+    }
+
+    public void save() {
+        repository.save(tasks);
     }
 
     public void refreshTask(Task task) {

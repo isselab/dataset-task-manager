@@ -1,0 +1,31 @@
+{
+  "$schema": "../../../schema/evolution-step.schema.json",
+  "id": "step-005",
+  "sequence": 5,
+  "before_version": "v004",
+  "after_version": "v005",
+  "prompts": [
+    {
+      "order": 1,
+      "path": "prompts/001.md"
+    }
+  ],
+  "scenario_types": ["relocate", "add"],
+  "expected_changes": [
+    {
+      "id": "change-001",
+      "operation": "relocate",
+      "features_before": ["PersistLabels"],
+      "features_after": ["PersistLabels"],
+      "description": "Move persistence implementation into a repository layer"
+    },
+    {
+      "id": "change-002",
+      "operation": "add",
+      "features_before": [],
+      "features_after": ["PersistTasks"],
+      "description": "Add task persistence as an explicit feature"
+    }
+  ],
+  "ground_truth": "ground-truth"
+}

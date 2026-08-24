@@ -6,9 +6,15 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.UUID;
+import repository.LabelRepository;
 
 public final class LabelService {
+    private final LabelRepository repository;
     private final ObservableList<Label> labels = FXCollections.observableArrayList();
+
+    public LabelService(LabelRepository repository) {
+        this.repository = repository;
+    }
 
     public ObservableList<Label> getLabels() {
         return labels;
@@ -58,5 +64,13 @@ public final class LabelService {
 
     public void restore(Label label) {
         labels.add(label);
+    }
+
+    public void load() {
+        repository.load().forEach(this::restore);
+    }
+
+    public void save() {
+        repository.save(labels);
     }
 }

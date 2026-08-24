@@ -1,7 +1,8 @@
 package controller;
 
 import model.Task;
-import persistence.JsonTaskPersistence;
+import repository.JsonLabelRepository;
+import repository.JsonTaskRepository;
 import service.LabelService;
 import service.TaskService;
 import javafx.geometry.Insets;
@@ -21,12 +22,14 @@ import javafx.scene.layout.VBox;
 import java.util.Comparator;
 
 public final class MainController {
-    private final TaskService taskService = new TaskService();
-    private final LabelService labelService = new LabelService();
-    private final JsonTaskPersistence persistence = new JsonTaskPersistence();
+    private final TaskService taskService;
+    private final LabelService labelService;
 
     public MainController() {
-        persistence.load(taskService, labelService);
+        taskService = new TaskService(new JsonTaskRepository());
+        labelService = new LabelService(new JsonLabelRepository());
+        labelService.load();
+        taskService.load();
     }
 
     public BorderPane createView() {
@@ -44,7 +47,8 @@ public final class MainController {
                 taskService.createTask(taskInput.getText(), descriptionInput.getText());
                 taskInput.clear();
                 descriptionInput.clear();
-                persistence.save(taskService, labelService);
+                taskService.save();
+                labelService.save();
             }
         });
         taskInput.setOnAction(event -> addTask.fire());
@@ -79,7 +83,7 @@ public final class MainController {
                 .thenComparing(Task::getPriority, Comparator.reverseOrder()));
         // &end[TaskPriority]
         ListView<Task> taskList = new ListView<>(sortedTasks);
-        taskList.setCellFactory(view -> new TaskDialogController(taskService, labelService, persistence));
+        taskList.setCellFactory(view -> new TaskDialogController(taskService, labelService));
         VBox.setVgrow(taskList, Priority.ALWAYS);
 
         // &begin[CreateLabels]
@@ -90,7 +94,8 @@ public final class MainController {
         addLabel.setOnAction(event -> {
             if (labelService.createLabel(labelInput.getText(), labelColor.getValue().toString()) != null) {
                 labelInput.clear();
-                persistence.save(taskService, labelService);
+                labelService.save();
+                taskService.save();
                 taskList.refresh();
             }
         });
@@ -120,7 +125,8 @@ public final class MainController {
         rename.setOnAction(event -> {
             model.Label selected = labelSelector.getValue();
             if (labelService.renameLabel(selected, renameInput.getText(), taskService.getTasks())) {
-                persistence.save(taskService, labelService);
+                labelService.save();
+                taskService.save();
                 labelService.getLabels().stream()
                         .filter(label -> label.id().equals(selected.id()))
                         .findFirst()
@@ -137,7 +143,8 @@ public final class MainController {
         delete.setOnAction(event -> {
             model.Label selected = labelSelector.getValue();
             if (labelService.deleteLabel(selected, taskService.getTasks())) {
-                persistence.save(taskService, labelService);
+                taskService.save();
+                labelService.save();
                 labelSelector.getSelectionModel().clearSelection();
                 renameInput.clear();
                 taskList.refresh();
