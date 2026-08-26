@@ -1,6 +1,6 @@
 package repository;
 
-import model.Label;
+import model.Tag;
 import model.Task;
 import model.TaskPriority;
 
@@ -21,20 +21,21 @@ final class JsonFileStore {
         try {
             String json = Files.readString(file, StandardCharsets.UTF_8);
             JsonReader reader = new JsonReader(json);
-            return new Snapshot(reader.readLabels(), reader.readTasks());
+            return new Snapshot(reader.readTags(), reader.readTasks());
         } catch (IOException | IllegalArgumentException ignored) {
             return new Snapshot(List.of(), List.of());
         }
     }
 
-    void write(List<Label> labels, List<Task> tasks) {
+    // &begin[PersistTags]
+    void write(List<Tag> tags, List<Task> tasks) {
         StringBuilder json = new StringBuilder("{\"labels\":[");
-        for (int i = 0; i < labels.size(); i++) {
+        for (int i = 0; i < tags.size(); i++) {
             if (i > 0) json.append(',');
-            Label label = labels.get(i);
-            json.append("{\"id\":\"").append(escape(label.id())).append("\",\"name\":\"")
-                    .append(escape(label.name())).append("\",\"color\":\"")
-                    .append(escape(label.color())).append("\"}");
+            Tag tag = tags.get(i);
+            json.append("{\"id\":\"").append(escape(tag.id())).append("\",\"name\":\"")
+                    .append(escape(tag.name())).append("\",\"color\":\"")
+                    .append(escape(tag.color())).append("\"}");
         }
         json.append("],\"tasks\":[");
         for (int i = 0; i < tasks.size(); i++) {
@@ -44,9 +45,9 @@ final class JsonFileStore {
                     .append(escape(task.getTitle())).append("\",\"description\":\"")
                     .append(escape(task.getDescription())).append("\",\"priority\":\"")
                     .append(task.getPriority().name()).append("\",\"labelIds\":[");
-            for (int j = 0; j < task.getLabelIds().size(); j++) {
+            for (int j = 0; j < task.getTagIds().size(); j++) {
                 if (j > 0) json.append(',');
-                json.append('"').append(escape(task.getLabelIds().get(j))).append('"');
+                json.append('"').append(escape(task.getTagIds().get(j))).append('"');
             }
             json.append("],\"completed\":").append(task.isCompleted()).append('}');
         }
@@ -56,32 +57,35 @@ final class JsonFileStore {
             Files.writeString(file, json.toString(), StandardCharsets.UTF_8);
         } catch (IOException ignored) { }
     }
+    // &end[PersistTags]
 
     private static String escape(String value) {
         return value.replace("\\", "\\\\").replace("\"", "\\\"")
                 .replace("\n", "\\n").replace("\r", "\\r");
     }
 
-    record Snapshot(List<Label> labels, List<Task> tasks) { }
+    record Snapshot(List<Tag> tags, List<Task> tasks) { }
 
     private static final class JsonReader {
         private final String json;
         private int position;
         JsonReader(String json) { this.json = json; }
 
-        List<Label> readLabels() {
+        // &begin[PersistTags]
+        List<Tag> readTags() {
             position = json.indexOf("\"labels\"");
             if (position < 0) throw new IllegalArgumentException();
             position = json.indexOf('[', position) + 1;
-            List<Label> result = new ArrayList<>();
+            List<Tag> result = new ArrayList<>();
             while (!at(']')) {
                 expect('{'); String id = readStringField("id"); expect(',');
                 String name = readStringField("name"); String color = "#4f46e5";
                 if (at(',')) { expect(','); color = readStringField("color"); }
-                expect('}'); result.add(new Label(id, name, color)); consumeComma();
+                expect('}'); result.add(new Tag(id, name, color)); consumeComma();
             }
             return result;
         }
+        // &end[PersistTags]
 
         List<Task> readTasks() {
             position = json.indexOf("\"tasks\"");
@@ -93,12 +97,12 @@ final class JsonFileStore {
                 if (atString("\"description\"")) { description = readStringField("description"); expect(','); }
                 TaskPriority priority = TaskPriority.MEDIUM;
                 if (atString("\"priority\"")) { priority = TaskPriority.valueOf(readStringField("priority")); expect(','); }
-                List<String> labelIds;
-                if (atString("\"labelIds\"")) { expectField("labelIds"); labelIds = readStringArray(); }
-                else { expectField("labelId"); String legacy = atString("null") ? readNull() : readString(); labelIds = legacy == null ? List.of() : List.of(legacy); }
+                List<String> tagIds;
+                if (atString("\"labelIds\"")) { expectField("labelIds"); tagIds = readStringArray(); }
+                else { expectField("labelId"); String legacy = atString("null") ? readNull() : readString(); tagIds = legacy == null ? List.of() : List.of(legacy); }
                 boolean completed = false;
                 if (at(',')) { expect(','); expectField("completed"); completed = readBoolean(); }
-                expect('}'); result.add(new Task(id, title, description, labelIds, completed, priority)); consumeComma();
+                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority)); consumeComma();
             }
             return result;
         }
