@@ -2,12 +2,12 @@ TaskManager
     TaskManagement
         CreateTasks
         TaskPriority
-        KeywordSearch
-        StatusFilter
-        PersistTasks
+    KeywordSearch
+    StatusFilter
+    PersistTasks
     Tags
         CreateTags
         RenameTags
         DeleteTags
-        AssignTaskTags
-        PersistTags
+    AssignTaskTags
+    PersistTags

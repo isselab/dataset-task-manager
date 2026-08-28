@@ -71,7 +71,6 @@ public final class TaskDialogController extends ListCell<Task> {
             }
         });
         // &end[AssignTaskTags]
-        // &begin[StatusFilter]
         CheckBox completed = new CheckBox("Completed");
         completed.setSelected(task.isCompleted());
         completed.setOnAction(event -> {
@@ -80,7 +79,6 @@ public final class TaskDialogController extends ListCell<Task> {
             taskService.save();
             tagService.save();
         });
-        // &end[StatusFilter]
         VBox tags = new VBox(4, tagChips, selector);
         HBox row = new HBox(12, taskTitle, prioritySelector, completed, tags); // &line[TaskPriority]
         row.setAlignment(Pos.CENTER_LEFT);

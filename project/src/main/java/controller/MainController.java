@@ -4,6 +4,7 @@ import model.Task;
 import repository.JsonTagRepository;
 import repository.JsonTaskRepository;
 import service.TagService;
+import service.TaskQuery;
 import service.TaskService;
 import javafx.geometry.Insets;
 import javafx.collections.transformation.FilteredList;
@@ -54,29 +55,19 @@ public final class MainController {
         taskInput.setOnAction(event -> addTask.fire());
         // &end[CreateTasks]
 
-        // &begin[KeywordSearch]
+        // &begin[TaskQuery]
         TextField searchInput = new TextField();
         searchInput.setPromptText("Search tasks by title or description");
         FilteredList<Task> filteredTasks = new FilteredList<>(taskService.getTasks());
-        // &end[KeywordSearch]
-        // &begin[StatusFilter]
-        ComboBox<String> statusFilter = new ComboBox<>();
-        statusFilter.getItems().addAll("All tasks", "Open tasks", "Completed tasks");
-        statusFilter.getSelectionModel().selectFirst();
-        Runnable applyTaskFilters = () -> {
-            String keyword = searchInput.getText().trim().toLowerCase();
-            String status = statusFilter.getValue();
-            filteredTasks.setPredicate(task -> (keyword.isEmpty()
-                    || task.getTitle().toLowerCase().contains(keyword)
-                    || task.getDescription().toLowerCase().contains(keyword))
-                    && (!"Open tasks".equals(status) || !task.isCompleted())
-                    && (!"Completed tasks".equals(status) || task.isCompleted()));
+        ComboBox<String> statusSelection = new ComboBox<>();
+        statusSelection.getItems().addAll(TaskQuery.ALL_TASKS, TaskQuery.OPEN_TASKS, TaskQuery.COMPLETED_TASKS);
+        statusSelection.getSelectionModel().selectFirst();
+        Runnable applyTaskQuery = () -> {
+            filteredTasks.setPredicate(new TaskQuery(searchInput.getText(), statusSelection.getValue()));
         };
-        statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> applyTaskFilters.run());
-        searchInput.textProperty().addListener((observable, oldValue, newValue) -> {
-            applyTaskFilters.run();
-        });
-        // &end[StatusFilter]
+        // &end[TaskQuery]
+        statusSelection.valueProperty().addListener((observable, oldValue, newValue) -> applyTaskQuery.run());
+        searchInput.textProperty().addListener((observable, oldValue, newValue) -> applyTaskQuery.run());
         // &begin[TaskPriority]
         SortedList<Task> sortedTasks = new SortedList<>(filteredTasks);
         sortedTasks.setComparator(Comparator.comparing(Task::isCompleted)
@@ -160,9 +151,9 @@ public final class MainController {
         HBox tagManagement = new HBox(8, tagSelector, renameInput, rename, delete); // &line[RenameTags]
         HBox.setHgrow(tagSelector, Priority.ALWAYS);
         HBox.setHgrow(renameInput, Priority.ALWAYS);
-        HBox taskFilters = new HBox(8, searchInput, statusFilter); // &line[StatusFilter]
+        HBox taskFilters = new HBox(8, searchInput, statusSelection); // &line[TaskQuery]
         HBox.setHgrow(searchInput, Priority.ALWAYS);
-        VBox content = new VBox(16, title, taskForm, taskFilters, new Label("Tags"), tagForm, tagManagement, taskList); // &line[KeywordSearch]
+        VBox content = new VBox(16, title, taskForm, taskFilters, new Label("Tags"), tagForm, tagManagement, taskList); // &line[TaskQuery]
         content.setPadding(new Insets(24));
         content.getStyleClass().add("app-root");
         return new BorderPane(content);

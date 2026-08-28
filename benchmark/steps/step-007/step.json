@@ -1,0 +1,28 @@
+{
+  "$schema": "../../../schema/evolution-step.schema.json",
+  "id": "step-007",
+  "sequence": 7,
+  "before_version": "v006",
+  "after_version": "v007",
+  "prompts": [
+    {
+      "order": 1,
+      "path": "prompts/001.md"
+    },
+    {
+      "order": 2,
+      "path": "prompts/002.md"
+    }
+  ],
+  "scenario_types": ["merge"],
+  "expected_changes": [
+    {
+      "id": "change-001",
+      "operation": "merge",
+      "features_before": ["KeywordSearch", "StatusFilter"],
+      "features_after": ["TaskQuery"],
+      "description": "Merge search and filter"
+    }
+  ],
+  "ground_truth": "ground-truth"
+}
