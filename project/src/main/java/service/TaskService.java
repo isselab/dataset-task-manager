@@ -52,6 +52,14 @@ public final class TaskService {
         if (index >= 0) tasks.set(index, task);
     }
 
+    // &begin[DeleteTasks]
+    public boolean deleteTask(Task task) {
+        if (task == null || !tasks.contains(task)) return false;
+        task.setTagIds(java.util.List.of());
+        return tasks.remove(task);
+    }
+    // &end[DeleteTasks]
+
     // &begin[AssignTaskTags]
     public void assignTag(Task task, Tag tag) {
         if (tag != null) task.addTagId(tag.id());

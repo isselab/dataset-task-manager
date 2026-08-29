@@ -7,6 +7,9 @@ import service.TaskService;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
@@ -80,7 +83,23 @@ public final class TaskDialogController extends ListCell<Task> {
             tagService.save();
         });
         VBox tags = new VBox(4, tagChips, selector);
+        // &begin[DeleteTasks]
+        Button delete = new Button("Delete");
+        delete.setOnAction(event -> {
+            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
+                    "Delete task \"" + task.getTitle() + "\"?", ButtonType.CANCEL, ButtonType.OK);
+            confirmation.setTitle("Delete task");
+            confirmation.setHeaderText("Delete this task?");
+            confirmation.showAndWait().filter(ButtonType.OK::equals).ifPresent(button -> {
+                if (taskService.deleteTask(task)) {
+                    taskService.save();
+                    tagService.save();
+                }
+            });
+        });
+        // &end[DeleteTasks]
         HBox row = new HBox(12, taskTitle, prioritySelector, completed, tags); // &line[TaskPriority]
+        row.getChildren().add(delete); // &line[DeleteTasks]
         row.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(taskTitle, Priority.ALWAYS);
         setGraphic(row);
