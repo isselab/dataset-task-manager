@@ -52,6 +52,17 @@ public final class TaskService {
         if (index >= 0) tasks.set(index, task);
     }
 
+    // &begin[RenameTasks]
+    public boolean renameTask(Task task, String title) {
+        if (task == null || !tasks.contains(task) || title == null || title.trim().isEmpty()) {
+            return false;
+        }
+        task.setTitle(title);
+        refreshTask(task);
+        return true;
+    }
+    // &end[RenameTasks]
+
     // &begin[DeleteTasks]
     public boolean deleteTask(Task task) {
         if (task == null || !tasks.contains(task)) return false;

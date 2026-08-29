@@ -12,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.TextField; // &line[RenameTasks]
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -36,8 +37,20 @@ public final class TaskDialogController extends ListCell<Task> {
             setGraphic(null);
             return;
         }
-        Label taskTitle = new Label(task.getTitle());
-        taskTitle.getStyleClass().add("task-title");
+        // &begin[RenameTasks]
+        TextField titleInput = new TextField(task.getTitle());
+        titleInput.getStyleClass().add("task-title");
+        Button rename = new Button("Rename");
+        Runnable updateRenameState = () -> rename.setDisable(titleInput.getText().trim().isEmpty());
+        titleInput.textProperty().addListener((observable, oldValue, newValue) -> updateRenameState.run());
+        rename.setOnAction(event -> {
+            if (taskService.renameTask(task, titleInput.getText())) {
+                taskService.save();
+                updateItem(task, false);
+            }
+        });
+        updateRenameState.run();
+        // &end[RenameTasks]
         // &begin[TaskPriority]
         ChoiceBox<TaskPriority> prioritySelector = new ChoiceBox<>();
         prioritySelector.getItems().addAll(TaskPriority.values());
@@ -98,10 +111,11 @@ public final class TaskDialogController extends ListCell<Task> {
             });
         });
         // &end[DeleteTasks]
-        HBox row = new HBox(12, taskTitle, prioritySelector, completed, tags); // &line[TaskPriority]
+        HBox row = new HBox(12, titleInput, prioritySelector, completed, tags); // &line[TaskPriority]
         row.getChildren().add(delete); // &line[DeleteTasks]
+        row.getChildren().add(rename); // &line[RenameTasks]
         row.setAlignment(Pos.CENTER_LEFT);
-        HBox.setHgrow(taskTitle, Priority.ALWAYS);
+        HBox.setHgrow(titleInput, Priority.ALWAYS);
         setGraphic(row);
     }
 

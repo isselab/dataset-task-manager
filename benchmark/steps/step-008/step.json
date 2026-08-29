@@ -8,6 +8,10 @@
     {
       "order": 1,
       "path": "prompts/001.md"
+    },
+    {
+      "order": 2,
+      "path": "prompts/002.md"
     }
   ],
   "scenario_types": ["add"],
@@ -16,8 +20,8 @@
       "id": "change-001",
       "operation": "add",
       "features_before": [],
-      "features_after": ["DeleteTasks"],
-      "description": "Add delete tasks"
+      "features_after": ["DeleteTasks", "RenameTasks"],
+      "description": "Add delete and rename features"
     }
   ],
   "ground_truth": "ground-truth"
