@@ -29,7 +29,7 @@ public final class TaskService {
 
     public Task createTask(String title, String description) {
         Task task = new Task(UUID.randomUUID().toString(), title.trim(), description == null ? "" : description.trim(),
-                null, false, TaskPriority.MEDIUM); // &line[TaskPriority]
+                null, false, TaskPriority.MEDIUM); // &line[TaskPriorityLevels]
         tasks.add(task);
         return task;
     }

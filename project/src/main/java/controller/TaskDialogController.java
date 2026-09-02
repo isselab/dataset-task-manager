@@ -12,7 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.control.TextField; // &line[RenameTasks]
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -51,7 +51,7 @@ public final class TaskDialogController extends ListCell<Task> {
         });
         updateRenameState.run();
         // &end[RenameTasks]
-        // &begin[TaskPriority]
+        // &begin[TaskPriorityLevels]
         ChoiceBox<TaskPriority> prioritySelector = new ChoiceBox<>();
         prioritySelector.getItems().addAll(TaskPriority.values());
         prioritySelector.setValue(task.getPriority());
@@ -61,7 +61,7 @@ public final class TaskDialogController extends ListCell<Task> {
             taskService.save();
             tagService.save();
         });
-        // &end[TaskPriority]
+        // &end[TaskPriorityLevels]
         // &begin[AssignTaskTags]
         ChoiceBox<TagOption> selector = new ChoiceBox<>();
         selector.getItems().add(new TagOption(null, "Add tag..."));
@@ -111,7 +111,7 @@ public final class TaskDialogController extends ListCell<Task> {
             });
         });
         // &end[DeleteTasks]
-        HBox row = new HBox(12, titleInput, prioritySelector, completed, tags); // &line[TaskPriority]
+        HBox row = new HBox(12, titleInput, prioritySelector, completed, tags); // &line[TaskPriorityLevels]
         row.getChildren().add(delete); // &line[DeleteTasks]
         row.getChildren().add(rename); // &line[RenameTasks]
         row.setAlignment(Pos.CENTER_LEFT);

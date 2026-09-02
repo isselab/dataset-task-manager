@@ -5,6 +5,7 @@ import repository.JsonTagRepository;
 import repository.JsonTaskRepository;
 import service.TagService;
 import service.TaskQuery;
+import service.TaskOrdering;
 import service.TaskService;
 import javafx.geometry.Insets;
 import javafx.collections.transformation.FilteredList;
@@ -20,7 +21,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import java.util.Comparator;
 
 public final class MainController {
     private final TaskService taskService;
@@ -68,11 +68,10 @@ public final class MainController {
         // &end[TaskQuery]
         statusSelection.valueProperty().addListener((observable, oldValue, newValue) -> applyTaskQuery.run());
         searchInput.textProperty().addListener((observable, oldValue, newValue) -> applyTaskQuery.run());
-        // &begin[TaskPriority]
+        // &begin[TaskOrdering]
         SortedList<Task> sortedTasks = new SortedList<>(filteredTasks);
-        sortedTasks.setComparator(Comparator.comparing(Task::isCompleted)
-                .thenComparing(Task::getPriority, Comparator.reverseOrder()));
-        // &end[TaskPriority]
+        sortedTasks.setComparator(TaskOrdering.defaultComparator());
+        // &end[TaskOrdering]
         ListView<Task> taskList = new ListView<>(sortedTasks);
         taskList.setCellFactory(view -> new TaskDialogController(taskService, tagService));
         VBox.setVgrow(taskList, Priority.ALWAYS);
