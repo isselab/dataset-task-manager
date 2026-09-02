@@ -10,6 +10,8 @@ public final class TaskOrdering {
 
     public static Comparator<Task> defaultComparator() {
         return Comparator.comparing(Task::isCompleted)
-                .thenComparing(Task::getPriority, Comparator.reverseOrder());
+                .thenComparing(Task::getPriority, Comparator.reverseOrder())
+                .thenComparing(Task::isOverdue, Comparator.reverseOrder())
+                .thenComparing(Task::getDueDate, Comparator.nullsLast(Comparator.naturalOrder()));
     }
 }

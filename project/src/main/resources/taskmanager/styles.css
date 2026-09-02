@@ -14,3 +14,13 @@
     -fx-text-fill: #1f2937;
 }
 /* &end[TaskManagement] */
+
+/* &begin[TaskDueDates] */
+.overdue-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #b91c1c;
+    -fx-background-color: #fee2e2;
+    -fx-padding: 4px 7px;
+    -fx-background-radius: 4px;
+}
+/* &end[TaskDueDates] */

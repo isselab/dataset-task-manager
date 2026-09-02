@@ -1,0 +1,35 @@
+{
+  "$schema": "../../../schema/evolution-step.schema.json",
+  "id": "step-010",
+  "sequence": 10,
+  "before_version": "v009",
+  "after_version": "v010",
+  "prompts": [
+    {
+      "order": 1,
+      "path": "prompts/001.md"
+    },
+    {
+      "order": 2,
+      "path": "prompts/002.md"
+    }
+  ],
+  "scenario_types": ["add", "interact"],
+  "expected_changes": [
+    {
+      "id": "change-001",
+      "operation": "add",
+      "features_before": [],
+      "features_after": ["TaskDueDates"],
+      "description": "Add an optional due date tasks"
+    },
+    {
+      "id": "change-002",
+      "operation": "interact",
+      "features_before": ["TaskDueDates", "TaskOrdering"],
+      "features_after": ["TaskDueDates", "TaskOrdering"],
+      "description": "Reorder tasks based on priority and overdue"
+    }
+  ],
+  "ground_truth": "ground-truth"
+}

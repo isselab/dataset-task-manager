@@ -13,6 +13,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.TextField;
+import javafx.scene.control.DatePicker;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -87,6 +88,28 @@ public final class TaskDialogController extends ListCell<Task> {
             }
         });
         // &end[AssignTaskTags]
+        // &begin[TaskDueDates]
+        DatePicker dueDatePicker = new DatePicker(task.getDueDate());
+        dueDatePicker.setPromptText("Due date");
+        dueDatePicker.setOnAction(event -> {
+            task.setDueDate(dueDatePicker.getValue());
+            taskService.refreshTask(task);
+            taskService.save();
+            updateItem(task, false);
+        });
+        Button clearDueDate = new Button("Clear date");
+        clearDueDate.setDisable(task.getDueDate() == null);
+        clearDueDate.setOnAction(event -> {
+            task.setDueDate(null);
+            taskService.refreshTask(task);
+            taskService.save();
+            updateItem(task, false);
+        });
+        Label overdue = new Label("OVERDUE");
+        overdue.getStyleClass().add("overdue-label");
+        overdue.setVisible(task.isOverdue());
+        overdue.setManaged(task.isOverdue());
+        // &end[TaskDueDates]
         CheckBox completed = new CheckBox("Completed");
         completed.setSelected(task.isCompleted());
         completed.setOnAction(event -> {
@@ -111,7 +134,7 @@ public final class TaskDialogController extends ListCell<Task> {
             });
         });
         // &end[DeleteTasks]
-        HBox row = new HBox(12, titleInput, prioritySelector, completed, tags); // &line[TaskPriorityLevels]
+        HBox row = new HBox(12, titleInput, prioritySelector, completed, dueDatePicker, clearDueDate, overdue, tags); // &line[TaskDueDates]
         row.getChildren().add(delete); // &line[DeleteTasks]
         row.getChildren().add(rename); // &line[RenameTasks]
         row.setAlignment(Pos.CENTER_LEFT);

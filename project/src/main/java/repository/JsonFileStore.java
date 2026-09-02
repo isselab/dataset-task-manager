@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
 
 final class JsonFileStore {
     private final Path file;
@@ -44,7 +45,11 @@ final class JsonFileStore {
             json.append("{\"id\":\"").append(escape(task.getId())).append("\",\"title\":\"")
                     .append(escape(task.getTitle())).append("\",\"description\":\"")
                     .append(escape(task.getDescription())).append("\",\"priority\":\"")
-                    .append(task.getPriority().name()).append("\",\"labelIds\":[");
+                    .append(task.getPriority().name()).append("\"");
+            json.append(",\"dueDate\":");
+            if (task.getDueDate() == null) json.append("null");
+            else json.append('\"').append(task.getDueDate()).append('\"');
+            json.append(",\"labelIds\":[");
             for (int j = 0; j < task.getTagIds().size(); j++) {
                 if (j > 0) json.append(',');
                 json.append('"').append(escape(task.getTagIds().get(j))).append('"');
@@ -97,12 +102,21 @@ final class JsonFileStore {
                 if (atString("\"description\"")) { description = readStringField("description"); expect(','); }
                 TaskPriority priority = TaskPriority.MEDIUM;
                 if (atString("\"priority\"")) { priority = TaskPriority.valueOf(readStringField("priority")); expect(','); }
+                // &begin[TaskDueDates]
+                LocalDate dueDate = null;
+                if (atString("\"dueDate\"")) {
+                    expectField("dueDate");
+                    if (atString("null")) readNull();
+                    else dueDate = LocalDate.parse(readString());
+                    expect(',');
+                }
+                // &end[TaskDueDates]
                 List<String> tagIds;
                 if (atString("\"labelIds\"")) { expectField("labelIds"); tagIds = readStringArray(); }
                 else { expectField("labelId"); String legacy = atString("null") ? readNull() : readString(); tagIds = legacy == null ? List.of() : List.of(legacy); }
                 boolean completed = false;
                 if (at(',')) { expect(','); expectField("completed"); completed = readBoolean(); }
-                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority)); consumeComma();
+                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority, dueDate)); consumeComma();
             }
             return result;
         }
