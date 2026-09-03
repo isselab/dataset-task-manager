@@ -3,6 +3,7 @@ package service;
 import model.Tag;
 import model.Task;
 import model.TaskPriority;
+import model.Subtask;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -62,6 +63,57 @@ public final class TaskService {
         return true;
     }
     // &end[RenameTasks]
+
+    // &begin[Subtasks]
+    // &begin[AddSubtasks]
+    public Subtask addSubtask(Task task, String title) {
+        if (task == null || !tasks.contains(task) || title == null || title.trim().isEmpty()) return null;
+        Subtask subtask = new Subtask(UUID.randomUUID().toString(), title);
+        task.addSubtask(subtask);
+        refreshTask(task);
+        return subtask;
+    }
+    // &end[AddSubtasks]
+
+    // &begin[RenameSubtasks]
+    public boolean renameSubtask(Task task, Subtask subtask, String title) {
+        if (task == null || subtask == null || !tasks.contains(task) || !task.getSubtasks().contains(subtask)
+                || title == null || title.trim().isEmpty()) return false;
+        subtask.setTitle(title);
+        refreshTask(task);
+        return true;
+    }
+    // &end[RenameSubtasks]
+
+    // &begin[CompleteSubtasks]
+    public boolean setSubtaskCompleted(Task task, Subtask subtask, boolean completed) {
+        if (task == null || subtask == null || !tasks.contains(task) || !task.getSubtasks().contains(subtask))
+            return false;
+        subtask.setCompleted(completed);
+        refreshTask(task);
+        return true;
+    }
+
+    public boolean completeSubtask(Task task, Subtask subtask) {
+        return setSubtaskCompleted(task, subtask, true);
+    }
+    // &end[CompleteSubtasks]
+
+    // &begin[ReopenSubtasks]
+    public boolean reopenSubtask(Task task, Subtask subtask) {
+        return setSubtaskCompleted(task, subtask, false);
+    }
+    // &end[ReopenSubtasks]
+
+    // &begin[DeleteSubtasks]
+    public boolean deleteSubtask(Task task, Subtask subtask) {
+        if (task == null || subtask == null || !tasks.contains(task)) return false;
+        boolean removed = task.removeSubtask(subtask);
+        if (removed) refreshTask(task);
+        return removed;
+    }
+    // &end[DeleteSubtasks]
+    // &end[Subtasks]
 
     // &begin[DeleteTasks]
     public boolean deleteTask(Task task) {

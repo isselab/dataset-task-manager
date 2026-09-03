@@ -1,6 +1,7 @@
 package controller;
 
 import model.Task;
+import model.Subtask;
 import model.TaskPriority;
 import service.TagService;
 import service.TaskService;
@@ -119,6 +120,7 @@ public final class TaskDialogController extends ListCell<Task> {
             tagService.save();
         });
         VBox tags = new VBox(4, tagChips, selector);
+        VBox subtasks = createSubtasks(task);
         // &begin[DeleteTasks]
         Button delete = new Button("Delete");
         delete.setOnAction(event -> {
@@ -134,13 +136,62 @@ public final class TaskDialogController extends ListCell<Task> {
             });
         });
         // &end[DeleteTasks]
-        HBox row = new HBox(12, titleInput, prioritySelector, completed, dueDatePicker, clearDueDate, overdue, tags); // &line[TaskDueDates]
+        HBox row = new HBox(12, titleInput, prioritySelector, completed, dueDatePicker, clearDueDate, overdue, tags, subtasks); // &line[TaskDueDates]
         row.getChildren().add(delete); // &line[DeleteTasks]
         row.getChildren().add(rename); // &line[RenameTasks]
         row.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(titleInput, Priority.ALWAYS);
         setGraphic(row);
     }
+
+    // &begin[Subtasks]
+    private VBox createSubtasks(Task task) {
+        VBox content = new VBox(4);
+        Label heading = new Label("Subtasks");
+        content.getChildren().add(heading);
+        TextField input = new TextField();
+        input.setPromptText("New subtask");
+        Button add = new Button("Add");
+        Runnable addSubtask = () -> {
+            if (taskService.addSubtask(task, input.getText()) != null) {
+                input.clear();
+                taskService.save();
+                updateItem(task, false);
+            }
+        };
+        add.setOnAction(event -> addSubtask.run());
+        input.setOnAction(event -> addSubtask.run());
+        HBox form = new HBox(4, input, add);
+        for (Subtask subtask : task.getSubtasks()) {
+            TextField title = new TextField(subtask.getTitle());
+            CheckBox completed = new CheckBox();
+            completed.setSelected(subtask.isCompleted());
+            completed.setOnAction(event -> {
+                taskService.setSubtaskCompleted(task, subtask, completed.isSelected());
+                taskService.save();
+            });
+            Button rename = new Button("Rename");
+            rename.setOnAction(event -> {
+                if (taskService.renameSubtask(task, subtask, title.getText())) {
+                    taskService.save();
+                    updateItem(task, false);
+                }
+            });
+            Button delete = new Button("Delete");
+            delete.setOnAction(event -> {
+                if (taskService.deleteSubtask(task, subtask)) {
+                    taskService.save();
+                    updateItem(task, false);
+                }
+            });
+            HBox subtaskRow = new HBox(4, completed, title, rename, delete);
+            HBox.setHgrow(title, Priority.ALWAYS);
+            content.getChildren().add(subtaskRow);
+        }
+        content.getChildren().add(form);
+        return content;
+    }
+    // &end[Subtasks]
 
     private Label createTagChip(model.Tag tag) {
         Label chip = new Label(tag.name());

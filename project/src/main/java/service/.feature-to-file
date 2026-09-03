@@ -1,7 +1,5 @@
 TaskService.java
-TaskManagement
-TagService.java
-Tags
+TaskManagement, Tags, Subtasks
 TaskQuery.java
 TaskQuery
 TaskOrdering.java

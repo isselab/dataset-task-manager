@@ -40,6 +40,10 @@
     {
       "id": "step-010",
       "path": "steps/step-010/step.json"
+    },
+    {
+      "id": "step-011",
+      "path": "steps/step-011/step.json"
     }
   ]
 }

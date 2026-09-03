@@ -1,0 +1,22 @@
+MainController.java
+TaskManagement
+TaskDialogController.java
+TaskManagement, Subtasks
+
+TaskRepository.java
+PersistTasks
+JsonTaskRepository.java
+PersistTasks
+TagRepository.java
+PersistTags
+JsonTagRepository.java
+PersistTags
+JsonFileStore.java
+PersistTasks, PersistSubtasks
+
+TaskService.java
+TaskManagement, Tags, Subtasks
+TaskQuery.java
+TaskQuery
+TaskOrdering.java
+TaskOrdering
