@@ -60,7 +60,8 @@ public final class MainController {
         searchInput.setPromptText("Search tasks by title or description");
         FilteredList<Task> filteredTasks = new FilteredList<>(taskService.getTasks());
         ComboBox<String> statusSelection = new ComboBox<>();
-        statusSelection.getItems().addAll(TaskQuery.ALL_TASKS, TaskQuery.OPEN_TASKS, TaskQuery.COMPLETED_TASKS);
+        statusSelection.getItems().addAll(TaskQuery.ALL_TASKS, TaskQuery.OPEN_TASKS,
+                TaskQuery.COMPLETED_TASKS, TaskQuery.ARCHIVED_TASKS); // &line[ShowArchivedTasks]
         statusSelection.getSelectionModel().selectFirst();
         Runnable applyTaskQuery = () -> {
             filteredTasks.setPredicate(new TaskQuery(searchInput.getText(), statusSelection.getValue()));

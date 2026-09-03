@@ -121,6 +121,15 @@ public final class TaskDialogController extends ListCell<Task> {
         });
         VBox tags = new VBox(4, tagChips, selector);
         VBox subtasks = createSubtasks(task);
+        // &begin[ArchiveTasks]
+        Button archive = new Button(task.isArchived() ? "Restore" : "Archive");
+        archive.setOnAction(event -> {
+            boolean changed = task.isArchived()
+                    ? taskService.restoreTask(task)
+                    : taskService.archiveTask(task);
+            if (changed) taskService.save();
+        });
+        // &end[ArchiveTasks]
         // &begin[DeleteTasks]
         Button delete = new Button("Delete");
         delete.setOnAction(event -> {
@@ -139,6 +148,7 @@ public final class TaskDialogController extends ListCell<Task> {
         HBox row = new HBox(12, titleInput, prioritySelector, completed, dueDatePicker, clearDueDate, overdue, tags, subtasks); // &line[TaskDueDates]
         row.getChildren().add(delete); // &line[DeleteTasks]
         row.getChildren().add(rename); // &line[RenameTasks]
+        row.getChildren().add(archive); // &line[ArchiveTasks]
         row.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(titleInput, Priority.ALWAYS);
         setGraphic(row);

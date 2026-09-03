@@ -12,7 +12,8 @@ public final class Task {
     private boolean completed;
     private TaskPriority priority;
     private LocalDate dueDate;
-    private final List<Subtask> subtasks; // &line[Subtasks]
+    private boolean archived;
+    private final List<Subtask> subtasks;
 
     public Task(String id, String title) {
         this(id, title, "", null);
@@ -44,9 +45,14 @@ public final class Task {
         this(id, title, description, tagIds, completed, priority, dueDate, List.of());
     }
 
-    // &begin[Subtasks]
     public Task(String id, String title, String description, List<String> tagIds,
                 boolean completed, TaskPriority priority, LocalDate dueDate, List<Subtask> subtasks) {
+        this(id, title, description, tagIds, completed, priority, dueDate, subtasks, false);
+    }
+
+    public Task(String id, String title, String description, List<String> tagIds,
+                boolean completed, TaskPriority priority, LocalDate dueDate,
+                List<Subtask> subtasks, boolean archived) {
         this.id = id;
         this.title = title;
         this.description = description == null ? "" : description;
@@ -55,8 +61,15 @@ public final class Task {
         this.priority = priority == null ? TaskPriority.MEDIUM : priority;
         this.dueDate = dueDate;
         this.subtasks = new ArrayList<>(subtasks == null ? List.of() : subtasks);
+        this.archived = archived;
     }
-    // &end[Subtasks]
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
 
     public String getId() {
         return id;
@@ -66,14 +79,12 @@ public final class Task {
         return title;
     }
 
-    // &begin[RenameTasks]
     public void setTitle(String title) {
         if (title == null || title.trim().isEmpty()) {
             throw new IllegalArgumentException("Task title must not be empty");
         }
         this.title = title.trim();
     }
-    // &end[RenameTasks]
 
     public String getDescription() {
         return description;
@@ -124,7 +135,6 @@ public final class Task {
         tagIds.remove(tagId);
     }
 
-    // &begin[Subtasks]
     public List<Subtask> getSubtasks() {
         return List.copyOf(subtasks);
     }
@@ -136,5 +146,4 @@ public final class Task {
     public boolean removeSubtask(Subtask subtask) {
         return subtasks.remove(subtask);
     }
-    // &end[Subtasks]
 }

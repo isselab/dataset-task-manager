@@ -56,7 +56,7 @@ final class JsonFileStore {
                 json.append('"').append(escape(task.getTagIds().get(j))).append('"');
             }
             json.append("],\"completed\":").append(task.isCompleted());
-            // &begin[PersistSubtasks]
+            json.append(",\"archived\":").append(task.isArchived());
             json.append(",\"subtasks\":[");
             for (int j = 0; j < task.getSubtasks().size(); j++) {
                 if (j > 0) json.append(',');
@@ -129,6 +129,18 @@ final class JsonFileStore {
                 else { expectField("labelId"); String legacy = atString("null") ? readNull() : readString(); tagIds = legacy == null ? List.of() : List.of(legacy); }
                 boolean completed = false;
                 if (at(',')) { expect(','); expectField("completed"); completed = readBoolean(); }
+                // &begin[ArchiveTasks]
+                boolean archived = false;
+                if (at(',')) {
+                    expect(',');
+                    if (atString("\"archived\"")) {
+                        expectField("archived");
+                        archived = readBoolean();
+                    } else {
+                        position -= 1;
+                    }
+                }
+                // &end[ArchiveTasks]
                 // &begin[PersistSubtasks]
                 List<Subtask> subtasks = new ArrayList<>();
                 if (at(',')) {
@@ -142,7 +154,7 @@ final class JsonFileStore {
                     expect(']');
                 }
                 // &end[PersistSubtasks]
-                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority, dueDate, subtasks)); consumeComma();
+                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority, dueDate, subtasks, archived)); consumeComma(); // &line[ArchiveTasks]
             }
             return result;
         }
