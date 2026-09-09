@@ -12,7 +12,6 @@ public final class Task {
     private boolean completed;
     private TaskPriority priority;
     private LocalDate dueDate;
-    private boolean archived;
     private final List<Subtask> subtasks;
 
     public Task(String id, String title) {
@@ -47,12 +46,6 @@ public final class Task {
 
     public Task(String id, String title, String description, List<String> tagIds,
                 boolean completed, TaskPriority priority, LocalDate dueDate, List<Subtask> subtasks) {
-        this(id, title, description, tagIds, completed, priority, dueDate, subtasks, false);
-    }
-
-    public Task(String id, String title, String description, List<String> tagIds,
-                boolean completed, TaskPriority priority, LocalDate dueDate,
-                List<Subtask> subtasks, boolean archived) {
         this.id = id;
         this.title = title;
         this.description = description == null ? "" : description;
@@ -61,14 +54,6 @@ public final class Task {
         this.priority = priority == null ? TaskPriority.MEDIUM : priority;
         this.dueDate = dueDate;
         this.subtasks = new ArrayList<>(subtasks == null ? List.of() : subtasks);
-        this.archived = archived;
-    }
-    public boolean isArchived() {
-        return archived;
-    }
-
-    public void setArchived(boolean archived) {
-        this.archived = archived;
     }
 
     public String getId() {

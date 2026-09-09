@@ -100,14 +100,6 @@ public final class TaskDetailsController {
         details.getChildren().add(subtasks);
 
         details.getChildren().add(sectionLabel("Task actions"));
-        Button archive = new Button(task.isArchived() ? "Restore" : "Archive"); // &line[ArchiveTasks]
-        archive.setOnAction(event -> {
-            boolean changed = task.isArchived() ? taskService.restoreTask(task) : taskService.archiveTask(task);
-            if (changed) {
-                saveTask(task);
-                stage.close();
-            }
-        });
         Button delete = new Button("Delete"); // &line[DeleteTasks]
         delete.setOnAction(event -> {
             Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
@@ -121,7 +113,7 @@ public final class TaskDetailsController {
                 }
             });
         });
-        HBox actions = new HBox(8, archive, delete);
+        HBox actions = new HBox(8, delete);
         details.getChildren().add(actions);
         stage.setScene(new Scene(details, 560, 680));
         stage.show();

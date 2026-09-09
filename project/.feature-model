@@ -6,7 +6,6 @@ TaskManager
         TaskPriorityLevels
         TaskOrdering
         TaskDueDates
-        ArchiveTasks
         Subtasks
             AddSubtasks
             RenameSubtasks
@@ -15,7 +14,6 @@ TaskManager
             DeleteSubtasks
             PersistSubtasks
     TaskQuery
-        ShowArchivedTasks
     PersistTasks
     Tags
         CreateTags

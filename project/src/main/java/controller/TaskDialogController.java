@@ -34,7 +34,7 @@ public final class TaskDialogController extends ListCell<Task> {
         title.getStyleClass().add("task-title");
         HBox.setHgrow(title, Priority.ALWAYS);
 
-        Label status = new Label(task.isArchived() ? "Archived" : task.isCompleted() ? "Completed" : "Open");
+        Label status = new Label(task.isCompleted() ? "Completed" : "Open");
         Label priority = new Label(task.getPriority().toString()); // &line[TaskPriorityLevels]
         Label dueDate = new Label(task.getDueDate() == null ? "No due date" : task.getDueDate().toString()); // &line[TaskDueDates]
 

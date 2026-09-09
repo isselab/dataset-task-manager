@@ -781,3 +781,493 @@ Files:
 Annotations and diff checks passed. Maven tests could not run because Maven is unavailable.
 
 ─ Worked for 4m 15s ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+╭─────────────────────────────────────────────────────╮
+│ >_ OpenAI Codex (v0.147.0)                          │
+│                                                     │
+│ model:     gpt-5.6-luna medium   /model to change   │
+│ directory: D:\Master\…\dataset-task-manager\project │
+╰─────────────────────────────────────────────────────╯
+
+Tip: Visit the Codex community forum: https://community.openai.com/c/codex/37
+
+• You have 3 usage limit resets available. Run /usage to use one.
+
+
+› Remove task archiving from the application.
+
+Users should no longer be able to archive or restore tasks, and archived tasks should no longer be a separate type of task.
+
+Remove the archived-task option from the task query. Existing saved tasks that are marked as archived should still load, but they should be treated as normal tasks.
+
+Remove the archive option from bulk actions as well. Keep the remaining bulk actions working as before.
+
+Keep all other task functionality unchanged.
+
+
+• Using Agent HAnS. I’ll inspect the repository state first, then load the feature model and annotation guidance before making any edits.
+
+• Ran git rev-parse --is-inside-work-tree
+└ true
+
+• Called agent-hans.get-feature-model({"projectPath":"D:\\Master\\Masterarbeit\\datasets-repos\\dataset-task-manager\\project"})
+└ TaskManager
+TaskManagement
+CreateTasks
+DeleteTasks
+RenameTasks
+TaskPriorityLevels
+TaskOrdering
+TaskDueDates
+ArchiveTasks
+Subtasks
+AddSubtasks
+RenameSubtasks
+CompleteSubtasks
+ReopenSubtasks
+DeleteSubtasks
+PersistSubtasks
+TaskQuery
+ShowArchivedTasks
+PersistTasks
+Tags
+CreateTags
+RenameTags
+DeleteTags
+AssignTaskTags
+PersistTags
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The project is already a Git repository. The current model includes ArchiveTasks and ShowArchivedTasks; I’ll now load the required feature-model and embedded-annotation
+instructions to determine the exact model impact and annotation format.
+
+• Running Get-Content -Raw -LiteralPath 'D:\Master\Masterarbeit\datasets-repos\dataset-task-manager\project\.agents\skills\embedded-feature-annotation\SKILL.md'
+
+• Ran Get-Content -Raw -LiteralPath 'D:\Master\Masterarbeit\datasets-repos\dataset-task-manager\project\.agents\skills\embedded-feature-annotation\SKILL.md'
+└ ---
+name: embedded-feature-annotation-skill
+… +75 lines (ctrl + t to view transcript)
+}
+
+
+• Ran Get-Content -Raw -LiteralPath 'D:\Master\Masterarbeit\datasets-repos\dataset-task-manager\project\.agents\skills\feature-model\SKILL.md'
+└ ---
+name: feature-model-skill
+… +38 lines (ctrl + t to view transcript)
+authentication and can therefore also be removed.
+
+
+• Ran rg -n -S -i "archiv|archive|bulk action|bulkAction|query" -g '!node_modules' -g '!dist' -g '!build' .
+└ .\src\main\java\service\TaskService.java:56:    // &begin[ArchiveTasks]
+.\src\main\java\service\TaskService.java:57:    public boolean archiveTask(Task task) {
+… +43 lines (ctrl + t to view transcript)
+.\src\main\java\repository\JsonFileStore.java:157:                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority, dueDate, subtasks,
+archived)); consumeComma(); // &line[ArchiveTasks]
+
+• Ran Get-ChildItem -Recurse -File | Select-Object -ExpandProperty FullName; git status --short; Get-Content -Raw .feature-model
+└ D:\Master\Masterarbeit\datasets-repos\dataset-task-manager\project\.feature-model
+D:\Master\Masterarbeit\datasets-repos\dataset-task-manager\project\.gitkeep
+… +90 lines (ctrl + t to view transcript)
+PersistTags
+
+
+◦ Running Get-Content -Raw -LiteralPath 'src/main/java/service/TaskService.java'
+
+◦ Running Get-Content -Raw -LiteralPath 'src/main/java/service/TaskQuery.java'
+
+◦ Running Get-Content -Raw -LiteralPath 'src/main/java/controller/MainController.java'
+
+◦ Running Get-Content -Raw -LiteralPath 'src/main/java/model/Task.java'
+
+◦ Running Get-Content -Raw -LiteralPath 'src/main/java/controller/TaskDialogController.java'
+
+• Running Get-Content -Raw -LiteralPath 'src/main/java/controller/TaskDetailsController.java'
+
+• Running Get-Content -Raw -LiteralPath 'src/main/java/repository/JsonTaskRepository.java'
+
+• Running Get-Content -Raw -LiteralPath 'src/main/java/repository/JsonFileStore.java'
+
+• Running Get-Content -Raw -LiteralPath 'src/main/java/repository/.feature-to-file'
+
+• Running Get-Content -Raw -LiteralPath 'src/main/java/service/.feature-to-file'
+
+• Ran Get-Content -Raw -LiteralPath 'src/main/java/repository/JsonFileStore.java'
+└ package repository;
+
+    … +171 lines (ctrl + t to view transcript)
+    }
+
+
+• Ran Get-Content -Raw -LiteralPath 'src/main/java/repository/.feature-to-file'
+└ TaskRepository.java
+PersistTasks
+… +7 lines (ctrl + t to view transcript)
+PersistTasks, PersistSubtasks
+
+
+• Ran Get-Content -Raw -LiteralPath 'src/main/java/controller/TaskDetailsController.java'
+└ package controller;
+
+    … +198 lines (ctrl + t to view transcript)
+    }
+
+
+• Ran Get-Content -Raw -LiteralPath 'src/main/java/service/.feature-to-file'
+└ TaskService.java
+TaskManagement, Tags, Subtasks
+… +3 lines (ctrl + t to view transcript)
+TaskOrdering
+
+
+• Ran Get-Content -Raw -LiteralPath 'src/main/java/service/TaskService.java'
+└ package service;
+
+    … +148 lines (ctrl + t to view transcript)
+    }
+
+
+• Ran Get-Content -Raw -LiteralPath 'src/main/java/service/TaskQuery.java'
+└ package service;
+
+    … +32 lines (ctrl + t to view transcript)
+    }
+
+
+• Ran Get-Content -Raw -LiteralPath 'src/main/java/repository/JsonTaskRepository.java'
+└ package repository;
+
+    … +13 lines (ctrl + t to view transcript)
+    }
+
+
+• Ran Get-Content -Raw -LiteralPath 'src/main/java/controller/TaskDialogController.java'
+└ package controller;
+
+    … +65 lines (ctrl + t to view transcript)
+    }
+
+
+• Ran Get-Content -Raw -LiteralPath 'src/main/java/controller/MainController.java'
+└ package controller;
+
+    … +158 lines (ctrl + t to view transcript)
+    }
+
+
+• Ran Get-Content -Raw -LiteralPath 'src/main/java/model/Task.java'
+└ package model;
+
+    … +150 lines (ctrl + t to view transcript)
+    }
+
+
+• Ran Get-Content -Raw -LiteralPath 'src/main/java/controller/.feature-to-file'
+└ MainController.java
+TaskManagement
+… +2 lines (ctrl + t to view transcript)
+TaskDetailsController.java
+TaskManagement
+
+• Ran rg -n -S -i "bulk|select all|archiveTask|restoreTask|isArchived|setArchived|ARCHIVED|archived" src README.md pom.xml
+└ src\main\java\service\TaskService.java:56:    // &begin[ArchiveTasks]
+src\main\java\service\TaskService.java:57:    public boolean archiveTask(Task task) {
+… +28 lines (ctrl + t to view transcript)
+src\main\java\model\Task.java:70:    public void setArchived(boolean archived) {
+src\main\java\model\Task.java:71:        this.archived = archived;
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The change affects the task-management, task-query, and persistence behavior. I’ll remove the archive state and UI/service operations, keep the legacy JSON field readable but
+discard it, and remove the archived query choice so legacy archived records appear as ordinary tasks. The model will remove both archive-related features.
+
+• Edited 8 files (+8 -57)
+└ .feature-model (+0 -2)
+8          TaskDueDates
+9 -        ArchiveTasks
+9          Subtasks
+⋮
+16      TaskQuery
+18 -        ShowArchivedTasks
+17      PersistTasks
+
+└ src\main\java\controller\MainController.java (+1 -1)
+63          statusSelection.getItems().addAll(TaskQuery.ALL_TASKS, TaskQuery.OPEN_TASKS,
+64 -                TaskQuery.COMPLETED_TASKS, TaskQuery.ARCHIVED_TASKS); // &line[ShowArchivedTasks]
+64 +                TaskQuery.COMPLETED_TASKS);
+65          statusSelection.getSelectionModel().selectFirst();
+
+└ src\main\java\controller\TaskDetailsController.java (+1 -9)
+102          details.getChildren().add(sectionLabel("Task actions"));
+103 -        Button archive = new Button(task.isArchived() ? "Restore" : "Archive"); // &line[ArchiveTasks]
+104 -        archive.setOnAction(event -> {
+105 -            boolean changed = task.isArchived() ? taskService.restoreTask(task) : taskService.archiveTask(task);
+106 -            if (changed) {
+107 -                saveTask(task);
+108 -                stage.close();
+109 -            }
+110 -        });
+103          Button delete = new Button("Delete"); // &line[DeleteTasks]
+⋮
+115          });
+124 -        HBox actions = new HBox(8, archive, delete);
+116 +        HBox actions = new HBox(8, delete);
+117          details.getChildren().add(actions);
+
+└ src\main\java\controller\TaskDialogController.java (+1 -1)
+36
+37 -        Label status = new Label(task.isArchived() ? "Archived" : task.isCompleted() ? "Completed" : "Open");
+37 +        Label status = new Label(task.isCompleted() ? "Completed" : "Open");
+38          Label priority = new Label(task.getPriority().toString()); // &line[TaskPriorityLevels]
+
+└ src\main\java\model\Task.java (+0 -15)
+14      private LocalDate dueDate;
+15 -    private boolean archived;
+15      private final List<Subtask> subtasks;
+⋮
+48                  boolean completed, TaskPriority priority, LocalDate dueDate, List<Subtask> subtasks) {
+50 -        this(id, title, description, tagIds, completed, priority, dueDate, subtasks, false);
+51 -    }
+52 -
+53 -    public Task(String id, String title, String description, List<String> tagIds,
+54 -                boolean completed, TaskPriority priority, LocalDate dueDate,
+55 -                List<Subtask> subtasks, boolean archived) {
+49          this.id = id;
+⋮
+56          this.subtasks = new ArrayList<>(subtasks == null ? List.of() : subtasks);
+64 -        this.archived = archived;
+65 -    }
+66 -    public boolean isArchived() {
+67 -        return archived;
+68 -    }
+69 -
+70 -    public void setArchived(boolean archived) {
+71 -        this.archived = archived;
+57      }
+
+└ src\main\java\repository\JsonFileStore.java (+3 -6)
+58              json.append("],\"completed\":").append(task.isCompleted());
+59 -            json.append(",\"archived\":").append(task.isArchived());
+59              json.append(",\"subtasks\":[");
+⋮
+130                  if (at(',')) { expect(','); expectField("completed"); completed = readBoolean(); }
+132 -                // &begin[ArchiveTasks]
+133 -                boolean archived = false;
+131 +                // Legacy archived fields are consumed and ignored so existing saved tasks remain loadable. &line[PersistTasks]
+132                  if (at(',')) {
+⋮
+135                          expectField("archived");
+138 -                        archived = readBoolean();
+136 +                        readBoolean();
+137                      } else {
+⋮
+140                  }
+143 -                // &end[ArchiveTasks]
+141                  // &begin[PersistSubtasks]
+⋮
+153                  // &end[PersistSubtasks]
+157 -                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority, dueDate, subtasks, archived)); consumeComma(); // &line[ArchiveTasks]
+154 +                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority, dueDate, subtasks)); consumeComma();
+155              }
+
+└ src\main\java\service\TaskQuery.java (+2 -7)
+10      public static final String COMPLETED_TASKS = "Completed tasks";
+11 -    public static final String ARCHIVED_TASKS = "Archived tasks";
+11
+⋮
+24                  || task.getDescription().toLowerCase().contains(searchText);
+26 -        // &begin[ShowArchivedTasks]
+27 -        boolean matchesArchive = ARCHIVED_TASKS.equals(status) ? task.isArchived() : !task.isArchived();
+28 -        boolean matchesStatus = ARCHIVED_TASKS.equals(status)
+29 -                || !OPEN_TASKS.equals(status) && !COMPLETED_TASKS.equals(status)
+25 +        boolean matchesStatus = !OPEN_TASKS.equals(status) && !COMPLETED_TASKS.equals(status)
+26                  || OPEN_TASKS.equals(status) && !task.isCompleted()
+27                  || COMPLETED_TASKS.equals(status) && task.isCompleted();
+32 -        // &end[ShowArchivedTasks]
+33 -        return matchesSearch && matchesArchive && matchesStatus;
+28 +        return matchesSearch && matchesStatus;
+29      }
+
+└ src\main\java\service\TaskService.java (+0 -16)
+55
+56 -    // &begin[ArchiveTasks]
+57 -    public boolean archiveTask(Task task) {
+58 -        if (task == null || !tasks.contains(task) || task.isArchived()) return false;
+59 -        task.setArchived(true);
+60 -        refreshTask(task);
+61 -        return true;
+62 -    }
+63 -
+64 -    public boolean restoreTask(Task task) {
+65 -        if (task == null || !tasks.contains(task) || !task.isArchived()) return false;
+66 -        task.setArchived(false);
+67 -        refreshTask(task);
+68 -        return true;
+69 -    }
+70 -    // &end[ArchiveTasks]
+71 -
+56      // &begin[RenameTasks]
+
+• Running rg -n -S -i "archiv|archive|bulk" src .feature-model
+
+• Running mvn test
+
+• Ran rg -n -S -i "archiv|archive|bulk" src .feature-model
+└ src\main\java\repository\JsonFileStore.java:131:                // Legacy archived fields are consumed and ignored so existing saved tasks remain loadable. &line[PersistTasks]
+src\main\java\repository\JsonFileStore.java:134:                    if (atString("\"archived\"")) {
+src\main\java\repository\JsonFileStore.java:135:                        expectField("archived");
+
+• Ran git diff --check; git diff --stat; git status --short
+└  project/.feature-model                                   |  2 --
+project/src/main/java/controller/MainController.java     |  2 +-
+… +30 lines (ctrl + t to view transcript)
+warning: in the working copy of 'project/src/main/java/service/TaskQuery.java', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'project/src/main/java/service/TaskService.java', LF will be replaced by CRLF the next time Git touches it
+
+• Ran mvn test
+└ mvn : Die Benennung "mvn" wurde nicht als Name eines Cmdlet, einer Funktion, einer Skriptdatei oder eines ausführbaren
+Programms erkannt. Überprüfen Sie die Schreibweise des Namens, oder ob der Pfad korrekt ist (sofern enthalten), und
+… +5 lines (ctrl + t to view transcript)
++ FullyQualifiedErrorId : CommandNotFoundException
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• The archive behavior has been removed from the model, domain object, service, query, task list, details view, and persistence output. Legacy JSON still accepts "archived" and
+ignores it. I’m checking for residual archive references and compiling; Maven is not available as mvn in this environment, so I’ll use the project’s available build path if
+present.
+
+• Running Get-ChildItem -Force -Name | Where-Object { $_ -match 'mvnw|gradlew' }; Get-Command java -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
+
+• Running git diff --check; git diff --stat; git status --short
+
+• Ran rg -n -S -i "archiv|archive|bulk" src .feature-model; if ($LASTEXITCODE -eq 1) { Write-Output 'No archive/bulk references found.' }
+└ src\main\java\repository\JsonFileStore.java:131:                // Legacy archived fields are consumed and ignored so existing saved tasks remain loadable. &line[PersistTasks]
+src\main\java\repository\JsonFileStore.java:134:                    if (atString("\"archived\"")) {
+src\main\java\repository\JsonFileStore.java:135:                        expectField("archived");
+
+• Ran Get-ChildItem -Force -Name | Where-Object { $_ -match 'mvnw|gradlew' }; Get-Command java -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
+└ C:\Program Files\Eclipse Adoptium\jdk-25.0.2.10-hotspot\bin\java.exe
+
+• Ran git diff --check; git diff --stat; git status --short
+└  project/.feature-model                                   |  2 --
+project/src/main/java/controller/MainController.java     |  2 +-
+… +30 lines (ctrl + t to view transcript)
+warning: in the working copy of 'project/src/main/java/service/TaskQuery.java', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'project/src/main/java/service/TaskService.java', LF will be replaced by CRLF the next time Git touches it
+
+• Edited src\main\java\model\Task.java (+2 -0)
+46
+47 +    // &begin[TaskManagement]
+48      public Task(String id, String title, String description, List<String> tagIds,
+⋮
+58      }
+59 +    // &end[TaskManagement]
+60
+
+◦ Running git diff -- .feature-model src/main/java/model/Task.java src/main/java/service/TaskService.java src/main/java/service/TaskQuery.java src/main/java/controller/
+│ MainController.java src/main/java/controller/TaskDetailsController.java src/main/java/controller/TaskDialogController.java src/main/java/repository/JsonFileStore.java
+
+• Ran git diff -- .feature-model src/main/java/model/Task.java src/main/java/service/TaskService.java src/main/java/service/TaskQuery.java src/main/java/controller/
+│ MainController.java src/main/java/controller/TaskDetailsController.java src/main/java/controller/TaskDialogController.java src/main/java/repository/JsonFileStore.java
+└ diff --git a/project/.feature-model b/project/.feature-model
+index bc80d7a..e056f72 100644
+… +220 lines (ctrl + t to view transcript)
+warning: in the working copy of 'project/src/main/java/service/TaskQuery.java', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'project/src/main/java/service/TaskService.java', LF will be replaced by CRLF the next time Git touches it
+
+• Ran $model = Get-Content .feature-model -Raw; $names = [regex]::Matches((Get-Content -Raw src/main/java -ErrorAction SilentlyContinue), ''); Get-ChildItem src -Recurse -File
+│ -Include *.java | Select-String -Pattern '&(?:begin|end|line)\[([A-Za-z0-9]+)\]' | ForEach-Object { $_.Matches } | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique
+│ | ForEach-Object { if ($model -notmatch "(?m)^\s+$($_)\s*$") { "Unknown feature annotation: $_" } }
+└ Ausnahme beim Aufrufen von "Matches" mit 2 Argument(en):  "Der Wert darf nicht NULL sein.
+Parametername: input"
+… +4 lines (ctrl + t to view transcript)
++ FullyQualifiedErrorId : ArgumentNullException
+
+
+• Ran $maven = Get-Command mvn,mvn.cmd -ErrorAction SilentlyContinue; if ($maven) { $maven | Select-Object -ExpandProperty Source } else { 'Maven executable not found.' };
+│ Get-ChildItem -Path "$env:USERPROFILE\.m2\repository" -Filter 'javafx-*.jar' -Recurse -ErrorAction SilentlyContinue | Select-Object -First 5 -ExpandProperty FullName
+└ Maven executable not found.
+C:\Users\User\.m2\repository\org\openjfx\javafx-base\16\javafx-base-16-win.jar
+… +2 lines (ctrl + t to view transcript)
+C:\Users\User\.m2\repository\org\openjfx\javafx-base\17.0.0.1\javafx-base-17.0.0.1.jar
+C:\Users\User\.m2\repository\org\openjfx\javafx-base\21\javafx-base-21-win.jar
+
+• Ran Get-Content -Raw pom.xml
+└ <?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+… +44 lines (ctrl + t to view transcript)
+</project>
+
+
+• Ran Get-ChildItem -Path "$env:USERPROFILE\.m2\repository\org\openjfx" -Recurse -Filter '*21.0.9*.jar' | Select-Object -ExpandProperty FullName
+└ C:\Users\User\.m2\repository\org\openjfx\javafx-base\21.0.9\javafx-base-21.0.9-win.jar
+C:\Users\User\.m2\repository\org\openjfx\javafx-base\21.0.9\javafx-base-21.0.9.jar
+… +2 lines (ctrl + t to view transcript)
+C:\Users\User\.m2\repository\org\openjfx\javafx-graphics\21.0.9\javafx-graphics-21.0.9-win.jar
+C:\Users\User\.m2\repository\org\openjfx\javafx-graphics\21.0.9\javafx-graphics-21.0.9.jar
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• Residual references are limited to the intentional legacy JSON compatibility reader. The repository has no bulk-action implementation to modify, so there is no archive bulk
+option present in this checkout. I’ll run a direct Java compilation using the locally cached JavaFX jars, then perform the required feature-change summary.
+
+• Ran $compileDir = Join-Path $env:TEMP 'task-manager-compile'; New-Item -ItemType Directory -Force -Path $compileDir | Out-Null; $jars =
+│ @("$env:USERPROFILE\.m2\repository\org\openjfx\javafx-base\21.0.9\javafx-base-21.0.9.jar",
+│ "$env:USERPROFILE\.m2\repository\org\openjfx\javafx-graphics\21.0.9\javafx-graphics-21.0.9.jar",
+│ … +2 lines
+└ D:\Master\Masterarbeit\datasets-repos\dataset-task-manager\project\src\main\java\app\TaskManagerApplication.java:4: Fehler: Package javafx.application ist nicht vorhanden
+import javafx.application.Application;
+… +410 lines (ctrl + t to view transcript)
+at jdk.compiler/com.sun.tools.javac.Main.compile(Main.java:66)
+at jdk.compiler/com.sun.tools.javac.Main.main(Main.java:52)
+
+• Ran $compileDir = Join-Path $env:TEMP 'task-manager-core-compile'; New-Item -ItemType Directory -Force -Path $compileDir | Out-Null; $sources = @('src/main/java/model/
+│ Task.java','src/main/java/model/Subtask.java','src/main/java/model/Tag.java','src/main/java/model/TaskPriority.java','src/main/java/service/TaskQuery.java','src/main/java/
+│ repository/JsonFileStore.java'); & javac --release 21 -d $compileDir $sources; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; 'Core compilation succeeded.'
+└ Core compilation succeeded.
+
+• Ran $model = Get-Content -Raw .feature-model; $unknown = Get-ChildItem src -Recurse -File -Include *.java | Select-String -Pattern '&(?:begin|end|line)\[([A-Za-z0-9]+)\]' |
+│ ForEach-Object { $_.Matches } | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique | Where-Object { $model -notmatch "(?m)^\s+$_\s*$" }; if ($unknown) { $unknown |
+│ ForEach-Object { "Unknown feature annotation: $_" }; exit 1 } else { 'All embedded annotations reference features in .feature-model.' }; git diff --check
+└ All embedded annotations reference features in .feature-model.
+warning: in the working copy of 'project/.feature-model', LF will be replaced by CRLF the next time Git touches it
+… +5 lines (ctrl + t to view transcript)
+warning: in the working copy of 'project/src/main/java/service/TaskQuery.java', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'project/src/main/java/service/TaskService.java', LF will be replaced by CRLF the next time Git touches it
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• Core Java compilation succeeded, whitespace checks passed, and all remaining embedded annotations reference features still present in the updated model. The full Maven build
+could not run because Maven is not installed; the direct JavaFX-inclusive attempt was blocked by the local dependency setup, not by a reported source error. I’m displaying the
+required Agent HAnS change summary now.
+
+• Called
+└ agent-hans.summary-gui({"projectPath":"D:\\Master\\Masterarbeit\\datasets-repos\\dataset-task-manager\\project","title":"Task Manager - Remove task
+archiving","description":"Removed task archiving and restoration from the domain, service, and UI; removed the archived task query option; legacy archived JSON fields are
+still consumed and ignored so those tasks load as normal tasks.","changedFiles":[".feature-model","src/main/java/model/Task.java","src/main/java/service/
+TaskService.java","src/main/java/service/TaskQuery.java","src/main/java/controller/MainController.java","src/main/java/controller/TaskDetailsController.java","src/main/
+java/controller/TaskDialogController.java","src/main/java/repository/JsonFileStore.java"],"featureChanges":[{"featureName":"ArchiveTasks","featurePath":
+["TaskManager","TaskManagement","ArchiveTasks"],"changeType":"removed","changeDescription":"Removed task archive/restore state and actions."},
+{"featureName":"ShowArchivedTasks","featurePath":["TaskManager","TaskQuery","ShowArchivedTasks"],"changeType":"removed","changeDescription":"Removed archived-task filtering
+and query option; legacy archived records now behave as normal tasks."}]})
+Ok
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• Using Agent HAnS.
+
+Removed task archiving:
+
+- Deleted archive/restore state, service methods, and UI controls.
+- Removed archived-task query option.
+- Legacy "archived" JSON fields are still read and ignored.
+- Archived tasks now load as normal tasks.
+- Removed ArchiveTasks and ShowArchivedTasks from the feature model.
+- No bulk-action implementation existed in this checkout.
+
+Core compilation and annotation validation passed. Full Maven build was unavailable because Maven is not installed.
+
+─ Worked for 4m 56s ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+

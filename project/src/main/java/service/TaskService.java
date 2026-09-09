@@ -53,22 +53,6 @@ public final class TaskService {
         if (index >= 0) tasks.set(index, task);
     }
 
-    // &begin[ArchiveTasks]
-    public boolean archiveTask(Task task) {
-        if (task == null || !tasks.contains(task) || task.isArchived()) return false;
-        task.setArchived(true);
-        refreshTask(task);
-        return true;
-    }
-
-    public boolean restoreTask(Task task) {
-        if (task == null || !tasks.contains(task) || !task.isArchived()) return false;
-        task.setArchived(false);
-        refreshTask(task);
-        return true;
-    }
-    // &end[ArchiveTasks]
-
     // &begin[RenameTasks]
     public boolean renameTask(Task task, String title) {
         if (task == null || !tasks.contains(task) || title == null || title.trim().isEmpty()) {

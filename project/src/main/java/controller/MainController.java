@@ -61,7 +61,7 @@ public final class MainController {
         FilteredList<Task> filteredTasks = new FilteredList<>(taskService.getTasks());
         ComboBox<String> statusSelection = new ComboBox<>();
         statusSelection.getItems().addAll(TaskQuery.ALL_TASKS, TaskQuery.OPEN_TASKS,
-                TaskQuery.COMPLETED_TASKS, TaskQuery.ARCHIVED_TASKS); // &line[ShowArchivedTasks]
+                TaskQuery.COMPLETED_TASKS);
         statusSelection.getSelectionModel().selectFirst();
         Runnable applyTaskQuery = () -> {
             filteredTasks.setPredicate(new TaskQuery(searchInput.getText(), statusSelection.getValue()));

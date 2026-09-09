@@ -12,16 +12,20 @@
     {
       "order": 2,
       "path": "prompts/002.md"
+    },
+    {
+      "order": 3,
+      "path": "prompts/003.md"
     }
   ],
-  "scenario_types": [" "],
+  "scenario_types": ["remove"],
   "expected_changes": [
     {
       "id": "change-001",
-      "operation": " ",
-      "features_before": [],
+      "operation": "remove",
+      "features_before": ["ArchiveTasks", "ShowArchivedTasks"],
       "features_after": [],
-      "description": " "
+      "description": "Remove archive tasks"
     }
   ],
   "ground_truth": "ground-truth"
