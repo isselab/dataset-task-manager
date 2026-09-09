@@ -48,6 +48,10 @@
     {
       "id": "step-012",
       "path": "steps/step-012/step.json"
+    },
+    {
+      "id": "step-013",
+      "path": "steps/step-013/step.json"
     }
   ]
 }

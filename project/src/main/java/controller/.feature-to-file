@@ -2,3 +2,5 @@ MainController.java
 TaskManagement
 TaskDialogController.java
 TaskManagement, Subtasks
+TaskDetailsController.java
+TaskManagement

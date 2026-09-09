@@ -7,7 +7,7 @@ import java.time.LocalDate;
 public final class Task {
     private final String id;
     private String title;
-    private final String description;
+    private String description;
     private final List<String> tagIds;
     private boolean completed;
     private TaskPriority priority;
@@ -88,6 +88,10 @@ public final class Task {
 
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description == null ? "" : description;
     }
 
     public List<String> getTagIds() {

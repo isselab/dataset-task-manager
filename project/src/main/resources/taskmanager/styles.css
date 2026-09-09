@@ -13,6 +13,14 @@
     -fx-font-size: 15px;
     -fx-text-fill: #1f2937;
 }
+
+/* &begin[TaskManagement] */
+.details-section {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #374151;
+}
+/* &end[TaskManagement] */
 /* &end[TaskManagement] */
 
 /* &begin[TaskDueDates] */

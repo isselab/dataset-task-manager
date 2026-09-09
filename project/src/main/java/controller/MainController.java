@@ -74,7 +74,7 @@ public final class MainController {
         sortedTasks.setComparator(TaskOrdering.defaultComparator());
         // &end[TaskOrdering]
         ListView<Task> taskList = new ListView<>(sortedTasks);
-        taskList.setCellFactory(view -> new TaskDialogController(taskService, tagService));
+        taskList.setCellFactory(view -> new TaskDialogController(taskService, tagService)); // &line[TaskManagement]
         VBox.setVgrow(taskList, Priority.ALWAYS);
 
         // &begin[CreateTags]
