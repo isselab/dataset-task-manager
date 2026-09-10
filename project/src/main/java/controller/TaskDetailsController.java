@@ -44,14 +44,7 @@ public final class TaskDetailsController {
         TextArea description = new TextArea(task.getDescription());
         description.setPromptText("Description");
         description.setPrefRowCount(3);
-        Button saveDetails = new Button("Save changes");
-        saveDetails.setOnAction(event -> {
-            if (taskService.renameTask(task, title.getText())) {
-                task.setDescription(description.getText());
-                saveTask(task);
-            }
-        });
-        details.getChildren().addAll(title, description, saveDetails);
+        details.getChildren().addAll(title, description);
 
         details.getChildren().add(sectionLabel("Status and scheduling"));
         CheckBox completed = new CheckBox("Completed");
@@ -61,14 +54,7 @@ public final class TaskDetailsController {
         priority.setValue(task.getPriority());
         DatePicker dueDate = new DatePicker(task.getDueDate()); // &line[TaskDueDates]
         dueDate.setPromptText("Due date");
-        Button saveStatus = new Button("Save status and schedule");
-        saveStatus.setOnAction(event -> {
-            task.setCompleted(completed.isSelected());
-            task.setPriority(priority.getValue());
-            task.setDueDate(dueDate.getValue());
-            saveTask(task);
-        });
-        details.getChildren().addAll(new HBox(8, completed, priority, dueDate), saveStatus);
+        details.getChildren().add(new HBox(8, completed, priority, dueDate));
 
         details.getChildren().add(sectionLabel("Tags"));
         HBox tagChips = new HBox(4);
@@ -82,16 +68,17 @@ public final class TaskDetailsController {
             tagService.getTags().stream().filter(tag -> task.getTagIds().contains(tag.id()))
                     .map(tag -> new Label(tag.name())).forEach(tagChips.getChildren()::add);
         };
+        // &begin[AssignTaskTags]
         tagSelector.setOnAction(event -> {
             TagOption option = tagSelector.getValue();
             if (option.id() != null) {
                 tagService.getTags().stream().filter(tag -> tag.id().equals(option.id())).findFirst()
                         .ifPresent(tag -> taskService.assignTag(task, tag));
-                saveTask(task);
                 refreshTags.run();
                 tagSelector.getSelectionModel().selectFirst();
             }
         });
+        // &end[AssignTaskTags]
         refreshTags.run();
         details.getChildren().addAll(tagChips, tagSelector);
 
@@ -113,7 +100,19 @@ public final class TaskDetailsController {
                 }
             });
         });
-        HBox actions = new HBox(8, delete);
+        // &begin[PersistTasks]
+        Button save = new Button("Save");
+        save.setOnAction(event -> {
+            if (taskService.renameTask(task, title.getText())) {
+                task.setDescription(description.getText());
+                task.setCompleted(completed.isSelected());
+                task.setPriority(priority.getValue());
+                task.setDueDate(dueDate.getValue());
+                saveTask(task);
+            }
+        });
+        // &end[PersistTasks]
+        HBox actions = new HBox(8, save, delete);
         details.getChildren().add(actions);
         stage.setScene(new Scene(details, 560, 680));
         stage.show();
@@ -124,16 +123,24 @@ public final class TaskDetailsController {
         TextField input = new TextField(); // &line[AddSubtasks]
         input.setPromptText("New subtask");
         Button add = new Button("Add");
+        HBox inputRow = new HBox(4, input, add);
         Runnable addSubtask = () -> {
             if (taskService.addSubtask(task, input.getText()) != null) {
                 input.clear();
                 saveTask(task);
-                rebuildSubtasks(content, task);
+                refreshSubtasks(content, task, inputRow);
             }
         };
         add.setOnAction(event -> addSubtask.run());
         input.setOnAction(event -> addSubtask.run());
-        content.getChildren().add(new HBox(4, input, add));
+        content.getChildren().add(inputRow);
+        refreshSubtasks(content, task, inputRow);
+        return content;
+    }
+
+    private void refreshSubtasks(VBox content, Task task, HBox inputRow) {
+        content.getChildren().clear();
+        content.getChildren().add(inputRow);
         for (Subtask subtask : task.getSubtasks()) {
             TextField title = new TextField(subtask.getTitle()); // &line[RenameSubtasks]
             CheckBox completed = new CheckBox(); // &line[CompleteSubtasks]
@@ -146,27 +153,20 @@ public final class TaskDetailsController {
             rename.setOnAction(event -> {
                 if (taskService.renameSubtask(task, subtask, title.getText())) {
                     saveTask(task);
-                    rebuildSubtasks(content, task);
+                    refreshSubtasks(content, task, inputRow);
                 }
             });
             Button delete = new Button("Delete"); // &line[DeleteSubtasks]
             delete.setOnAction(event -> {
                 if (taskService.deleteSubtask(task, subtask)) {
                     saveTask(task);
-                    rebuildSubtasks(content, task);
+                    refreshSubtasks(content, task, inputRow);
                 }
             });
             HBox row = new HBox(4, completed, title, rename, delete);
             HBox.setHgrow(title, Priority.ALWAYS);
             content.getChildren().add(row);
         }
-        return content;
-    }
-
-    private void rebuildSubtasks(VBox content, Task task) {
-        content.getChildren().clear();
-        VBox rebuilt = createSubtasks(task);
-        content.getChildren().addAll(rebuilt.getChildren());
     }
     // &end[Subtasks]
 

@@ -1,0 +1,28 @@
+{
+  "$schema": "../../../schema/evolution-step.schema.json",
+  "id": "step-014",
+  "sequence": 14,
+  "before_version": "v013",
+  "after_version": "v014",
+  "prompts": [
+    {
+      "order": 1,
+      "path": "prompts/001.md"
+    },
+    {
+      "order": 2,
+      "path": "prompts/002.md"
+    }
+  ],
+  "scenario_types": [""],
+  "expected_changes": [
+    {
+      "id": "change-001",
+      "operation": "",
+      "features_before": [],
+      "features_after": [],
+      "description": ""
+    }
+  ],
+  "ground_truth": "ground-truth"
+}
