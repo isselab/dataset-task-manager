@@ -16,9 +16,13 @@
     {
       "order": 3,
       "path": "prompts/003.md"
+    },
+    {
+      "order": 4,
+      "path": "prompts/004.md"
     }
   ],
-  "scenario_types": ["add"],
+  "scenario_types": ["add", "modify"],
   "expected_changes": [
     {
       "id": "change-001",
@@ -26,6 +30,13 @@
       "features_before": [],
       "features_after": ["RecurringTasks"],
       "description": "Add recurring tasks"
+    },
+    {
+      "id": "change-002",
+      "operation": "modify",
+      "features_before": ["RecurringTasks"],
+      "features_after": ["RecurringTasks"],
+      "description": "Modify recurring tasks deletion"
     }
   ],
   "ground_truth": "ground-truth"

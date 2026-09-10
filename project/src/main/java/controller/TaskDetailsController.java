@@ -40,7 +40,7 @@ public final class TaskDetailsController {
         details.setPadding(new Insets(20));
         details.getChildren().add(sectionLabel("Task"));
 
-        TextField title = new TextField(task.getTitle()); // &line[RenameTasks]
+        TextField title = new TextField(task.getTitle());
         title.setPromptText("Title");
         TextArea description = new TextArea(task.getDescription());
         description.setPromptText("Description");
@@ -93,19 +93,24 @@ public final class TaskDetailsController {
         details.getChildren().add(subtasks);
 
         details.getChildren().add(sectionLabel("Task actions"));
-        Button delete = new Button("Delete"); // &line[DeleteTasks]
+        // &begin[DeleteTasks]
+        Button delete = new Button("Delete");
         delete.setOnAction(event -> {
             Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
                     "Delete task \"" + task.getTitle() + "\"?", ButtonType.CANCEL, ButtonType.OK);
             confirmation.setTitle("Delete task");
             confirmation.setHeaderText("Delete this task?");
             confirmation.showAndWait().filter(ButtonType.OK::equals).ifPresent(button -> {
-                if (taskService.deleteTask(task)) {
+                boolean deleted = task.getRecurrence() == Recurrence.NONE
+                        ? taskService.deleteTask(task)
+                        : confirmRecurringDeletion(task);
+                if (deleted) {
                     saveTask(task);
                     stage.close();
                 }
             });
         });
+        // &end[DeleteTasks]
         // &begin[PersistTasks]
         Button save = new Button("Save");
         save.setOnAction(event -> {
@@ -114,7 +119,7 @@ public final class TaskDetailsController {
                 task.setPriority(priority.getValue());
                 task.setDueDate(dueDate.getValue());
                 task.setRecurrence(recurrence.getValue()); // &line[RecurringTasks]
-                taskService.setTaskCompleted(task, completed.isSelected()); // &line[RecurringTasks]
+                taskService.setTaskCompleted(task, completed.isSelected());
                 saveTask(task);
             }
         });
@@ -123,6 +128,23 @@ public final class TaskDetailsController {
         details.getChildren().add(actions);
         stage.setScene(new Scene(details, 560, 680));
         stage.show();
+    }
+
+    // &begin[RecurringTasks]
+    private boolean confirmRecurringDeletion(Task task) {
+        ButtonType occurrence = new ButtonType("This occurrence");
+        ButtonType series = new ButtonType("Entire series");
+        Alert choice = new Alert(Alert.AlertType.CONFIRMATION,
+                "Delete only this occurrence or the complete recurring series?",
+                ButtonType.CANCEL, occurrence, series);
+        choice.setTitle("Delete recurring task");
+        choice.setHeaderText("Choose what to delete");
+        return choice.showAndWait().map(button -> {
+            if (button.equals(occurrence)) return taskService.deleteTaskOccurrence(task);
+            if (button.equals(series)) return taskService.deleteTaskSeries(task);
+            return false;
+        }).orElse(false);
+        // &end[RecurringTasks]
     }
     // &begin[Subtasks]
     private VBox createSubtasks(Task task) {

@@ -52,6 +52,9 @@ final class JsonFileStore {
             if (task.getDueDate() == null) json.append("null");
             else json.append('\"').append(task.getDueDate()).append('\"');
             json.append(",\"recurrence\":\"").append(task.getRecurrence().name()).append('\"');
+            json.append(",\"recurrenceSeriesId\":");
+            if (task.getRecurrenceSeriesId() == null) json.append("null");
+            else json.append('\"').append(escape(task.getRecurrenceSeriesId())).append('\"');
             json.append(",\"labelIds\":[");
             for (int j = 0; j < task.getTagIds().size(); j++) {
                 if (j > 0) json.append(',');
@@ -132,6 +135,12 @@ final class JsonFileStore {
                     recurrence = Recurrence.valueOf(readString());
                     expect(',');
                 }
+                String recurrenceSeriesId = null;
+                if (atString("\"recurrenceSeriesId\"")) {
+                    expectField("recurrenceSeriesId");
+                    recurrenceSeriesId = atString("null") ? readNull() : readString();
+                    expect(',');
+                }
                 // &end[RecurringTasks]
                 List<String> tagIds;
                 if (atString("\"labelIds\"")) { expectField("labelIds"); tagIds = readStringArray(); }
@@ -161,7 +170,7 @@ final class JsonFileStore {
                 }
                 // &end[PersistSubtasks]
                 expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority, dueDate,
-                        recurrence, subtasks)); // &line[RecurringTasks]
+                        recurrence, subtasks, recurrenceSeriesId));
                 consumeComma();
             }
             return result;

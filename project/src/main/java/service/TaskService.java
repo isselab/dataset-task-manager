@@ -66,7 +66,6 @@ public final class TaskService {
     }
     // &end[RenameTasks]
 
-    // &begin[RecurringTasks]
     public boolean setTaskCompleted(Task task, boolean completed) {
         if (task == null || !tasks.contains(task)) return false;
         boolean wasCompleted = task.isCompleted();
@@ -75,12 +74,12 @@ public final class TaskService {
         if (completed && !wasCompleted && task.getRecurrence() != Recurrence.NONE) {
             Task nextOccurrence = new Task(UUID.randomUUID().toString(), task.getTitle(), task.getDescription(),
                     task.getTagIds(), false, task.getPriority(),
-                    task.getRecurrence().nextDueDate(task.getDueDate()), task.getRecurrence(), List.of());
+                    task.getRecurrence().nextDueDate(task.getDueDate()), task.getRecurrence(), List.of(),
+                    task.getRecurrenceSeriesId()); // &line[RecurringTasks]
             tasks.add(nextOccurrence);
         }
         return true;
     }
-    // &end[RecurringTasks]
 
     // &begin[Subtasks]
     // &begin[AddSubtasks]
@@ -139,7 +138,32 @@ public final class TaskService {
         task.setTagIds(java.util.List.of());
         return tasks.remove(task);
     }
+
+    public boolean deleteTaskOccurrence(Task task) {
+        if (task == null || !tasks.contains(task) || task.getRecurrence() == Recurrence.NONE) return false;
+        if (!task.isCompleted()) createNextOccurrence(task);
+        return deleteTask(task);
+    }
+
+    public boolean deleteTaskSeries(Task task) {
+        if (task == null || !tasks.contains(task) || task.getRecurrence() == Recurrence.NONE) return false;
+        String seriesId = task.getRecurrenceSeriesId();
+        tasks.removeIf(candidate -> {
+            boolean sameSeries = seriesId != null && seriesId.equals(candidate.getRecurrenceSeriesId());
+            if (sameSeries) candidate.setTagIds(java.util.List.of());
+            return sameSeries;
+        });
+        return true;
+    }
     // &end[DeleteTasks]
+
+    private void createNextOccurrence(Task task) {
+        Task nextOccurrence = new Task(UUID.randomUUID().toString(), task.getTitle(), task.getDescription(),
+                task.getTagIds(), false, task.getPriority(),
+                task.getRecurrence().nextDueDate(task.getDueDate()), task.getRecurrence(), List.of(),
+                task.getRecurrenceSeriesId());
+        tasks.add(nextOccurrence);
+    }
 
     // &begin[AssignTaskTags]
     public void assignTag(Task task, Tag tag) {

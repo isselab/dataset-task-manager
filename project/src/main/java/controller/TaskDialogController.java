@@ -36,18 +36,20 @@ public final class TaskDialogController extends ListCell<Task> {
 
         Label status = new Label(task.isCompleted() ? "Completed" : "Open");
         Label priority = new Label(task.getPriority().toString()); // &line[TaskPriorityLevels]
-        Label dueDate = new Label(task.getDueDate() == null ? "No due date" : task.getDueDate().toString()); // &line[TaskDueDates]
+        Label dueDate = new Label(task.getDueDate() == null ? "No due date" : task.getDueDate().toString());
 
         HBox tags = new HBox(4);
         tagService.getTags().stream()
                 .filter(tag -> task.getTagIds().contains(tag.id()))
                 .map(this::createTagChip)
-                .forEach(tags.getChildren()::add); // &line[AssignTaskTags]
+                .forEach(tags.getChildren()::add);
 
-        Label overdue = new Label("OVERDUE"); // &line[TaskDueDates]
+        // &begin[TaskDueDates]
+        Label overdue = new Label("OVERDUE");
         overdue.getStyleClass().add("overdue-label");
         overdue.setVisible(task.isOverdue());
         overdue.setManaged(task.isOverdue());
+        // &end[TaskDueDates]
 
         HBox row = new HBox(12, title, status, priority, dueDate, overdue, tags);
         row.setAlignment(Pos.CENTER_LEFT);
