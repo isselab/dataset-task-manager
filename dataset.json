@@ -3,18 +3,18 @@
   "schema_version": "2.0",
   "name": "dataset-task-manager",
   "title": "dataset-task-manager",
-  "description": "Feature-traced dataset maintained in isselab/dataset-task-manager.",
+  "description": "Controlled feature-evolution dataset for a Maven JavaFX task manager with feature mapping files and annotations.",
   "repository": "https://github.com/isselab/dataset-task-manager",
   "license": "MIT",
   "created": "2026-08-12",
   "authors": [
     {
-      "name": "Replace with author or research group"
+      "name": "ISSE Lab"
     }
   ],
   "provenance": {
-    "collection_method": "Describe how the initial project, evolution prompts, and ground truth were created.",
-    "source": "Describe the source project or generation process."
+    "collection_method": "A Maven JavaFX task manager was evolved through 14 sequential benchmark steps. Each step records the prompts, expected feature-level changes, and manually curated post-step traceability artifacts.",
+    "source": "The subject is the task manager seed project in project/, including its feature model, Java source files and JSON persistence layer"
   },
   "benchmark": {
     "execution_model": "sequential",
