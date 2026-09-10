@@ -12,6 +12,9 @@ public final class Task {
     private boolean completed;
     private TaskPriority priority;
     private LocalDate dueDate;
+    // &begin[RecurringTasks]
+    private Recurrence recurrence;
+    // &end[RecurringTasks]
     private final List<Subtask> subtasks;
 
     public Task(String id, String title) {
@@ -46,6 +49,13 @@ public final class Task {
 
     public Task(String id, String title, String description, List<String> tagIds,
                 boolean completed, TaskPriority priority, LocalDate dueDate, List<Subtask> subtasks) {
+        this(id, title, description, tagIds, completed, priority, dueDate, Recurrence.NONE, subtasks); // &line[RecurringTasks]
+    }
+
+    // &begin[RecurringTasks]
+    public Task(String id, String title, String description, List<String> tagIds,
+                boolean completed, TaskPriority priority, LocalDate dueDate,
+                Recurrence recurrence, List<Subtask> subtasks) {
         this.id = id;
         this.title = title;
         this.description = description == null ? "" : description;
@@ -53,8 +63,10 @@ public final class Task {
         this.completed = completed;
         this.priority = priority == null ? TaskPriority.MEDIUM : priority;
         this.dueDate = dueDate;
+        this.recurrence = recurrence == null ? Recurrence.NONE : recurrence;
         this.subtasks = new ArrayList<>(subtasks == null ? List.of() : subtasks);
     }
+    // &end[RecurringTasks]
 
     public String getId() {
         return id;
@@ -105,6 +117,14 @@ public final class Task {
 
     public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
+    }
+
+    public Recurrence getRecurrence() {
+        return recurrence;
+    }
+
+    public void setRecurrence(Recurrence recurrence) {
+        this.recurrence = recurrence == null ? Recurrence.NONE : recurrence;
     }
 
     public boolean isOverdue() {

@@ -4,6 +4,7 @@ import model.Tag;
 import model.Task;
 import model.TaskPriority;
 import model.Subtask;
+import model.Recurrence;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -50,6 +51,7 @@ final class JsonFileStore {
             json.append(",\"dueDate\":");
             if (task.getDueDate() == null) json.append("null");
             else json.append('\"').append(task.getDueDate()).append('\"');
+            json.append(",\"recurrence\":\"").append(task.getRecurrence().name()).append('\"');
             json.append(",\"labelIds\":[");
             for (int j = 0; j < task.getTagIds().size(); j++) {
                 if (j > 0) json.append(',');
@@ -123,6 +125,14 @@ final class JsonFileStore {
                     expect(',');
                 }
                 // &end[TaskDueDates]
+                // &begin[RecurringTasks]
+                Recurrence recurrence = Recurrence.NONE;
+                if (atString("\"recurrence\"")) {
+                    expectField("recurrence");
+                    recurrence = Recurrence.valueOf(readString());
+                    expect(',');
+                }
+                // &end[RecurringTasks]
                 List<String> tagIds;
                 if (atString("\"labelIds\"")) { expectField("labelIds"); tagIds = readStringArray(); }
                 else { expectField("labelId"); String legacy = atString("null") ? readNull() : readString(); tagIds = legacy == null ? List.of() : List.of(legacy); }
@@ -150,7 +160,9 @@ final class JsonFileStore {
                     expect(']');
                 }
                 // &end[PersistSubtasks]
-                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority, dueDate, subtasks)); consumeComma();
+                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority, dueDate,
+                        recurrence, subtasks)); // &line[RecurringTasks]
+                consumeComma();
             }
             return result;
         }

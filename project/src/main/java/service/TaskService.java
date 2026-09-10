@@ -4,10 +4,12 @@ import model.Tag;
 import model.Task;
 import model.TaskPriority;
 import model.Subtask;
+import model.Recurrence;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.UUID;
+import java.util.List;
 import repository.TaskRepository;
 
 
@@ -63,6 +65,22 @@ public final class TaskService {
         return true;
     }
     // &end[RenameTasks]
+
+    // &begin[RecurringTasks]
+    public boolean setTaskCompleted(Task task, boolean completed) {
+        if (task == null || !tasks.contains(task)) return false;
+        boolean wasCompleted = task.isCompleted();
+        task.setCompleted(completed);
+        refreshTask(task);
+        if (completed && !wasCompleted && task.getRecurrence() != Recurrence.NONE) {
+            Task nextOccurrence = new Task(UUID.randomUUID().toString(), task.getTitle(), task.getDescription(),
+                    task.getTagIds(), false, task.getPriority(),
+                    task.getRecurrence().nextDueDate(task.getDueDate()), task.getRecurrence(), List.of());
+            tasks.add(nextOccurrence);
+        }
+        return true;
+    }
+    // &end[RecurringTasks]
 
     // &begin[Subtasks]
     // &begin[AddSubtasks]

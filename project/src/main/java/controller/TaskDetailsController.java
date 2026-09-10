@@ -3,6 +3,7 @@ package controller;
 import model.Subtask;
 import model.Task;
 import model.TaskPriority;
+import model.Recurrence;
 import service.TagService;
 import service.TaskService;
 import javafx.geometry.Insets;
@@ -54,7 +55,12 @@ public final class TaskDetailsController {
         priority.setValue(task.getPriority());
         DatePicker dueDate = new DatePicker(task.getDueDate()); // &line[TaskDueDates]
         dueDate.setPromptText("Due date");
-        details.getChildren().add(new HBox(8, completed, priority, dueDate));
+        // &begin[RecurringTasks]
+        ChoiceBox<Recurrence> recurrence = new ChoiceBox<>();
+        recurrence.getItems().addAll(Recurrence.values());
+        recurrence.setValue(task.getRecurrence());
+        details.getChildren().add(new HBox(8, completed, priority, dueDate, recurrence));
+        // &end[RecurringTasks]
 
         details.getChildren().add(sectionLabel("Tags"));
         HBox tagChips = new HBox(4);
@@ -105,9 +111,10 @@ public final class TaskDetailsController {
         save.setOnAction(event -> {
             if (taskService.renameTask(task, title.getText())) {
                 task.setDescription(description.getText());
-                task.setCompleted(completed.isSelected());
                 task.setPriority(priority.getValue());
                 task.setDueDate(dueDate.getValue());
+                task.setRecurrence(recurrence.getValue()); // &line[RecurringTasks]
+                taskService.setTaskCompleted(task, completed.isSelected()); // &line[RecurringTasks]
                 saveTask(task);
             }
         });
