@@ -1,0 +1,24 @@
+{
+  "$schema": "../../../schema/evolution-step.schema.json",
+  "id": "step-015",
+  "sequence": 15,
+  "before_version": "v014",
+  "after_version": "v015",
+  "prompts": [
+    {
+      "order": 1,
+      "path": "prompts/001.md"
+    }
+  ],
+  "scenario_types": ["add"],
+  "expected_changes": [
+    {
+      "id": "change-001",
+      "operation": "add",
+      "features_before": [],
+      "features_after": ["Authentication", "Login", "Registration", "PersistAccounts", "PasswordHashing"],
+      "description": "Add authentification"
+    }
+  ],
+  "ground_truth": "ground-truth"
+}

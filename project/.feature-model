@@ -1,4 +1,9 @@
 TaskManager
+    Authentication
+        Login
+        Registration
+        PersistAccounts
+        PasswordHashing
     TaskManagement
         CreateTasks
         DeleteTasks

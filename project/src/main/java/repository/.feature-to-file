@@ -8,3 +8,7 @@ JsonTagRepository.java
 PersistTags
 JsonFileStore.java
 PersistTasks, PersistSubtasks
+UserAccountRepository.java
+PersistAccounts
+JsonUserAccountRepository.java
+PersistAccounts

@@ -4,3 +4,5 @@ TaskQuery.java
 TaskQuery
 TaskOrdering.java
 TaskOrdering
+AuthenticationService.java
+Authentication, PasswordHashing

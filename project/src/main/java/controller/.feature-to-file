@@ -4,3 +4,7 @@ TaskDialogController.java
 TaskManagement, Subtasks
 TaskDetailsController.java
 TaskManagement
+LoginController.java
+Login
+RegistrationController.java
+Registration

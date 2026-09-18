@@ -8,6 +8,21 @@
     -fx-text-fill: #1f2937;
 }
 
+/* &begin[Authentication] */
+.auth-root {
+    -fx-background-color: #f6f8fa;
+}
+
+.auth-root .text-field, .auth-root .password-field {
+    -fx-pref-width: 300px;
+}
+
+.error-label {
+    -fx-text-fill: #b91c1c;
+    -fx-wrap-text: true;
+}
+/* &end[Authentication] */
+
 /* &begin[TaskManagement] */
 .task-title {
     -fx-font-size: 15px;
