@@ -12,3 +12,5 @@ UserAccountRepository.java
 PersistAccounts
 JsonUserAccountRepository.java
 PersistAccounts
+UserDataPaths.java
+UserScopedPersistence

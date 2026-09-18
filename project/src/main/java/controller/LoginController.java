@@ -9,12 +9,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import service.AuthenticationService;
+import model.UserAccount;
+import java.util.function.Consumer;
 
 public final class LoginController {
     private final AuthenticationService authentication;
-    private final Runnable onLogin;
+    private final Consumer<UserAccount> onLogin;
 
-    public LoginController(AuthenticationService authentication, Runnable onLogin) {
+    public LoginController(AuthenticationService authentication, Consumer<UserAccount> onLogin) {
         this.authentication = authentication;
         this.onLogin = onLogin;
     }
@@ -32,11 +34,12 @@ public final class LoginController {
         Button register = new Button("Create an account");
         login.setDefaultButton(true);
         login.setOnAction(event -> {
-            if (authentication.authenticate(identifier.getText(), password.getText()) == null) {
+            UserAccount account = authentication.authenticate(identifier.getText(), password.getText());
+            if (account == null) {
                 error.setText("Incorrect username/email or password.");
                 password.clear();
             } else {
-                onLogin.run();
+                onLogin.accept(account);
             }
         });
         register.setOnAction(event -> new RegistrationController(authentication).show(loginStage));

@@ -7,6 +7,7 @@ import service.TagService;
 import service.TaskQuery;
 import service.TaskOrdering;
 import service.TaskService;
+import model.UserAccount;
 import javafx.geometry.Insets;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -26,12 +27,20 @@ public final class MainController {
     private final TaskService taskService;
     private final TagService tagService;
 
-    public MainController() {
-        taskService = new TaskService(new JsonTaskRepository());
-        tagService = new TagService(new JsonTagRepository());
+    public MainController() { // &line[UserDataIsolation]
+        this(null);
+    }
+
+    // &begin[UserDataIsolation]
+    public MainController(UserAccount currentUser) {
+        taskService = new TaskService(currentUser == null
+                ? new JsonTaskRepository() : new JsonTaskRepository(currentUser.username()));
+        tagService = new TagService(currentUser == null
+                ? new JsonTagRepository() : new JsonTagRepository(currentUser.username()));
         tagService.load();
         taskService.load();
     }
+    // &end[UserDataIsolation]
 
     public BorderPane createView() {
         Label title = new Label("Task Manager");

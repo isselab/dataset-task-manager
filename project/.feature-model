@@ -4,6 +4,8 @@ TaskManager
         Registration
         PersistAccounts
         PasswordHashing
+    UserDataIsolation
+        UserScopedPersistence
     TaskManagement
         CreateTasks
         DeleteTasks

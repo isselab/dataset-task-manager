@@ -12,7 +12,7 @@ public class TaskManagerApplication extends Application {
     public void start(Stage stage) {
         // &begin[Authentication]
         AuthenticationService authentication = new AuthenticationService();
-        LoginController login = new LoginController(authentication, () -> openTaskManager(stage));
+        LoginController login = new LoginController(authentication, account -> openTaskManager(stage, account));
         Scene scene = new Scene(login.createView(stage), 420, 300);
         scene.getStylesheets().add(getClass().getResource("/taskmanager/styles.css").toExternalForm());
         stage.setTitle("Task Manager - Login");
@@ -23,8 +23,8 @@ public class TaskManagerApplication extends Application {
     }
 
     // &begin[Login]
-    private void openTaskManager(Stage stage) {
-        MainController controller = new MainController();
+    private void openTaskManager(Stage stage, model.UserAccount account) {
+        MainController controller = new MainController(account);
         Scene scene = new Scene(controller.createView(), 800, 600);
         scene.getStylesheets().add(getClass().getResource("/taskmanager/styles.css").toExternalForm());
         stage.setTitle("Task Manager");

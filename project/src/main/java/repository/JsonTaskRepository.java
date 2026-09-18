@@ -9,6 +9,9 @@ public final class JsonTaskRepository implements TaskRepository {
     private final JsonFileStore store;
 
     public JsonTaskRepository() { this(Paths.get(System.getProperty("user.home"), ".task-manager", "tasks.json")); }
+
+    public JsonTaskRepository(String username) { this(UserDataPaths.forUser(username)); }
+
     JsonTaskRepository(Path file) { store = new JsonFileStore(file); }
 
     @Override public List<Task> load() { return store.read().tasks(); }

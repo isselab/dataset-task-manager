@@ -9,6 +9,9 @@ public final class JsonTagRepository implements TagRepository {
     private final JsonFileStore store;
 
     public JsonTagRepository() { this(Paths.get(System.getProperty("user.home"), ".task-manager", "tasks.json")); }
+
+    public JsonTagRepository(String username) { this(UserDataPaths.forUser(username)); }
+
     JsonTagRepository(Path file) { store = new JsonFileStore(file); }
 
     @Override public List<Tag> load() { return store.read().tags(); }
