@@ -12,7 +12,7 @@ public final class JsonTagRepository implements TagRepository {
 
     public JsonTagRepository(String username) { this(UserDataPaths.forUser(username)); }
 
-    JsonTagRepository(Path file) { store = new JsonFileStore(file); }
+    public JsonTagRepository(Path file) { store = new JsonFileStore(file); }
 
     @Override public List<Tag> load() { return store.read().tags(); }
     @Override public void save(List<Tag> tags) { JsonFileStore.Snapshot snapshot = store.read(); store.write(tags, snapshot.tasks()); }

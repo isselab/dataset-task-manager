@@ -16,13 +16,13 @@
       "id": "change-001",
       "operation": "add",
       "features_before": [],
-      "features_after": ["Authentication", "Login", "Registration", "PersistAccounts", "PasswordHashing"],
+      "features_after": ["Authentication", "Login", "Registration", "PersistAccounts", "PasswordHashing", "SessionManagement", "Logout"],
       "description": "Add authentification"
     },
     {
       "id": "change-002",
       "operation": "modify",
-      "features_before": [],
+      "features_before": ["PersistAccounts"],
       "features_after": ["UserDataIsolation", "UserScopedPersistence"],
       "description": "Make data user related"
     }

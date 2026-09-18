@@ -32,3 +32,5 @@ TaskOrdering.java
 TaskOrdering
 AuthenticationService.java
 Authentication, PasswordHashing
+UserSession.java
+SessionManagement

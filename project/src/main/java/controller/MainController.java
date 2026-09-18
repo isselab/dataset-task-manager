@@ -8,6 +8,7 @@ import service.TaskQuery;
 import service.TaskOrdering;
 import service.TaskService;
 import model.UserAccount;
+import javafx.scene.control.Separator;
 import javafx.geometry.Insets;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -26,25 +27,36 @@ import javafx.scene.layout.VBox;
 public final class MainController {
     private final TaskService taskService;
     private final TagService tagService;
+    private final UserAccount currentUser;
+    private final Runnable onLogout;
 
-    public MainController() { // &line[UserDataIsolation]
+    public MainController() {
         this(null);
     }
 
-    // &begin[UserDataIsolation]
     public MainController(UserAccount currentUser) {
+        this(currentUser, () -> { });
+    }
+
+    public MainController(UserAccount currentUser, Runnable onLogout) {
+        this.currentUser = currentUser;
+        this.onLogout = onLogout;
         taskService = new TaskService(currentUser == null
-                ? new JsonTaskRepository() : new JsonTaskRepository(currentUser.username()));
+                ? new JsonTaskRepository() : new JsonTaskRepository(currentUser.username())); // &line[UserDataIsolation]
         tagService = new TagService(currentUser == null
-                ? new JsonTagRepository() : new JsonTagRepository(currentUser.username()));
+                ? new JsonTagRepository() : new JsonTagRepository(currentUser.username())); // &line[UserDataIsolation]
         tagService.load();
         taskService.load();
     }
-    // &end[UserDataIsolation]
 
     public BorderPane createView() {
         Label title = new Label("Task Manager");
         title.getStyleClass().add("app-title");
+        Label loggedInUser = new Label(currentUser == null ? "" : "Logged in as " + currentUser.username());
+        Button logout = new Button("Log out");
+        logout.setOnAction(event -> onLogout.run()); // &line[Logout]
+        HBox sessionBar = new HBox(12, loggedInUser, new Separator(), logout);
+        sessionBar.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
         // &begin[CreateTasks]
         TextField taskInput = new TextField();
@@ -162,7 +174,7 @@ public final class MainController {
         HBox.setHgrow(renameInput, Priority.ALWAYS);
         HBox taskFilters = new HBox(8, searchInput, statusSelection); // &line[TaskQuery]
         HBox.setHgrow(searchInput, Priority.ALWAYS);
-        VBox content = new VBox(16, title, taskForm, taskFilters, new Label("Tags"), tagForm, tagManagement, taskList); // &line[TaskQuery]
+        VBox content = new VBox(16, title, sessionBar, taskForm, taskFilters, new Label("Tags"), tagForm, tagManagement, taskList);
         content.setPadding(new Insets(24));
         content.getStyleClass().add("app-root");
         return new BorderPane(content);

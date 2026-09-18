@@ -12,7 +12,7 @@ public final class JsonTaskRepository implements TaskRepository {
 
     public JsonTaskRepository(String username) { this(UserDataPaths.forUser(username)); }
 
-    JsonTaskRepository(Path file) { store = new JsonFileStore(file); }
+    public JsonTaskRepository(Path file) { store = new JsonFileStore(file); }
 
     @Override public List<Task> load() { return store.read().tasks(); }
     @Override public void save(List<Task> tasks) { JsonFileStore.Snapshot snapshot = store.read(); store.write(snapshot.tags(), tasks); }
