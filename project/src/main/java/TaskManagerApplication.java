@@ -1,22 +1,26 @@
 import javafx.application.Application;
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+
+import taskmanager.persistence.JsonTaskPersistence;
+import taskmanager.service.LabelService;
+import taskmanager.service.TaskService;
+import taskmanager.ui.MainController;
 
 public class TaskManagerApplication extends Application {
 
     @Override
     public void start(Stage stage) {
-        Label title = new Label("Task Manager");
-        title.getStyleClass().add("app-title");
+        // &begin[Persistence]
+        JsonTaskPersistence.LoadResult loaded = JsonTaskPersistence.load();
+        LabelService labelService = new LabelService(loaded.labels());
+        TaskService taskService = new TaskService(loaded.tasks());
+        Runnable onChange = () -> JsonTaskPersistence.save(labelService.getLabels(), taskService.getTasks());
+        // &end[Persistence]
 
-        BorderPane root = new BorderPane(title);
-        root.setPadding(new Insets(24));
-        root.getStyleClass().add("app-root");
+        MainController mainController = new MainController(taskService, labelService, onChange);
 
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(mainController.getView(), 800, 600);
         scene.getStylesheets().add(getClass().getResource("/taskmanager/styles.css").toExternalForm());
 
         stage.setTitle("Task Manager");
