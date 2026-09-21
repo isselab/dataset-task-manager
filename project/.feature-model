@@ -1,0 +1,7 @@
+TaskManager
+    Tasks
+        AddTask
+    Labels
+        CreateLabel
+        AssignLabel
+    Persistence
