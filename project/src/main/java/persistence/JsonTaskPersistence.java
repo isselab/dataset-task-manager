@@ -1,6 +1,7 @@
 package persistence;
 
 import model.Label;
+import model.Priority; // &line[TaskPriority]
 import model.Task;
 import service.LabelService;
 import service.TaskService;
@@ -45,6 +46,7 @@ public final class JsonTaskPersistence {
             }
             json.append(']');
             json.append(",\"completed\":").append(task.isCompleted());
+            json.append(",\"priority\":\"").append(escape(task.getPriority().name())).append('"'); // &line[TaskPriority]
             json.append('}');
         }
         json.append("]}");
@@ -134,8 +136,16 @@ public final class JsonTaskPersistence {
                     expectField("completed");
                     completed = readBoolean();
                 }
+                // &begin[TaskPriority]
+                Priority priority = Priority.MEDIUM;
+                if (at(',')) {
+                    expect(',');
+                    expectField("priority");
+                    priority = Priority.valueOf(readString());
+                }
+                // &end[TaskPriority]
                 expect('}');
-                result.add(new Task(id, title, description, labelIds, completed));
+                result.add(new Task(id, title, description, labelIds, completed, priority)); // &line[TaskPriority]
                 consumeComma();
             }
             return result;

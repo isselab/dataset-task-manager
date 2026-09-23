@@ -36,12 +36,18 @@ public final class MainController {
         taskInput.setPromptText("New task");
         TextField descriptionInput = new TextField();
         descriptionInput.setPromptText("Description (optional)");
+        // &begin[TaskPriority]
+        ComboBox<model.Priority> priorityInput = new ComboBox<>(
+                javafx.collections.FXCollections.observableArrayList(model.Priority.values()));
+        priorityInput.setValue(model.Priority.MEDIUM);
+        // &end[TaskPriority]
         Button addTask = new Button("Add task");
         addTask.setOnAction(event -> {
             if (!taskInput.getText().trim().isEmpty()) {
-                taskService.createTask(taskInput.getText(), descriptionInput.getText());
+                taskService.createTask(taskInput.getText(), descriptionInput.getText(), priorityInput.getValue()); // &line[TaskPriority]
                 taskInput.clear();
                 descriptionInput.clear();
+                priorityInput.setValue(model.Priority.MEDIUM); // &line[TaskPriority]
                 persistence.save(taskService, labelService);
             }
         });
@@ -138,7 +144,7 @@ public final class MainController {
         });
         // &end[DeleteLabels]
 
-        HBox taskForm = new HBox(8, taskInput, descriptionInput, addTask); // &line[CreateTasks]
+        HBox taskForm = new HBox(8, taskInput, descriptionInput, priorityInput, addTask); // &line[CreateTasks]
         HBox.setHgrow(taskInput, Priority.ALWAYS);
         HBox.setHgrow(descriptionInput, Priority.ALWAYS);
         HBox labelForm = new HBox(8, labelInput, labelColor, addLabel);

@@ -14,3 +14,17 @@
     -fx-text-fill: #1f2937;
 }
 /* &end[TaskManagement] */
+
+/* &begin[TaskPriority] */
+.priority-low .label {
+    -fx-text-fill: #15803d;
+}
+
+.priority-medium .label {
+    -fx-text-fill: #b45309;
+}
+
+.priority-high .label {
+    -fx-text-fill: #b91c1c;
+}
+/* &end[TaskPriority] */

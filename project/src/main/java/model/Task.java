@@ -9,6 +9,7 @@ public final class Task {
     private final String description;
     private final List<String> labelIds;
     private boolean completed;
+    private Priority priority; // &line[TaskPriority]
 
     public Task(String id, String title) {
         this(id, title, "", null);
@@ -27,12 +28,19 @@ public final class Task {
     }
 
     public Task(String id, String title, String description, List<String> labelIds, boolean completed) {
+        this(id, title, description, labelIds, completed, Priority.MEDIUM); // &line[TaskPriority]
+    }
+
+    // &begin[TaskPriority]
+    public Task(String id, String title, String description, List<String> labelIds, boolean completed, Priority priority) {
         this.id = id;
         this.title = title;
         this.description = description == null ? "" : description;
         this.labelIds = new ArrayList<>(labelIds == null ? List.of() : labelIds);
         this.completed = completed;
+        this.priority = priority == null ? Priority.MEDIUM : priority;
     }
+    // &end[TaskPriority]
 
     public String getId() {
         return id;
@@ -57,6 +65,16 @@ public final class Task {
     public void setCompleted(boolean completed) {
         this.completed = completed;
     }
+
+    // &begin[TaskPriority]
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority == null ? Priority.MEDIUM : priority;
+    }
+    // &end[TaskPriority]
 
     public void setLabelIds(List<String> labelIds) {
         this.labelIds.clear();

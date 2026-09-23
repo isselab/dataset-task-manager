@@ -69,12 +69,30 @@ public final class TaskDialogController extends ListCell<Task> {
             persistence.save(taskService, labelService);
         });
         // &end[StatusFilter]
+        // &begin[TaskPriority]
+        ChoiceBox<model.Priority> priorityBox = new ChoiceBox<>();
+        priorityBox.getItems().addAll(model.Priority.values());
+        priorityBox.setValue(task.getPriority());
+        priorityBox.getStyleClass().add(priorityStyleClass(task.getPriority()));
+        priorityBox.setOnAction(event -> {
+            task.setPriority(priorityBox.getValue());
+            priorityBox.getStyleClass().removeIf(styleClass -> styleClass.startsWith("priority-"));
+            priorityBox.getStyleClass().add(priorityStyleClass(priorityBox.getValue()));
+            persistence.save(taskService, labelService);
+        });
+        // &end[TaskPriority]
         VBox labels = new VBox(4, labelChips, selector);
-        HBox row = new HBox(12, taskTitle, completed, labels);
+        HBox row = new HBox(12, taskTitle, priorityBox, completed, labels); // &line[TaskPriority]
         row.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(taskTitle, Priority.ALWAYS);
         setGraphic(row);
     }
+
+    // &begin[TaskPriority]
+    private String priorityStyleClass(model.Priority priority) {
+        return "priority-" + priority.name().toLowerCase();
+    }
+    // &end[TaskPriority]
 
     private Label createLabelChip(model.Label label) {
         Label chip = new Label(label.name());

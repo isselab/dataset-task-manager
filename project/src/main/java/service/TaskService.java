@@ -1,10 +1,12 @@
 package service;
 
 import model.Label;
+import model.Priority; // &line[TaskPriority]
 import model.Task;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -21,11 +23,18 @@ public final class TaskService {
     }
 
     public Task createTask(String title, String description) {
-        Task task = new Task(UUID.randomUUID().toString(), title.trim(), description == null ? "" : description.trim(), null);
+        return createTask(title, description, Priority.MEDIUM); // &line[TaskPriority]
+    }
+    // &end[CreateTasks]
+
+    // &begin[TaskPriority]
+    public Task createTask(String title, String description, Priority priority) {
+        Task task = new Task(UUID.randomUUID().toString(), title.trim(), description == null ? "" : description.trim(),
+                List.of(), false, priority);
         tasks.add(task);
         return task;
     }
-    // &end[CreateTasks]
+    // &end[TaskPriority]
 
     public void restore(Task task) {
         tasks.add(task);
