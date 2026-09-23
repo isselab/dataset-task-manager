@@ -77,7 +77,12 @@ public final class MainController {
             applyTaskFilters.run();
         });
         // &end[StatusFilter]
-        ListView<Task> taskList = new ListView<>(filteredTasks);
+        // &begin[TaskPriority]
+        javafx.collections.transformation.SortedList<Task> sortedTasks = new javafx.collections.transformation.SortedList<>(filteredTasks);
+        sortedTasks.setComparator(java.util.Comparator.comparing(Task::isCompleted)
+                .thenComparing(java.util.Comparator.comparing(Task::getPriority).reversed()));
+        // &end[TaskPriority]
+        ListView<Task> taskList = new ListView<>(sortedTasks); // &line[TaskPriority]
         taskList.setCellFactory(view -> new TaskDialogController(taskService, labelService, persistence));
         VBox.setVgrow(taskList, Priority.ALWAYS);
 
