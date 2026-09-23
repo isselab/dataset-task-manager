@@ -3,6 +3,7 @@ TaskManager
         CreateTasks
         KeywordSearch
         StatusFilter
+        TaskPriority
     Labels
         CreateLabels
         RenameLabels

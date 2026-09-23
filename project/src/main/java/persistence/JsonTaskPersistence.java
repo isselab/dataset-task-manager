@@ -45,6 +45,7 @@ public final class JsonTaskPersistence {
             }
             json.append(']');
             json.append(",\"completed\":").append(task.isCompleted());
+            json.append(",\"priority\":\"").append(escape(task.getPriority().name())).append('\"'); // &line[TaskPriority]
             json.append('}');
         }
         json.append("]}");
@@ -134,8 +135,16 @@ public final class JsonTaskPersistence {
                     expectField("completed");
                     completed = readBoolean();
                 }
+                // &begin[TaskPriority]
+                model.Priority priority = model.Priority.MEDIUM;
+                if (at(',')) {
+                    expect(',');
+                    expectField("priority");
+                    priority = model.Priority.valueOf(readString());
+                }
+                // &end[TaskPriority]
                 expect('}');
-                result.add(new Task(id, title, description, labelIds, completed));
+                result.add(new Task(id, title, description, labelIds, completed, priority)); // &line[TaskPriority]
                 consumeComma();
             }
             return result;

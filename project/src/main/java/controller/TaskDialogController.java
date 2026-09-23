@@ -7,6 +7,7 @@ import service.TaskService;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
@@ -69,8 +70,17 @@ public final class TaskDialogController extends ListCell<Task> {
             persistence.save(taskService, labelService);
         });
         // &end[StatusFilter]
+        // &begin[TaskPriority]
+        ComboBox<model.Priority> priorityEditor = new ComboBox<>();
+        priorityEditor.getItems().addAll(model.Priority.values());
+        priorityEditor.setValue(task.getPriority());
+        priorityEditor.setOnAction(event -> {
+            task.setPriority(priorityEditor.getValue());
+            persistence.save(taskService, labelService);
+        });
+        // &end[TaskPriority]
         VBox labels = new VBox(4, labelChips, selector);
-        HBox row = new HBox(12, taskTitle, completed, labels);
+        HBox row = new HBox(12, taskTitle, priorityEditor, completed, labels);
         row.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(taskTitle, Priority.ALWAYS);
         setGraphic(row);
