@@ -6,6 +6,7 @@ import service.LabelService;
 import service.TaskService;
 import javafx.geometry.Insets;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ColorPicker;
@@ -77,7 +78,10 @@ public final class MainController {
             applyTaskFilters.run();
         });
         // &end[StatusFilter]
-        ListView<Task> taskList = new ListView<>(filteredTasks);
+        // &begin[PrioritySort]
+        SortedList<Task> sortedTasks = new SortedList<>(filteredTasks, TaskService.priorityOrder());
+        // &end[PrioritySort]
+        ListView<Task> taskList = new ListView<>(sortedTasks);
         taskList.setCellFactory(view -> new TaskDialogController(taskService, labelService, persistence));
         VBox.setVgrow(taskList, Priority.ALWAYS);
 

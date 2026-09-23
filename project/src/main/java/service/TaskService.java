@@ -6,6 +6,7 @@ import model.Task;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,6 +39,13 @@ public final class TaskService {
         return task;
     }
     // &end[TaskPriority]
+
+    // &begin[PrioritySort]
+    public static Comparator<Task> priorityOrder() {
+        return Comparator.comparing(Task::isCompleted)
+                .thenComparing(Comparator.comparing(Task::getPriority).reversed());
+    }
+    // &end[PrioritySort]
 
     public void restore(Task task) {
         tasks.add(task);

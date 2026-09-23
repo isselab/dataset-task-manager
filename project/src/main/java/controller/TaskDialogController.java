@@ -68,6 +68,7 @@ public final class TaskDialogController extends ListCell<Task> {
         completed.setOnAction(event -> {
             task.setCompleted(completed.isSelected());
             persistence.save(taskService, labelService);
+            taskService.getTasks().set(taskService.getTasks().indexOf(task), task); // &line[PrioritySort]
         });
         // &end[StatusFilter]
         // &begin[TaskPriority]
@@ -77,6 +78,7 @@ public final class TaskDialogController extends ListCell<Task> {
         priorityEditor.setOnAction(event -> {
             task.setPriority(priorityEditor.getValue());
             persistence.save(taskService, labelService);
+            taskService.getTasks().set(taskService.getTasks().indexOf(task), task); // &line[PrioritySort]
         });
         // &end[TaskPriority]
         VBox labels = new VBox(4, labelChips, selector);
