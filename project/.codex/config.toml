@@ -1,3 +1,0 @@
-[mcp_servers.agent-hans]
-command = "node"
-args = [".codex/mcp/index.js"]

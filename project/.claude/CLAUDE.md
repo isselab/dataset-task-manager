@@ -18,7 +18,9 @@ On EVERY user prompt that results in — or could possibly result in — code ch
 
 > **STOP — do not write or edit any file until steps 0–3 above are complete.** If you find yourself editing code without having completed the worktree check, read the feature model via MCP, and loaded both skills on this prompt, you are violating the workflow.
 
-4. **Write and verify code with annotations**: All code changes MUST include correct embedded feature annotations. After writing, verify that every annotation references a feature that exists in the `.feature-model` and that no changed code is left without annotations.
+4. **Write and verify code with annotations**: Annotate changed implementation code according to the annotation skill. Imports and class field and property declarations MUST remain unannotated. Do not use line annotations on method declarations or signatures; annotate whole methods with `&begin`/`&end`, including single-line methods. Never wrap an entire class or other top-level declaration with `&begin`/`&end`; when a complete class represents a feature, record it in `.feature-to-file` instead. After writing, verify that every annotation references a feature that exists in the `.feature-model`, that changed implementation code has the appropriate annotation coverage, and that excluded declarations remain unannotated.
+
+   Annotations describe implemented features, not session ownership. Preserve valid existing feature annotations and file mappings. If changed code implements multiple features, retain coverage for all of them at the appropriate scopes. Never label a shared snippet solely with the current feature just because it was edited in this session.
 
 5. **Display summary**: After all changes are complete, ALWAYS display a summary using the MCP server (`agent-hans_summary-gui`), including all features that were added, modified, or removed.
 
@@ -27,5 +29,6 @@ There are NO exceptions to this workflow. It applies to new features, bug fixes,
 Instruct agents you delegate to to NOT use the MCP server to display summaries, as the primary agent will handle this.
 
 ## If you are a subagent
+
 Act as usual.
 Do NOT use the MCP server to display summaries.
