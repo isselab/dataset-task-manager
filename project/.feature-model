@@ -5,6 +5,7 @@ TaskManager
         RenameTasks
         TaskPriority
     TaskQuery
+    TaskOrdering
     PersistTasks
     Tags
         CreateTags
