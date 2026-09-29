@@ -4,6 +4,7 @@ import model.Task;
 import repository.JsonTagRepository;
 import repository.JsonTaskRepository;
 import service.TagService;
+import service.TaskOrdering;
 import service.TaskQuery;
 import service.TaskService;
 import javafx.geometry.Insets;
@@ -20,7 +21,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import java.util.Comparator;
 
 public final class MainController {
     private final TaskService taskService;
@@ -70,8 +70,7 @@ public final class MainController {
         searchInput.textProperty().addListener((observable, oldValue, newValue) -> applyTaskQuery.run());
         // &begin[TaskPriority]
         SortedList<Task> sortedTasks = new SortedList<>(filteredTasks);
-        sortedTasks.setComparator(Comparator.comparing(Task::isCompleted)
-                .thenComparing(Task::getPriority, Comparator.reverseOrder()));
+        sortedTasks.setComparator(TaskOrdering.byCompletionThenPriority());
         // &end[TaskPriority]
         ListView<Task> taskList = new ListView<>(sortedTasks);
         taskList.setCellFactory(view -> new TaskDialogController(taskService, tagService));
