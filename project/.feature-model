@@ -4,6 +4,7 @@ TaskManager
         DeleteTasks
         RenameTasks
         TaskPriority
+        TaskOrdering
     TaskQuery
     PersistTasks
     Tags
