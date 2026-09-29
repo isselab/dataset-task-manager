@@ -30904,10 +30904,11 @@ function scanFeatureAnnotations(projectPath) {
       timeout: 15e3
     }).trim();
     if (!raw) return {};
-    const files = raw.split("\n").filter((f) => f.trim());
+    const files = raw.split("\n").map((f) => f.trim()).filter(Boolean);
     for (const relFile of files) {
       const ext = path2.extname(relFile).toLowerCase();
-      if (path2.basename(relFile) === ".feature-to-file") {
+      const mappingType = path2.basename(relFile);
+      if (mappingType === ".feature-to-file" || mappingType === ".feature-to-folder") {
         try {
           const content = fs6.readFileSync(
             path2.join(projectPath, relFile),
@@ -30915,12 +30916,24 @@ function scanFeatureAnnotations(projectPath) {
           );
           const lines = content.split("\n").map((l) => l.trim()).filter((l) => l);
           for (let i = 0; i + 1 < lines.length; i += 2) {
-            const fileName = lines[i];
+            const targetName = lines[i];
             const featureName = lines[i + 1];
-            if (fileName && featureName) {
+            if (targetName && featureName) {
               const dir = path2.dirname(relFile);
-              const resolvedFile = dir === "." ? fileName : path2.posix.join(dir, fileName);
-              addMapping(featureName, resolvedFile);
+              const target = path2.posix.normalize(
+                dir === "." ? targetName : path2.posix.join(dir, targetName)
+              );
+              if (mappingType === ".feature-to-file") {
+                addMapping(featureName, target);
+              } else {
+                const prefix = target === "." ? "" : `${target.replace(/\/$/, "")}/`;
+                for (const file2 of files) {
+                  const name = path2.posix.basename(file2);
+                  if (file2.startsWith(prefix) && name !== ".feature-to-file" && name !== ".feature-to-folder") {
+                    addMapping(featureName, file2);
+                  }
+                }
+              }
             }
           }
         } catch {
