@@ -5,14 +5,18 @@ import persistence.JsonTaskPersistence;
 import service.LabelService;
 import service.TaskService;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.control.MenuButton;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 
 public final class TaskDialogController extends ListCell<Task> {
@@ -38,24 +42,30 @@ public final class TaskDialogController extends ListCell<Task> {
         // &begin[AssignTaskLabels]
         HBox chips = new HBox(4);
         chips.setAlignment(Pos.CENTER_LEFT);
-        MenuButton selector = new MenuButton("Labels");
+        ChoiceBox<LabelOption> selector = new ChoiceBox<>();
+        LabelOption placeholder = new LabelOption(null, false, "Labels...");
+        selector.getItems().add(placeholder);
         for (model.Label label : labelService.getLabels()) {
-            CheckMenuItem item = new CheckMenuItem(label.name());
-            item.setSelected(task.getLabelIds().contains(label.id()));
-            item.setOnAction(event -> {
-                if (item.isSelected()) taskService.assignLabel(task, label);
-                else taskService.removeLabel(task, label);
-                persistence.save(taskService, labelService);
-                updateItem(task, false);
-            });
-            selector.getItems().add(item);
-            if (item.isSelected()) {
+            boolean assigned = task.getLabelIds().contains(label.id());
+            selector.getItems().add(new LabelOption(label, assigned, (assigned ? "Remove: " : "Add: ") + label.name()));
+            if (assigned) {
                 Label chip = new Label(label.name());
-                chip.setStyle("-fx-background-color: " + label.color() + "; -fx-text-fill: " + textColorFor(label.color()) // &line[LabelColors]
-                        + "; -fx-padding: 2 8 2 8; -fx-background-radius: 10;");
+                chip.setTextFill(Color.web(textColorFor(label.color()))); // &line[LabelColors]
+                chip.setBackground(new Background(new BackgroundFill(Color.web(label.color()), new CornerRadii(10), Insets.EMPTY))); // &line[LabelColors]
+                chip.setPadding(new Insets(2, 8, 2, 8));
+                chip.setMinWidth(Region.USE_PREF_SIZE);
                 chips.getChildren().add(chip);
             }
         }
+        selector.getSelectionModel().select(placeholder);
+        selector.setOnAction(event -> {
+            LabelOption option = selector.getValue();
+            if (option == null || option.label() == null) return;
+            if (option.assigned()) taskService.removeLabel(task, option.label());
+            else taskService.assignLabel(task, option.label());
+            persistence.save(taskService, labelService);
+            updateItem(task, false);
+        });
         // &end[AssignTaskLabels]
         // &begin[StatusFilter]
         CheckBox completed = new CheckBox("Completed");
@@ -69,6 +79,10 @@ public final class TaskDialogController extends ListCell<Task> {
         row.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(taskTitle, Priority.ALWAYS);
         setGraphic(row);
+    }
+
+    private record LabelOption(model.Label label, boolean assigned, String text) {
+        @Override public String toString() { return text; }
     }
 
     // &begin[LabelColors]
