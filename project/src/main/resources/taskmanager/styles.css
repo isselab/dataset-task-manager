@@ -14,3 +14,11 @@
     -fx-text-fill: #1f2937;
 }
 /* &end[TaskManagement] */
+
+/* &begin[LabelColors] */
+.label-chip {
+    -fx-padding: 2 8 2 8;
+    -fx-background-radius: 10;
+    -fx-font-size: 12px;
+}
+/* &end[LabelColors] */

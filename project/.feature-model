@@ -7,3 +7,4 @@ TaskManager
         CreateLabels
         AssignTaskLabels
         PersistLabels
+        LabelColors

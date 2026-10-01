@@ -29,7 +29,7 @@ public final class JsonTaskPersistence {
             if (i > 0) json.append(',');
             Label label = labelService.getLabels().get(i);
             json.append("{\"id\":\"").append(escape(label.id())).append("\",\"name\":\"")
-                    .append(escape(label.name())).append("\"}");
+                    .append(escape(label.name())).append("\",\"color\":\"").append(escape(label.color())).append("\"}"); // &line[LabelColors]
         }
         json.append("],\"tasks\":[");
         for (int i = 0; i < taskService.getTasks().size(); i++) {
@@ -37,9 +37,12 @@ public final class JsonTaskPersistence {
             Task task = taskService.getTasks().get(i);
             json.append("{\"id\":\"").append(escape(task.getId())).append("\",\"title\":\"")
                     .append(escape(task.getTitle())).append("\",\"description\":\"")
-                    .append(escape(task.getDescription())).append("\",\"labelId\":");
-            if (task.getLabelId() == null) json.append("null");
-            else json.append('\"').append(escape(task.getLabelId())).append('\"');
+                    .append(escape(task.getDescription())).append("\",\"labelIds\":[");
+            for (int j = 0; j < task.getLabelIds().size(); j++) {
+                if (j > 0) json.append(',');
+                json.append('\"').append(escape(task.getLabelIds().get(j))).append('\"');
+            }
+            json.append(']');
             json.append(",\"completed\":").append(task.isCompleted());
             json.append('}');
         }
@@ -87,8 +90,13 @@ public final class JsonTaskPersistence {
                 String id = readStringField("id");
                 expect(',');
                 String name = readStringField("name");
+                String color = Label.DEFAULT_COLOR; // &line[LabelColors]
+                if (at(',')) { // &line[LabelColors]
+                    expect(','); // &line[LabelColors]
+                    color = readStringField("color"); // &line[LabelColors]
+                } // &line[LabelColors]
                 expect('}');
-                result.add(new Label(id, name));
+                result.add(new Label(id, name, color));
                 consumeComma();
             }
             return result;
@@ -109,8 +117,21 @@ public final class JsonTaskPersistence {
                     description = readStringField("description");
                     expect(',');
                 }
-                expectField("labelId");
-                String labelId = atString("null") ? readNull() : readString();
+                List<String> labelIds = new ArrayList<>();
+                if (atString("\"labelIds\"")) {
+                    expectField("labelIds");
+                    expect('[');
+                    while (!at(']')) {
+                        labelIds.add(readString());
+                        consumeComma();
+                    }
+                    expect(']');
+                } else {
+                    // Legacy files stored a single label id.
+                    expectField("labelId");
+                    String labelId = atString("null") ? readNull() : readString();
+                    if (labelId != null) labelIds.add(labelId);
+                }
                 boolean completed = false;
                 if (at(',')) {
                     expect(',');
@@ -118,7 +139,7 @@ public final class JsonTaskPersistence {
                     completed = readBoolean();
                 }
                 expect('}');
-                result.add(new Task(id, title, description, labelId, completed));
+                result.add(new Task(id, title, description, labelIds, completed));
                 consumeComma();
             }
             return result;
