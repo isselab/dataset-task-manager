@@ -18,6 +18,7 @@
 /* &begin[LabelColors] */
 .label-chip {
     -fx-padding: 2 8 2 8;
+    -fx-background-color: white;
     -fx-background-radius: 10;
     -fx-font-size: 12px;
 }

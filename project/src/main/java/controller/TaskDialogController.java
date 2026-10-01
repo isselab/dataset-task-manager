@@ -5,13 +5,13 @@ import persistence.JsonTaskPersistence;
 import service.LabelService;
 import service.TaskService;
 import javafx.geometry.Pos;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.MenuButton;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 public final class TaskDialogController extends ListCell<Task> {
     private final TaskService taskService;
@@ -34,26 +34,34 @@ public final class TaskDialogController extends ListCell<Task> {
         Label taskTitle = new Label(task.getTitle());
         taskTitle.getStyleClass().add("task-title");
         // &begin[AssignTaskLabels]
-        MenuButton selector = new MenuButton("Labels");
+        ChoiceBox<LabelOption> selector = new ChoiceBox<>();
+        LabelOption placeholder = new LabelOption(null, "Labels...");
+        selector.getItems().add(placeholder);
         for (model.Label label : labelService.getLabels()) {
-            CheckMenuItem item = new CheckMenuItem(label.name());
-            item.setSelected(task.getLabelIds().contains(label.id()));
-            item.setOnAction(event -> {
-                if (item.isSelected()) taskService.assignLabel(task, label);
-                else taskService.removeLabel(task, label);
-                persistence.save(taskService, labelService);
-                updateItem(task, false);
-            });
-            selector.getItems().add(item);
+            boolean assigned = task.getLabelIds().contains(label.id());
+            selector.getItems().add(new LabelOption(label, (assigned ? "Remove: " : "Add: ") + label.name()));
         }
+        selector.getSelectionModel().select(placeholder);
+        selector.setOnAction(event -> {
+            LabelOption option = selector.getValue();
+            if (option == null || option.label() == null) return;
+            if (task.getLabelIds().contains(option.label().id())) taskService.removeLabel(task, option.label());
+            else taskService.assignLabel(task, option.label());
+            persistence.save(taskService, labelService);
+            updateItem(task, false);
+        });
         // &end[AssignTaskLabels]
         // &begin[LabelColors]
         HBox chips = new HBox(6);
+        chips.setAlignment(Pos.CENTER_LEFT);
+        chips.setMinWidth(Region.USE_PREF_SIZE);
         for (model.Label label : labelService.getLabels()) {
             if (!task.getLabelIds().contains(label.id())) continue;
             Label chip = new Label(label.name());
             chip.getStyleClass().add("label-chip");
-            chip.setStyle("-fx-background-color: " + label.color() + "; -fx-text-fill: " + textColorFor(label.color()) + ";");
+            chip.setStyle("-fx-text-fill: " + label.color() + "; -fx-border-color: " + label.color()
+                    + "; -fx-border-radius: 10; -fx-font-weight: bold;");
+            chip.setMinWidth(Region.USE_PREF_SIZE);
             chips.getChildren().add(chip);
         }
         // &end[LabelColors]
@@ -71,11 +79,7 @@ public final class TaskDialogController extends ListCell<Task> {
         setGraphic(row);
     }
 
-    // &begin[LabelColors]
-    private static String textColorFor(String hex) {
-        javafx.scene.paint.Color color = javafx.scene.paint.Color.web(hex);
-        double luminance = 0.299 * color.getRed() + 0.587 * color.getGreen() + 0.114 * color.getBlue();
-        return luminance > 0.6 ? "#1f2937" : "white";
+    private record LabelOption(model.Label label, String name) {
+        @Override public String toString() { return name; }
     }
-    // &end[LabelColors]
 }
