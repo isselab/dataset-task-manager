@@ -5,6 +5,7 @@ import model.Task;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -21,7 +22,7 @@ public final class TaskService {
     }
 
     public Task createTask(String title, String description) {
-        Task task = new Task(UUID.randomUUID().toString(), title.trim(), description == null ? "" : description.trim(), null);
+        Task task = new Task(UUID.randomUUID().toString(), title.trim(), description == null ? "" : description.trim(), List.of());
         tasks.add(task);
         return task;
     }
@@ -33,11 +34,11 @@ public final class TaskService {
 
     // &begin[AssignTaskLabels]
     public void assignLabel(Task task, Label label) {
-        task.setLabelId(label == null ? null : label.id());
+        if (label != null) task.addLabelId(label.id());
+    }
+
+    public void removeLabel(Task task, Label label) {
+        if (label != null) task.removeLabelId(label.id());
     }
     // &end[AssignTaskLabels]
-
-    public void removeLabel(Task task) {
-        task.setLabelId(null);
-    }
 }
