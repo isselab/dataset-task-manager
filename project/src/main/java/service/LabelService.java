@@ -24,6 +24,26 @@ public final class LabelService {
     }
     // &end[CreateLabels]
 
+    // &begin[RenameLabels]
+    public Label renameLabel(Label label, String name) {
+        String normalized = name == null ? "" : name.trim();
+        int index = labels.indexOf(label);
+        if (index < 0 || normalized.isEmpty() || labels.stream()
+                .anyMatch(other -> !other.id().equals(label.id()) && other.name().equalsIgnoreCase(normalized))) {
+            return null;
+        }
+        Label renamed = new Label(label.id(), normalized, label.color());
+        labels.set(index, renamed);
+        return renamed;
+    }
+    // &end[RenameLabels]
+
+    // &begin[DeleteLabels]
+    public void deleteLabel(Label label) {
+        labels.remove(label);
+    }
+    // &end[DeleteLabels]
+
     public void restore(Label label) {
         labels.add(label);
     }
