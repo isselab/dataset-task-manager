@@ -41,4 +41,10 @@ public final class TaskService {
         if (label != null) task.removeLabelId(label.id());
     }
     // &end[AssignTaskLabels]
+
+    // &begin[DeleteLabels]
+    public void removeLabelFromAllTasks(Label label) {
+        tasks.forEach(task -> task.removeLabelId(label.id()));
+    }
+    // &end[DeleteLabels]
 }
