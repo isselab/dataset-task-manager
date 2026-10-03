@@ -13,12 +13,12 @@ public final class LabelService {
         return labels;
     }
     // &begin[CreateLabels]
-    public Label createLabel(String name) {
+    public Label createLabel(String name, String color) {
         String normalized = name.trim();
         if (normalized.isEmpty() || labels.stream().anyMatch(label -> label.name().equalsIgnoreCase(normalized))) {
             return null;
         }
-        Label label = new Label(UUID.randomUUID().toString(), normalized);
+        Label label = new Label(UUID.randomUUID().toString(), normalized, color); // &line[LabelColors]
         labels.add(label);
         return label;
     }
