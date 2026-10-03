@@ -16,6 +16,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 import javafx.scene.paint.Color;
 
 public final class MainController {
@@ -90,14 +91,53 @@ public final class MainController {
         labelInput.setOnAction(event -> addLabel.fire());
         // &end[CreateLabels]
 
+        // &begin[RenameLabels]
+        ComboBox<model.Label> labelManager = new ComboBox<>(labelService.getLabels());
+        labelManager.setPromptText("Select label");
+        labelManager.setConverter(new StringConverter<>() {
+            @Override public String toString(model.Label label) { return label == null ? "" : label.name(); }
+            @Override public model.Label fromString(String string) { return null; }
+        });
+        TextField renameInput = new TextField();
+        renameInput.setPromptText("New name");
+        Button renameLabel = new Button("Rename label");
+        renameLabel.setOnAction(event -> {
+            model.Label selected = labelManager.getValue();
+            if (selected != null) {
+                model.Label renamed = labelService.renameLabel(selected, renameInput.getText());
+                if (renamed != null) {
+                    labelManager.setValue(renamed);
+                    renameInput.clear();
+                    persistence.save(taskService, labelService);
+                    taskList.refresh();
+                }
+            }
+        });
+        // &end[RenameLabels]
+        // &begin[DeleteLabels]
+        Button deleteLabel = new Button("Delete label");
+        deleteLabel.setOnAction(event -> {
+            model.Label selected = labelManager.getValue();
+            if (selected != null) {
+                taskService.removeLabelFromAllTasks(selected);
+                labelService.deleteLabel(selected);
+                labelManager.setValue(null);
+                persistence.save(taskService, labelService);
+                taskList.refresh();
+            }
+        });
+        // &end[DeleteLabels]
+
         HBox taskForm = new HBox(8, taskInput, descriptionInput, addTask); // &line[CreateTasks]
         HBox.setHgrow(taskInput, Priority.ALWAYS);
         HBox.setHgrow(descriptionInput, Priority.ALWAYS);
         HBox labelForm = new HBox(8, labelInput, labelColor, addLabel); // &line[LabelColors]
         HBox.setHgrow(labelInput, Priority.ALWAYS);
+        HBox labelManageForm = new HBox(8, labelManager, renameInput, renameLabel, deleteLabel);
+        HBox.setHgrow(renameInput, Priority.ALWAYS);
         HBox taskFilters = new HBox(8, searchInput, statusFilter); // &line[StatusFilter]
         HBox.setHgrow(searchInput, Priority.ALWAYS);
-        VBox content = new VBox(16, title, taskForm, taskFilters, new Label("Labels"), labelForm, taskList); // &line[KeywordSearch]
+        VBox content = new VBox(16, title, taskForm, taskFilters, new Label("Labels"), labelForm, labelManageForm, taskList); // &line[KeywordSearch]
         content.setPadding(new Insets(24));
         content.getStyleClass().add("app-root");
         return new BorderPane(content);
