@@ -7,6 +7,7 @@ import service.TaskService;
 import javafx.geometry.Insets;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.Button;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -15,6 +16,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
 public final class MainController {
     private final TaskService taskService = new TaskService();
@@ -76,9 +78,10 @@ public final class MainController {
         // &begin[CreateLabels]
         TextField labelInput = new TextField();
         labelInput.setPromptText("New label");
+        ColorPicker labelColor = new ColorPicker(Color.web(model.Label.DEFAULT_COLOR)); // &line[LabelColors]
         Button addLabel = new Button("Create label");
         addLabel.setOnAction(event -> {
-            if (labelService.createLabel(labelInput.getText()) != null) {
+            if (labelService.createLabel(labelInput.getText(), toHex(labelColor.getValue())) != null) { // &line[LabelColors]
                 labelInput.clear();
                 persistence.save(taskService, labelService);
                 taskList.refresh();
@@ -90,7 +93,7 @@ public final class MainController {
         HBox taskForm = new HBox(8, taskInput, descriptionInput, addTask); // &line[CreateTasks]
         HBox.setHgrow(taskInput, Priority.ALWAYS);
         HBox.setHgrow(descriptionInput, Priority.ALWAYS);
-        HBox labelForm = new HBox(8, labelInput, addLabel);
+        HBox labelForm = new HBox(8, labelInput, labelColor, addLabel); // &line[LabelColors]
         HBox.setHgrow(labelInput, Priority.ALWAYS);
         HBox taskFilters = new HBox(8, searchInput, statusFilter); // &line[StatusFilter]
         HBox.setHgrow(searchInput, Priority.ALWAYS);
@@ -99,4 +102,11 @@ public final class MainController {
         content.getStyleClass().add("app-root");
         return new BorderPane(content);
     }
+
+    // &begin[LabelColors]
+    private static String toHex(Color color) {
+        return String.format("#%02x%02x%02x",
+                Math.round(color.getRed() * 255), Math.round(color.getGreen() * 255), Math.round(color.getBlue() * 255));
+    }
+    // &end[LabelColors]
 }
