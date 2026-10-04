@@ -8,3 +8,5 @@ TaskManager
         AssignTaskLabels
         PersistLabels
         LabelColors
+        RenameLabels
+        DeleteLabels
