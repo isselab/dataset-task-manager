@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +50,13 @@ final class JsonFileStore {
                 if (j > 0) json.append(',');
                 json.append('"').append(escape(task.getTagIds().get(j))).append('"');
             }
-            json.append("],\"completed\":").append(task.isCompleted()).append('}');
+            json.append("],\"completed\":").append(task.isCompleted());
+            // &begin[DueDates]
+            if (task.getDueDate() != null) {
+                json.append(",\"dueDate\":\"").append(task.getDueDate()).append('"');
+            }
+            // &end[DueDates]
+            json.append('}');
         }
         json.append("]}");
         try {
@@ -102,7 +109,11 @@ final class JsonFileStore {
                 else { expectField("labelId"); String legacy = atString("null") ? readNull() : readString(); tagIds = legacy == null ? List.of() : List.of(legacy); }
                 boolean completed = false;
                 if (at(',')) { expect(','); expectField("completed"); completed = readBoolean(); }
-                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority)); consumeComma();
+                // &begin[DueDates]
+                LocalDate dueDate = null;
+                if (at(',')) { expect(','); dueDate = LocalDate.parse(readStringField("dueDate")); }
+                // &end[DueDates]
+                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority, dueDate)); consumeComma(); // &line[DueDates]
             }
             return result;
         }

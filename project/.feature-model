@@ -5,6 +5,7 @@ TaskManager
         RenameTasks
         TaskPriorityLevels
         TaskOrdering
+        DueDates
     TaskQuery
     PersistTasks
     Tags

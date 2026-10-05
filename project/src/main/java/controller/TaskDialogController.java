@@ -9,6 +9,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -62,6 +63,20 @@ public final class TaskDialogController extends ListCell<Task> {
             tagService.save();
         });
         // &end[TaskPriorityLevels]
+        // &begin[DueDates]
+        DatePicker dueDatePicker = new DatePicker(task.getDueDate());
+        dueDatePicker.setPromptText("Due date");
+        dueDatePicker.setOnAction(event -> {
+            if (java.util.Objects.equals(task.getDueDate(), dueDatePicker.getValue())) return;
+            taskService.setDueDate(task, dueDatePicker.getValue());
+            taskService.save();
+            tagService.save();
+        });
+        Label overdueLabel = new Label("Overdue");
+        overdueLabel.getStyleClass().add("overdue-badge");
+        overdueLabel.setVisible(task.isOverdue());
+        overdueLabel.setManaged(task.isOverdue());
+        // &end[DueDates]
         // &begin[AssignTaskTags]
         ChoiceBox<TagOption> selector = new ChoiceBox<>();
         selector.getItems().add(new TagOption(null, "Add tag..."));
@@ -112,6 +127,12 @@ public final class TaskDialogController extends ListCell<Task> {
         });
         // &end[DeleteTasks]
         HBox row = new HBox(12, titleInput, prioritySelector, completed, tags); // &line[TaskPriorityLevels]
+        row.getChildren().addAll(dueDatePicker, overdueLabel); // &line[DueDates]
+        // &begin[DueDates]
+        if (task.isOverdue()) {
+            row.getStyleClass().add("overdue-row");
+        }
+        // &end[DueDates]
         row.getChildren().add(delete); // &line[DeleteTasks]
         row.getChildren().add(rename); // &line[RenameTasks]
         row.setAlignment(Pos.CENTER_LEFT);

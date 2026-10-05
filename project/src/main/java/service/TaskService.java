@@ -71,6 +71,13 @@ public final class TaskService {
     }
     // &end[DeleteTasks]
 
+    // &begin[DueDates]
+    public void setDueDate(Task task, java.time.LocalDate dueDate) {
+        task.setDueDate(dueDate);
+        refreshTask(task);
+    }
+    // &end[DueDates]
+
     // &begin[AssignTaskTags]
     public void assignTag(Task task, Tag tag) {
         if (tag != null) task.addTagId(tag.id());
