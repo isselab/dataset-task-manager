@@ -5,6 +5,7 @@ import repository.JsonTagRepository;
 import repository.JsonTaskRepository;
 import service.TagService;
 import service.TaskService;
+import javafx.beans.InvalidationListener;
 import javafx.geometry.Insets;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -65,10 +66,10 @@ public final class MainController {
         statusFilter.getSelectionModel().selectFirst();
         // &end[StatusFilter]
         // &begin[TaskQuery]
-        Runnable applyTaskQuery = () -> filteredTasks.setPredicate(
+        InvalidationListener applyTaskQuery = observable -> filteredTasks.setPredicate(
                 taskService.createQuery(searchInput.getText(), statusFilter.getValue()));
-        statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> applyTaskQuery.run());
-        searchInput.textProperty().addListener((observable, oldValue, newValue) -> applyTaskQuery.run());
+        statusFilter.valueProperty().addListener(applyTaskQuery);
+        searchInput.textProperty().addListener(applyTaskQuery);
         // &end[TaskQuery]
         // &begin[TaskPriority]
         SortedList<Task> sortedTasks = new SortedList<>(filteredTasks);

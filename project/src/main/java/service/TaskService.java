@@ -58,17 +58,14 @@ public final class TaskService {
 
     // &begin[TaskQuery]
     public Predicate<Task> createQuery(String searchText, String status) {
-        // &begin[KeywordSearch]
-        String keyword = searchText == null ? "" : searchText.trim().toLowerCase();
-        Predicate<Task> matchesKeyword = task -> keyword.isEmpty()
+        String keyword = searchText == null ? "" : searchText.trim().toLowerCase(); // &line[KeywordSearch]
+        boolean openOnly = STATUS_OPEN.equals(status); // &line[StatusFilter]
+        boolean completedOnly = STATUS_COMPLETED.equals(status); // &line[StatusFilter]
+        return task -> (keyword.isEmpty()
                 || task.getTitle().toLowerCase().contains(keyword)
-                || task.getDescription().toLowerCase().contains(keyword);
-        // &end[KeywordSearch]
-        // &begin[StatusFilter]
-        Predicate<Task> matchesStatus = task -> (!STATUS_OPEN.equals(status) || !task.isCompleted())
-                && (!STATUS_COMPLETED.equals(status) || task.isCompleted());
-        // &end[StatusFilter]
-        return matchesKeyword.and(matchesStatus);
+                || task.getDescription().toLowerCase().contains(keyword))
+                && (!openOnly || !task.isCompleted())
+                && (!completedOnly || task.isCompleted()); // &line[KeywordSearch,StatusFilter]
     }
     // &end[TaskQuery]
 
