@@ -7,10 +7,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.UUID;
+import java.util.function.Predicate;
 import repository.TaskRepository;
 
 
 public final class TaskService {
+    public static final String STATUS_ALL = "All tasks";
+    public static final String STATUS_OPEN = "Open tasks";
+    public static final String STATUS_COMPLETED = "Completed tasks";
     private final TaskRepository repository;
     private final ObservableList<Task> tasks = FXCollections.observableArrayList();
 
@@ -51,6 +55,22 @@ public final class TaskService {
         int index = tasks.indexOf(task);
         if (index >= 0) tasks.set(index, task);
     }
+
+    // &begin[TaskQuery]
+    public Predicate<Task> createQuery(String searchText, String status) {
+        // &begin[KeywordSearch]
+        String keyword = searchText == null ? "" : searchText.trim().toLowerCase();
+        Predicate<Task> matchesKeyword = task -> keyword.isEmpty()
+                || task.getTitle().toLowerCase().contains(keyword)
+                || task.getDescription().toLowerCase().contains(keyword);
+        // &end[KeywordSearch]
+        // &begin[StatusFilter]
+        Predicate<Task> matchesStatus = task -> (!STATUS_OPEN.equals(status) || !task.isCompleted())
+                && (!STATUS_COMPLETED.equals(status) || task.isCompleted());
+        // &end[StatusFilter]
+        return matchesKeyword.and(matchesStatus);
+    }
+    // &end[TaskQuery]
 
     // &begin[AssignTaskTags]
     public void assignTag(Task task, Tag tag) {

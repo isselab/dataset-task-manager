@@ -61,22 +61,15 @@ public final class MainController {
         // &end[KeywordSearch]
         // &begin[StatusFilter]
         ComboBox<String> statusFilter = new ComboBox<>();
-        statusFilter.getItems().addAll("All tasks", "Open tasks", "Completed tasks");
+        statusFilter.getItems().addAll(TaskService.STATUS_ALL, TaskService.STATUS_OPEN, TaskService.STATUS_COMPLETED);
         statusFilter.getSelectionModel().selectFirst();
-        Runnable applyTaskFilters = () -> {
-            String keyword = searchInput.getText().trim().toLowerCase();
-            String status = statusFilter.getValue();
-            filteredTasks.setPredicate(task -> (keyword.isEmpty()
-                    || task.getTitle().toLowerCase().contains(keyword)
-                    || task.getDescription().toLowerCase().contains(keyword))
-                    && (!"Open tasks".equals(status) || !task.isCompleted())
-                    && (!"Completed tasks".equals(status) || task.isCompleted()));
-        };
-        statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> applyTaskFilters.run());
-        searchInput.textProperty().addListener((observable, oldValue, newValue) -> {
-            applyTaskFilters.run();
-        });
         // &end[StatusFilter]
+        // &begin[TaskQuery]
+        Runnable applyTaskQuery = () -> filteredTasks.setPredicate(
+                taskService.createQuery(searchInput.getText(), statusFilter.getValue()));
+        statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> applyTaskQuery.run());
+        searchInput.textProperty().addListener((observable, oldValue, newValue) -> applyTaskQuery.run());
+        // &end[TaskQuery]
         // &begin[TaskPriority]
         SortedList<Task> sortedTasks = new SortedList<>(filteredTasks);
         sortedTasks.setComparator(Comparator.comparing(Task::isCompleted)
