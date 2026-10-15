@@ -80,6 +80,15 @@ public final class TaskService {
     }
     // &end[RenameTasks]
 
+    // &begin[EditTaskDescription]
+    public boolean updateDescription(Task task, String description) {
+        if (task == null || !tasks.contains(task)) return false;
+        task.setDescription(description);
+        refreshTask(task);
+        return true;
+    }
+    // &end[EditTaskDescription]
+
     // &begin[Subtasks]
     // &begin[AddSubtasks]
     public Subtask addSubtask(Task task, String title) {

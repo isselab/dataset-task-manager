@@ -7,6 +7,8 @@ TaskManager
         TaskOrdering
         TaskDueDates
         ArchiveTasks
+        TaskDetails
+            EditTaskDescription
         Subtasks
             AddSubtasks
             RenameSubtasks

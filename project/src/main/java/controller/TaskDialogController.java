@@ -27,6 +27,7 @@ public final class TaskDialogController extends ListCell<Task> {
         super.updateItem(task, empty);
         if (empty || task == null) {
             setGraphic(null);
+            setOnMouseClicked(null);
             return;
         }
         Label titleLabel = new Label(task.getTitle());
@@ -46,28 +47,22 @@ public final class TaskDialogController extends ListCell<Task> {
         HBox tagChips = new HBox(4);
         tagService.getTags().stream()
                 .filter(tag -> task.getTagIds().contains(tag.id()))
-                .map(this::createTagChip)
+                .map(TaskDialogController::createTagChip)
                 .forEach(tagChips.getChildren()::add);
         // &end[AssignTaskTags]
         HBox row = new HBox(12, titleLabel, status, priority, dueDate, overdue, tagChips); // &line[TaskDueDates,TaskPriorityLevels,AssignTaskTags]
         row.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(titleLabel, Priority.ALWAYS);
         setGraphic(row);
+        setOnMouseClicked(event -> new TaskDetailsController(taskService, tagService).show(task)); // &line[TaskDetails]
     }
 
-    private Label createTagChip(model.Tag tag) {
+    static Label createTagChip(model.Tag tag) {
         Label chip = new Label(tag.name());
         chip.setPadding(new Insets(2, 7, 2, 7));
         chip.setBackground(new Background(new BackgroundFill(
                 javafx.scene.paint.Color.web(tag.color()), new CornerRadii(10), Insets.EMPTY)));
         chip.setTextFill(javafx.scene.paint.Color.WHITE);
         return chip;
-    }
-
-    private record TagOption(String id, String name) {
-        @Override
-        public String toString() {
-            return name;
-        }
     }
 }
