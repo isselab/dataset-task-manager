@@ -10,7 +10,7 @@ At the start of every session, perform these checks before doing any work:
 
 On EVERY user prompt that results in — or could possibly result in — code changes (no matter how small), the primary agent MUST follow this checklist in order. **Do not skip any step, do not reorder steps, do not combine steps.**
 
-**What counts as "code changes"**: Any edit to any file in the project — including CSS-only changes, visual redesigns, configuration updates, dependency changes, file renames, comment edits, and any file tracked by `.feature-to-file` or containing feature annotations. If in doubt, treat it as a code change.
+**What counts as "code changes"**: Any edit to any file in the project — including CSS-only changes, visual redesigns, configuration updates, dependency changes, file renames, comment edits, and any file tracked by `.feature-to-file` or `.feature-to-folder` or containing feature annotations. If in doubt, treat it as a code change.
 
 1. **Read the feature model**: Use the `agent-hans_get-feature-model` MCP tool to retrieve the current feature model. This ensures you are working with the latest state of all features before making any decisions.
 2. **Feature model first**: Load the `feature-model-skill` and determine which features in the .feature-model are affected (added, modified, or removed). **Reload this skill on every prompt, even if it was loaded earlier in this session** — context compression may have removed the instructions.
@@ -18,7 +18,9 @@ On EVERY user prompt that results in — or could possibly result in — code ch
 
 > **STOP — do not write or edit any file until steps 0–3 above are complete.** If you find yourself editing code without having completed the worktree check, read the feature model via MCP, and loaded both skills on this prompt, you are violating the workflow.
 
-4. **Write and verify code with annotations**: All code changes MUST include correct embedded feature annotations. After writing, verify that every annotation references a feature that exists in the `.feature-model` and that no changed code is left without annotations.
+4. **Write and verify code with annotations**: Annotate changed implementation code according to the annotation skill. After implementation, complete its mandatory diff review and run its validator. Resolve findings before displaying the summary. Report any validation that could not run.
+
+Apply the annotation skill's scope, shared-code, and UI-composition rules. Preserve valid coverage for existing features.
 
 5. **Display summary**: After all changes are complete, ALWAYS display a summary using the MCP server (`agent-hans_summary-gui`), including all features that were added, modified, or removed.
 
@@ -27,5 +29,6 @@ There are NO exceptions to this workflow. It applies to new features, bug fixes,
 Instruct agents you delegate to to NOT use the MCP server to display summaries, as the primary agent will handle this.
 
 ## If you are a subagent
+
 Act as usual.
 Do NOT use the MCP server to display summaries.
