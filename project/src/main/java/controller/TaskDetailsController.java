@@ -176,19 +176,6 @@ public final class TaskDetailsController {
         HBox tagRow = new HBox(8, tagChips, selector); // &line[AssignTaskTags]
         tagRow.setAlignment(Pos.CENTER_LEFT);
 
-        // &begin[ArchiveTasks]
-        Button archive = new Button(task.isArchived() ? "Restore" : "Archive");
-        archive.setOnAction(event -> {
-            boolean changed = task.isArchived()
-                    ? taskService.restoreTask(task)
-                    : taskService.archiveTask(task);
-            if (changed) {
-                taskService.save();
-                render(task);
-            }
-        });
-        // &end[ArchiveTasks]
-
         // &begin[DeleteTasks]
         Button delete = new Button("Delete task");
         delete.getStyleClass().add("danger-button");
@@ -212,7 +199,6 @@ public final class TaskDetailsController {
                 section("Status and schedule", statusRow, dueRow),
                 section("Tags", tagRow),
                 createSubtasks(task),
-                section("Actions", archive),
                 new Separator(),
                 section("Danger zone", delete));
 
