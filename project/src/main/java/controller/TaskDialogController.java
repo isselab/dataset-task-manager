@@ -2,6 +2,7 @@ package controller;
 
 import model.Task;
 import service.TagService;
+import service.TaskService;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
@@ -13,9 +14,11 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 
 public final class TaskDialogController extends ListCell<Task> {
+    private final TaskService taskService;
     private final TagService tagService;
 
-    public TaskDialogController(TagService tagService) {
+    public TaskDialogController(TaskService taskService, TagService tagService) {
+        this.taskService = taskService;
         this.tagService = tagService;
     }
 
@@ -24,6 +27,7 @@ public final class TaskDialogController extends ListCell<Task> {
         super.updateItem(task, empty);
         if (empty || task == null) {
             setGraphic(null);
+            setOnMouseClicked(null);
             return;
         }
         Label titleLabel = new Label(task.getTitle());
@@ -49,6 +53,7 @@ public final class TaskDialogController extends ListCell<Task> {
         row.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(titleLabel, Priority.ALWAYS);
         setGraphic(row);
+        setOnMouseClicked(event -> new TaskDetailsWindow(taskService, tagService, task).show(getScene().getWindow())); // &line[TaskDetails]
     }
 
     private Label createTagChip(model.Tag tag) {
