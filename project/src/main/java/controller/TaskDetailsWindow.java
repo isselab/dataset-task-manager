@@ -42,7 +42,7 @@ public final class TaskDetailsWindow {
         stage.setTitle("Task details - " + task.getTitle());
 
         VBox content = new VBox(16, createDetailsSection(), createStatusSection(), createTagSection(),
-                createSubtasksSection(), createActionsSection(), createDeleteSection());
+                createSubtasksSection(), createDeleteSection());
         content.setPadding(new Insets(20));
         stage.setScene(new Scene(content, 520, 720));
         stage.show();
@@ -185,22 +185,6 @@ public final class TaskDetailsWindow {
         subtaskContent.getChildren().add(new HBox(4, input, add));
     }
     // &end[Subtasks]
-
-    private VBox createActionsSection() {
-        // &begin[ArchiveTasks]
-        Button archive = new Button(task.isArchived() ? "Restore" : "Archive");
-        archive.setOnAction(event -> {
-            boolean changed = task.isArchived()
-                    ? taskService.restoreTask(task)
-                    : taskService.archiveTask(task);
-            if (changed) {
-                taskService.save();
-                archive.setText(task.isArchived() ? "Restore" : "Archive");
-            }
-        });
-        // &end[ArchiveTasks]
-        return section("Actions", archive); // &line[ArchiveTasks]
-    }
 
     // &begin[DeleteTasks]
     private VBox createDeleteSection() {
