@@ -1,0 +1,12 @@
+file,context,statement,feature
+src/main/java/LabelService.java,createLabel(String),String normalized = name.trim();,CreateLabels
+src/main/java/LabelService.java,createLabel(String),if (normalized.isEmpty() || labels.stream().anyMatch((label)->label.name().equalsIgnoreCase(normalized))) { return null; },CreateLabels
+src/main/java/LabelService.java,createLabel(String),"Label label = new Label(UUID.randomUUID().toString(), normalized);",CreateLabels
+src/main/java/LabelService.java,createLabel(String),labels.add(label);,CreateLabels
+src/main/java/LabelService.java,createLabel(String),return label;,CreateLabels
+src/main/java/TaskService.java,createTask(String),"Task task = new Task(UUID.randomUUID().toString(), title.trim());",CreateTasks
+src/main/java/TaskService.java,createTask(String),tasks.add(task);,CreateTasks
+src/main/java/TaskService.java,createTask(String),return task;,CreateTasks
+src/main/java/TaskService.java,"assignLabel(Task, Label)",task.setLabelId(label == null ? null : label.id());,AssignTaskLabels
+src/main/resources/taskmanager/styles.css,.task-title,-fx-font-size: 15px;,TaskManagement
+src/main/resources/taskmanager/styles.css,.task-title,-fx-text-fill: #1f2937;,TaskManagement

@@ -1,0 +1,15 @@
+file,feature
+src/main/java/controller/MainController.java,TaskManagement
+src/main/java/controller/TaskDialogController.java,Subtasks
+src/main/java/controller/TaskDialogController.java,TaskManagement
+src/main/java/repository/JsonFileStore.java,PersistSubtasks
+src/main/java/repository/JsonFileStore.java,PersistTasks
+src/main/java/repository/JsonTagRepository.java,PersistTags
+src/main/java/repository/JsonTaskRepository.java,PersistTasks
+src/main/java/repository/TagRepository.java,PersistTags
+src/main/java/repository/TaskRepository.java,PersistTasks
+src/main/java/service/TaskOrdering.java,TaskOrdering
+src/main/java/service/TaskQuery.java,TaskQuery
+src/main/java/service/TaskService.java,Subtasks
+src/main/java/service/TaskService.java,Tags
+src/main/java/service/TaskService.java,TaskManagement

@@ -1,0 +1,199 @@
+file,context,statement,feature
+src/main/java/controller/MainController.java,createView(),TextField taskInput = new TextField();,CreateTasks
+src/main/java/controller/MainController.java,createView(),"taskInput.setPromptText(""New task"");",CreateTasks
+src/main/java/controller/MainController.java,createView(),TextField descriptionInput = new TextField();,CreateTasks
+src/main/java/controller/MainController.java,createView(),"descriptionInput.setPromptText(""Description (optional)"");",CreateTasks
+src/main/java/controller/MainController.java,createView(),"Button addTask = new Button(""Add task"");",CreateTasks
+src/main/java/controller/MainController.java,createView(),"addTask.setOnAction((event)->{ if (!taskInput.getText().trim().isEmpty()) { taskService.createTask(taskInput.getText(), descriptionInput.getText()); taskInput.clear(); descriptionInput.clear(); taskService.save(); tagService.save(); } });",CreateTasks
+src/main/java/controller/MainController.java,createView(),taskInput.setOnAction((event)->addTask.fire());,CreateTasks
+src/main/java/controller/MainController.java,createView(),TextField searchInput = new TextField();,TaskQuery
+src/main/java/controller/MainController.java,createView(),"searchInput.setPromptText(""Search tasks by title or description"");",TaskQuery
+src/main/java/controller/MainController.java,createView(),FilteredList<Task> filteredTasks = new FilteredList<>(taskService.getTasks());,TaskQuery
+src/main/java/controller/MainController.java,createView(),ComboBox<String> statusSelection = new ComboBox<>();,TaskQuery
+src/main/java/controller/MainController.java,createView(),"statusSelection.getItems().addAll(TaskQuery.ALL_TASKS, TaskQuery.OPEN_TASKS, TaskQuery.COMPLETED_TASKS);",TaskQuery
+src/main/java/controller/MainController.java,createView(),statusSelection.getSelectionModel().selectFirst();,TaskQuery
+src/main/java/controller/MainController.java,createView(),"Runnable applyTaskQuery = ()->{ filteredTasks.setPredicate(new TaskQuery(searchInput.getText(), statusSelection.getValue())); };",TaskQuery
+src/main/java/controller/MainController.java,createView(),SortedList<Task> sortedTasks = new SortedList<>(filteredTasks);,TaskOrdering
+src/main/java/controller/MainController.java,createView(),sortedTasks.setComparator(TaskOrdering.defaultComparator());,TaskOrdering
+src/main/java/controller/MainController.java,createView(),"taskList.setCellFactory((view)->new TaskDialogController(taskService, tagService));",TaskManagement
+src/main/java/controller/MainController.java,createView(),TextField tagInput = new TextField();,CreateTags
+src/main/java/controller/MainController.java,createView(),"tagInput.setPromptText(""New tag"");",CreateTags
+src/main/java/controller/MainController.java,createView(),"ColorPicker tagColor = new ColorPicker(javafx.scene.paint.Color.web(""#4f46e5""));",CreateTags
+src/main/java/controller/MainController.java,createView(),"Button addTag = new Button(""Create tag"");",CreateTags
+src/main/java/controller/MainController.java,createView(),"addTag.setOnAction((event)->{ if (tagService.createTag(tagInput.getText(), tagColor.getValue().toString()) != null) { tagInput.clear(); tagService.save(); taskService.save(); taskList.refresh(); } });",CreateTags
+src/main/java/controller/MainController.java,createView(),tagInput.setOnAction((event)->addTag.fire());,CreateTags
+src/main/java/controller/MainController.java,createView(),ComboBox<model.Tag> tagSelector = new ComboBox<>(tagService.getTags());,RenameTags
+src/main/java/controller/MainController.java,createView(),"tagSelector.setPromptText(""Select tag"");",RenameTags
+src/main/java/controller/MainController.java,createView(),"tagSelector.setCellFactory((view)->new ListCell<>(){ @Override protected void updateItem(model.Tag tag, boolean empty) { super.updateItem(tag, empty); setText(empty || tag == null ? null : tag.name()); } });",RenameTags
+src/main/java/controller/MainController.java,createView(),"tagSelector.setButtonCell(new ListCell<>(){ @Override protected void updateItem(model.Tag tag, boolean empty) { super.updateItem(tag, empty); setText(empty || tag == null ? null : tag.name()); } });",RenameTags
+src/main/java/controller/MainController.java,createView(),TextField renameInput = new TextField();,RenameTags
+src/main/java/controller/MainController.java,createView(),"renameInput.setPromptText(""New tag name"");",RenameTags
+src/main/java/controller/MainController.java,createView(),"Button rename = new Button(""Rename"");",RenameTags
+src/main/java/controller/MainController.java,createView(),"rename.setOnAction((event)->{ model.Tag selected = tagSelector.getValue(); if (tagService.renameTag(selected, renameInput.getText(), taskService.getTasks())) { tagService.save(); taskService.save(); tagService.getTags().stream().filter((tag)->tag.id().equals(selected.id())).findFirst().ifPresent((tag)->tagSelector.getSelectionModel().select(tag)); taskList.refresh(); } });",RenameTags
+src/main/java/controller/MainController.java,createView(),"tagSelector.valueProperty().addListener((observable,oldValue,newValue)->renameInput.setText(newValue == null ? """" : newValue.name()));",RenameTags
+src/main/java/controller/MainController.java,createView(),"Button delete = new Button(""Delete"");",DeleteTags
+src/main/java/controller/MainController.java,createView(),"delete.setOnAction((event)->{ model.Tag selected = tagSelector.getValue(); if (tagService.deleteTag(selected, taskService.getTasks())) { taskService.save(); tagService.save(); tagSelector.getSelectionModel().clearSelection(); renameInput.clear(); taskList.refresh(); } });",DeleteTags
+src/main/java/controller/MainController.java,createView(),"HBox taskForm = new HBox(8, taskInput, descriptionInput, addTask);",CreateTasks
+src/main/java/controller/MainController.java,createView(),"HBox tagManagement = new HBox(8, tagSelector, renameInput, rename, delete);",RenameTags
+src/main/java/controller/MainController.java,createView(),"HBox taskFilters = new HBox(8, searchInput, statusSelection);",TaskQuery
+src/main/java/controller/MainController.java,createView(),"VBox content = new VBox(16, title, taskForm, taskFilters, new Label(""Tags""), tagForm, tagManagement, taskList);",TaskQuery
+src/main/java/controller/TaskDetailsController.java,show(Task),ChoiceBox<TaskPriority> priority = new ChoiceBox<>();,TaskPriorityLevels
+src/main/java/controller/TaskDetailsController.java,show(Task),DatePicker dueDate = new DatePicker(task.getDueDate());,TaskDueDates
+src/main/java/controller/TaskDetailsController.java,show(Task),ChoiceBox<Recurrence> recurrence = new ChoiceBox<>();,RecurringTasks
+src/main/java/controller/TaskDetailsController.java,show(Task),recurrence.getItems().addAll(Recurrence.values());,RecurringTasks
+src/main/java/controller/TaskDetailsController.java,show(Task),recurrence.setValue(task.getRecurrence());,RecurringTasks
+src/main/java/controller/TaskDetailsController.java,show(Task),"details.getChildren().add(new HBox(8, completed, priority, dueDate, recurrence));",RecurringTasks
+src/main/java/controller/TaskDetailsController.java,show(Task),ChoiceBox<TagOption> tagSelector = new ChoiceBox<>();,AssignTaskTags
+src/main/java/controller/TaskDetailsController.java,show(Task),"tagSelector.setOnAction((event)->{ TagOption option = tagSelector.getValue(); if (option.id() != null) { tagService.getTags().stream().filter((tag)->tag.id().equals(option.id())).findFirst().ifPresent((tag)->taskService.assignTag(task, tag)); refreshTags.run(); tagSelector.getSelectionModel().selectFirst(); } });",AssignTaskTags
+src/main/java/controller/TaskDetailsController.java,show(Task),"Button delete = new Button(""Delete"");",DeleteTasks
+src/main/java/controller/TaskDetailsController.java,show(Task),"delete.setOnAction((event)->{ Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, ""Delete task \"""" + task.getTitle() + ""\""?"", ButtonType.CANCEL, ButtonType.OK); confirmation.setTitle(""Delete task""); confirmation.setHeaderText(""Delete this task?""); confirmation.showAndWait().filter(ButtonType.OK::equals).ifPresent((button)->{ boolean deleted = task.getRecurrence() == Recurrence.NONE ? taskService.deleteTask(task) : confirmRecurringDeletion(task); if (deleted) { saveTask(task); stage.close(); } }); });",DeleteTasks
+src/main/java/controller/TaskDetailsController.java,show(Task),"Button save = new Button(""Save"");",PersistTasks
+src/main/java/controller/TaskDetailsController.java,show(Task),"save.setOnAction((event)->{ if (taskService.renameTask(task, title.getText())) { task.setDescription(description.getText()); task.setPriority(priority.getValue()); task.setDueDate(dueDate.getValue()); task.setRecurrence(recurrence.getValue()); taskService.setTaskCompleted(task, completed.isSelected()); saveTask(task); } });",PersistTasks
+src/main/java/controller/TaskDetailsController.java,show(Task),task.setRecurrence(recurrence.getValue());,RecurringTasks
+src/main/java/controller/TaskDetailsController.java,confirmRecurringDeletion(Task),"ButtonType occurrence = new ButtonType(""This occurrence"");",RecurringTasks
+src/main/java/controller/TaskDetailsController.java,confirmRecurringDeletion(Task),"ButtonType series = new ButtonType(""Entire series"");",RecurringTasks
+src/main/java/controller/TaskDetailsController.java,confirmRecurringDeletion(Task),"Alert choice = new Alert(Alert.AlertType.CONFIRMATION, ""Delete only this occurrence or the complete recurring series?"", ButtonType.CANCEL, occurrence, series);",RecurringTasks
+src/main/java/controller/TaskDetailsController.java,confirmRecurringDeletion(Task),"choice.setTitle(""Delete recurring task"");",RecurringTasks
+src/main/java/controller/TaskDetailsController.java,confirmRecurringDeletion(Task),"choice.setHeaderText(""Choose what to delete"");",RecurringTasks
+src/main/java/controller/TaskDetailsController.java,confirmRecurringDeletion(Task),return choice.showAndWait().map((button)->{ if (button.equals(occurrence)) return taskService.deleteTaskOccurrence(task); if (button.equals(series)) return taskService.deleteTaskSeries(task); return false; }).orElse(false);,RecurringTasks
+src/main/java/controller/TaskDetailsController.java,createSubtasks(Task),VBox content = new VBox(4);,Subtasks
+src/main/java/controller/TaskDetailsController.java,createSubtasks(Task),TextField input = new TextField();,AddSubtasks
+src/main/java/controller/TaskDetailsController.java,createSubtasks(Task),TextField input = new TextField();,Subtasks
+src/main/java/controller/TaskDetailsController.java,createSubtasks(Task),"input.setPromptText(""New subtask"");",Subtasks
+src/main/java/controller/TaskDetailsController.java,createSubtasks(Task),"Button add = new Button(""Add"");",Subtasks
+src/main/java/controller/TaskDetailsController.java,createSubtasks(Task),"HBox inputRow = new HBox(4, input, add);",Subtasks
+src/main/java/controller/TaskDetailsController.java,createSubtasks(Task),"Runnable addSubtask = ()->{ if (taskService.addSubtask(task, input.getText()) != null) { input.clear(); saveTask(task); refreshSubtasks(content, task, inputRow); } };",Subtasks
+src/main/java/controller/TaskDetailsController.java,createSubtasks(Task),add.setOnAction((event)->addSubtask.run());,Subtasks
+src/main/java/controller/TaskDetailsController.java,createSubtasks(Task),input.setOnAction((event)->addSubtask.run());,Subtasks
+src/main/java/controller/TaskDetailsController.java,createSubtasks(Task),content.getChildren().add(inputRow);,Subtasks
+src/main/java/controller/TaskDetailsController.java,createSubtasks(Task),"refreshSubtasks(content, task, inputRow);",Subtasks
+src/main/java/controller/TaskDetailsController.java,createSubtasks(Task),return content;,Subtasks
+src/main/java/controller/TaskDetailsController.java,"refreshSubtasks(VBox, Task, HBox)",content.getChildren().clear();,Subtasks
+src/main/java/controller/TaskDetailsController.java,"refreshSubtasks(VBox, Task, HBox)",content.getChildren().add(inputRow);,Subtasks
+src/main/java/controller/TaskDetailsController.java,"refreshSubtasks(VBox, Task, HBox)","for (Subtask subtask : task.getSubtasks()) { TextField title = new TextField(subtask.getTitle()); CheckBox completed = new CheckBox(); completed.setSelected(subtask.isCompleted()); completed.setOnAction((event)->{ taskService.setSubtaskCompleted(task, subtask, completed.isSelected()); saveTask(task); }); Button rename = new Button(""Rename""); rename.setOnAction((event)->{ if (taskService.renameSubtask(task, subtask, title.getText())) { saveTask(task); refreshSubtasks(content, task, inputRow); } }); Button delete = new Button(""Delete""); delete.setOnAction((event)->{ if (taskService.deleteSubtask(task, subtask)) { saveTask(task); refreshSubtasks(content, task, inputRow); } }); HBox row = new HBox(4, completed, title, rename, delete); HBox.setHgrow(title, Priority.ALWAYS); content.getChildren().add(row); }",Subtasks
+src/main/java/controller/TaskDetailsController.java,"refreshSubtasks(VBox, Task, HBox)",TextField title = new TextField(subtask.getTitle());,RenameSubtasks
+src/main/java/controller/TaskDetailsController.java,"refreshSubtasks(VBox, Task, HBox)",CheckBox completed = new CheckBox();,CompleteSubtasks
+src/main/java/controller/TaskDetailsController.java,"refreshSubtasks(VBox, Task, HBox)","Button delete = new Button(""Delete"");",DeleteSubtasks
+src/main/java/controller/TaskDetailsController.java,saveTask(Task),taskService.refreshTask(task);,PersistTasks
+src/main/java/controller/TaskDetailsController.java,saveTask(Task),taskService.save();,PersistTasks
+src/main/java/controller/TaskDetailsController.java,saveTask(Task),tagService.save();,PersistTasks
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)",Label priority = new Label(task.getPriority().toString());,TaskPriorityLevels
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)","Label overdue = new Label(""OVERDUE"");",TaskDueDates
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)","overdue.getStyleClass().add(""overdue-label"");",TaskDueDates
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)",overdue.setVisible(task.isOverdue());,TaskDueDates
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)",overdue.setManaged(task.isOverdue());,TaskDueDates
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)","row.setOnMouseClicked((event)->new TaskDetailsController(taskService, tagService).show(task));",TaskManagement
+src/main/java/controller/TaskDialogController.java,createTagChip(model.Tag),Label chip = new Label(tag.name());,AssignTaskTags
+src/main/java/controller/TaskDialogController.java,createTagChip(model.Tag),"chip.setPadding(new Insets(2, 7, 2, 7));",AssignTaskTags
+src/main/java/controller/TaskDialogController.java,createTagChip(model.Tag),"chip.setBackground(new Background(new BackgroundFill(javafx.scene.paint.Color.web(tag.color()), new CornerRadii(10), Insets.EMPTY)));",AssignTaskTags
+src/main/java/controller/TaskDialogController.java,createTagChip(model.Tag),chip.setTextFill(javafx.scene.paint.Color.WHITE);,AssignTaskTags
+src/main/java/controller/TaskDialogController.java,createTagChip(model.Tag),return chip;,AssignTaskTags
+src/main/java/model/Task.java,getRecurrenceSeriesId(),public String getRecurrenceSeriesId(),RecurringTasks
+src/main/java/repository/JsonFileStore.java,"write(List<Tag>, List<Task>)","StringBuilder json = new StringBuilder(""{\""labels\"":["");",PersistTags
+src/main/java/repository/JsonFileStore.java,"write(List<Tag>, List<Task>)","for (int i = 0; i < tags.size(); i++) { if (i > 0) json.append(','); Tag tag = tags.get(i); json.append(""{\""id\"":\"""").append(escape(tag.id())).append(""\"",\""name\"":\"""").append(escape(tag.name())).append(""\"",\""color\"":\"""").append(escape(tag.color())).append(""\""}""); }",PersistTags
+src/main/java/repository/JsonFileStore.java,"write(List<Tag>, List<Task>)","json.append(""],\""tasks\"":["");",PersistTags
+src/main/java/repository/JsonFileStore.java,"write(List<Tag>, List<Task>)","for (int i = 0; i < tasks.size(); i++) { if (i > 0) json.append(','); Task task = tasks.get(i); json.append(""{\""id\"":\"""").append(escape(task.getId())).append(""\"",\""title\"":\"""").append(escape(task.getTitle())).append(""\"",\""description\"":\"""").append(escape(task.getDescription())).append(""\"",\""priority\"":\"""").append(task.getPriority().name()).append(""\""""); json.append("",\""dueDate\"":""); if (task.getDueDate() == null) json.append(""null""); else json.append('""').append(task.getDueDate()).append('""'); json.append("",\""recurrence\"":\"""").append(task.getRecurrence().name()).append('""'); json.append("",\""recurrenceSeriesId\"":""); if (task.getRecurrenceSeriesId() == null) json.append(""null""); else json.append('""').append(escape(task.getRecurrenceSeriesId())).append('""'); json.append("",\""labelIds\"":[""); for (int j = 0; j < task.getTagIds().size(); j++) { if (j > 0) json.append(','); json.append('""').append(escape(task.getTagIds().get(j))).append('""'); } json.append(""],\""completed\"":"").append(task.isCompleted()); json.append("",\""subtasks\"":[""); for (int j = 0; j < task.getSubtasks().size(); j++) { if (j > 0) json.append(','); Subtask subtask = task.getSubtasks().get(j); json.append(""{\""id\"":\"""").append(escape(subtask.getId())).append(""\"",\""title\"":\"""").append(escape(subtask.getTitle())).append(""\"",\""completed\"":"").append(subtask.isCompleted()).append('}'); } json.append(""]""); json.append('}'); }",PersistTags
+src/main/java/repository/JsonFileStore.java,"write(List<Tag>, List<Task>)","json.append(""]}"");",PersistTags
+src/main/java/repository/JsonFileStore.java,"write(List<Tag>, List<Task>)","try { Files.createDirectories(file.getParent()); Files.writeString(file, json.toString(), StandardCharsets.UTF_8); } catch (IOException ignored) { }",PersistTags
+src/main/java/repository/JsonFileStore.java,readTags(),"position = json.indexOf(""\""labels\"""");",PersistTags
+src/main/java/repository/JsonFileStore.java,readTags(),if (position < 0) throw new IllegalArgumentException();,PersistTags
+src/main/java/repository/JsonFileStore.java,readTags(),"position = json.indexOf('[', position) + 1;",PersistTags
+src/main/java/repository/JsonFileStore.java,readTags(),List<Tag> result = new ArrayList<>();,PersistTags
+src/main/java/repository/JsonFileStore.java,readTags(),"while (!at(']')) { expect('{'); String id = readStringField(""id""); expect(','); String name = readStringField(""name""); String color = ""#4f46e5""; if (at(',')) { expect(','); color = readStringField(""color""); } expect('}'); result.add(new Tag(id, name, color)); consumeComma(); }",PersistTags
+src/main/java/repository/JsonFileStore.java,readTags(),return result;,PersistTags
+src/main/java/repository/JsonFileStore.java,readTasks(),LocalDate dueDate = null;,TaskDueDates
+src/main/java/repository/JsonFileStore.java,readTasks(),"if (atString(""\""dueDate\"""")) { expectField(""dueDate""); if (atString(""null"")) readNull(); else dueDate = LocalDate.parse(readString()); expect(','); }",TaskDueDates
+src/main/java/repository/JsonFileStore.java,readTasks(),Recurrence recurrence = Recurrence.NONE;,RecurringTasks
+src/main/java/repository/JsonFileStore.java,readTasks(),"if (atString(""\""recurrence\"""")) { expectField(""recurrence""); recurrence = Recurrence.valueOf(readString()); expect(','); }",RecurringTasks
+src/main/java/repository/JsonFileStore.java,readTasks(),String recurrenceSeriesId = null;,RecurringTasks
+src/main/java/repository/JsonFileStore.java,readTasks(),"if (atString(""\""recurrenceSeriesId\"""")) { expectField(""recurrenceSeriesId""); recurrenceSeriesId = atString(""null"") ? readNull() : readString(); expect(','); }",RecurringTasks
+src/main/java/repository/JsonFileStore.java,readTasks(),List<Subtask> subtasks = new ArrayList<>();,PersistSubtasks
+src/main/java/repository/JsonFileStore.java,readTasks(),"if (at(',')) { expect(','); expectField(""subtasks""); expect('['); while (!at(']')) { expect('{'); String subtaskId = readStringField(""id""); expect(','); String subtaskTitle = readStringField(""title""); expect(','); expectField(""completed""); boolean subtaskCompleted = readBoolean(); expect('}'); subtasks.add(new Subtask(subtaskId, subtaskTitle, subtaskCompleted)); consumeComma(); } expect(']'); }",PersistSubtasks
+src/main/java/service/TagService.java,,import model.Task;,RenameTags
+src/main/java/service/TagService.java,createTag(String),"return createTag(name, ""#4f46e5"");",CreateTags
+src/main/java/service/TagService.java,"createTag(String, String)",String normalized = name.trim();,CreateTags
+src/main/java/service/TagService.java,"createTag(String, String)",if (normalized.isEmpty() || tags.stream().anyMatch((tag)->tag.name().equalsIgnoreCase(normalized))) { return null; },CreateTags
+src/main/java/service/TagService.java,"createTag(String, String)","Tag tag = new Tag(UUID.randomUUID().toString(), normalized, color);",CreateTags
+src/main/java/service/TagService.java,"createTag(String, String)",tags.add(tag);,CreateTags
+src/main/java/service/TagService.java,"createTag(String, String)",return tag;,CreateTags
+src/main/java/service/TagService.java,"renameTag(Tag, String, ObservableList<Task>)",if (tag == null || name == null) return false;,RenameTags
+src/main/java/service/TagService.java,"renameTag(Tag, String, ObservableList<Task>)",String normalized = name.trim();,RenameTags
+src/main/java/service/TagService.java,"renameTag(Tag, String, ObservableList<Task>)",if (normalized.isEmpty() || tags.stream().anyMatch((existing)->existing != tag && existing.name().equalsIgnoreCase(normalized))) { return false; },RenameTags
+src/main/java/service/TagService.java,"renameTag(Tag, String, ObservableList<Task>)","Tag renamed = new Tag(tag.id(), normalized, tag.color());",RenameTags
+src/main/java/service/TagService.java,"renameTag(Tag, String, ObservableList<Task>)",int index = tags.indexOf(tag);,RenameTags
+src/main/java/service/TagService.java,"renameTag(Tag, String, ObservableList<Task>)",if (index < 0) return false;,RenameTags
+src/main/java/service/TagService.java,"renameTag(Tag, String, ObservableList<Task>)","tags.set(index, renamed);",RenameTags
+src/main/java/service/TagService.java,"renameTag(Tag, String, ObservableList<Task>)",return true;,RenameTags
+src/main/java/service/TagService.java,"deleteTag(Tag, ObservableList<Task>)",if (tag == null || !tags.remove(tag)) return false;,DeleteTags
+src/main/java/service/TagService.java,"deleteTag(Tag, ObservableList<Task>)",if (tasks != null) { tasks.forEach((task)->task.removeTagId(tag.id())); },DeleteTags
+src/main/java/service/TagService.java,"deleteTag(Tag, ObservableList<Task>)",return true;,DeleteTags
+src/main/java/service/TaskService.java,createTask(String),"return createTask(title, """");",CreateTasks
+src/main/java/service/TaskService.java,"createTask(String, String)","Task task = new Task(UUID.randomUUID().toString(), title.trim(), description == null ? """" : description.trim(), null, false, TaskPriority.MEDIUM);",CreateTasks
+src/main/java/service/TaskService.java,"createTask(String, String)","Task task = new Task(UUID.randomUUID().toString(), title.trim(), description == null ? """" : description.trim(), null, false, TaskPriority.MEDIUM);",TaskPriorityLevels
+src/main/java/service/TaskService.java,"createTask(String, String)",tasks.add(task);,CreateTasks
+src/main/java/service/TaskService.java,"createTask(String, String)",return task;,CreateTasks
+src/main/java/service/TaskService.java,"renameTask(Task, String)",if (task == null || !tasks.contains(task) || title == null || title.trim().isEmpty()) { return false; },RenameTasks
+src/main/java/service/TaskService.java,"renameTask(Task, String)",task.setTitle(title);,RenameTasks
+src/main/java/service/TaskService.java,"renameTask(Task, String)",refreshTask(task);,RenameTasks
+src/main/java/service/TaskService.java,"renameTask(Task, String)",return true;,RenameTasks
+src/main/java/service/TaskService.java,"setTaskCompleted(Task, boolean)","Task nextOccurrence = new Task(UUID.randomUUID().toString(), task.getTitle(), task.getDescription(), task.getTagIds(), false, task.getPriority(), task.getRecurrence().nextDueDate(task.getDueDate()), task.getRecurrence(), List.of(), task.getRecurrenceSeriesId());",RecurringTasks
+src/main/java/service/TaskService.java,"addSubtask(Task, String)",if (task == null || !tasks.contains(task) || title == null || title.trim().isEmpty()) return null;,AddSubtasks
+src/main/java/service/TaskService.java,"addSubtask(Task, String)",if (task == null || !tasks.contains(task) || title == null || title.trim().isEmpty()) return null;,Subtasks
+src/main/java/service/TaskService.java,"addSubtask(Task, String)","Subtask subtask = new Subtask(UUID.randomUUID().toString(), title);",AddSubtasks
+src/main/java/service/TaskService.java,"addSubtask(Task, String)","Subtask subtask = new Subtask(UUID.randomUUID().toString(), title);",Subtasks
+src/main/java/service/TaskService.java,"addSubtask(Task, String)",task.addSubtask(subtask);,AddSubtasks
+src/main/java/service/TaskService.java,"addSubtask(Task, String)",task.addSubtask(subtask);,Subtasks
+src/main/java/service/TaskService.java,"addSubtask(Task, String)",refreshTask(task);,AddSubtasks
+src/main/java/service/TaskService.java,"addSubtask(Task, String)",refreshTask(task);,Subtasks
+src/main/java/service/TaskService.java,"addSubtask(Task, String)",return subtask;,AddSubtasks
+src/main/java/service/TaskService.java,"addSubtask(Task, String)",return subtask;,Subtasks
+src/main/java/service/TaskService.java,"renameSubtask(Task, Subtask, String)",if (task == null || subtask == null || !tasks.contains(task) || !task.getSubtasks().contains(subtask) || title == null || title.trim().isEmpty()) return false;,RenameSubtasks
+src/main/java/service/TaskService.java,"renameSubtask(Task, Subtask, String)",if (task == null || subtask == null || !tasks.contains(task) || !task.getSubtasks().contains(subtask) || title == null || title.trim().isEmpty()) return false;,Subtasks
+src/main/java/service/TaskService.java,"renameSubtask(Task, Subtask, String)",subtask.setTitle(title);,RenameSubtasks
+src/main/java/service/TaskService.java,"renameSubtask(Task, Subtask, String)",subtask.setTitle(title);,Subtasks
+src/main/java/service/TaskService.java,"renameSubtask(Task, Subtask, String)",refreshTask(task);,RenameSubtasks
+src/main/java/service/TaskService.java,"renameSubtask(Task, Subtask, String)",refreshTask(task);,Subtasks
+src/main/java/service/TaskService.java,"renameSubtask(Task, Subtask, String)",return true;,RenameSubtasks
+src/main/java/service/TaskService.java,"renameSubtask(Task, Subtask, String)",return true;,Subtasks
+src/main/java/service/TaskService.java,"setSubtaskCompleted(Task, Subtask, boolean)",if (task == null || subtask == null || !tasks.contains(task) || !task.getSubtasks().contains(subtask)) return false;,CompleteSubtasks
+src/main/java/service/TaskService.java,"setSubtaskCompleted(Task, Subtask, boolean)",if (task == null || subtask == null || !tasks.contains(task) || !task.getSubtasks().contains(subtask)) return false;,Subtasks
+src/main/java/service/TaskService.java,"setSubtaskCompleted(Task, Subtask, boolean)",subtask.setCompleted(completed);,CompleteSubtasks
+src/main/java/service/TaskService.java,"setSubtaskCompleted(Task, Subtask, boolean)",subtask.setCompleted(completed);,Subtasks
+src/main/java/service/TaskService.java,"setSubtaskCompleted(Task, Subtask, boolean)",refreshTask(task);,CompleteSubtasks
+src/main/java/service/TaskService.java,"setSubtaskCompleted(Task, Subtask, boolean)",refreshTask(task);,Subtasks
+src/main/java/service/TaskService.java,"setSubtaskCompleted(Task, Subtask, boolean)",return true;,CompleteSubtasks
+src/main/java/service/TaskService.java,"setSubtaskCompleted(Task, Subtask, boolean)",return true;,Subtasks
+src/main/java/service/TaskService.java,"completeSubtask(Task, Subtask)","return setSubtaskCompleted(task, subtask, true);",CompleteSubtasks
+src/main/java/service/TaskService.java,"completeSubtask(Task, Subtask)","return setSubtaskCompleted(task, subtask, true);",Subtasks
+src/main/java/service/TaskService.java,"reopenSubtask(Task, Subtask)","return setSubtaskCompleted(task, subtask, false);",ReopenSubtasks
+src/main/java/service/TaskService.java,"reopenSubtask(Task, Subtask)","return setSubtaskCompleted(task, subtask, false);",Subtasks
+src/main/java/service/TaskService.java,"deleteSubtask(Task, Subtask)",if (task == null || subtask == null || !tasks.contains(task)) return false;,DeleteSubtasks
+src/main/java/service/TaskService.java,"deleteSubtask(Task, Subtask)",if (task == null || subtask == null || !tasks.contains(task)) return false;,Subtasks
+src/main/java/service/TaskService.java,"deleteSubtask(Task, Subtask)",boolean removed = task.removeSubtask(subtask);,DeleteSubtasks
+src/main/java/service/TaskService.java,"deleteSubtask(Task, Subtask)",boolean removed = task.removeSubtask(subtask);,Subtasks
+src/main/java/service/TaskService.java,"deleteSubtask(Task, Subtask)",if (removed) refreshTask(task);,DeleteSubtasks
+src/main/java/service/TaskService.java,"deleteSubtask(Task, Subtask)",if (removed) refreshTask(task);,Subtasks
+src/main/java/service/TaskService.java,"deleteSubtask(Task, Subtask)",return removed;,DeleteSubtasks
+src/main/java/service/TaskService.java,"deleteSubtask(Task, Subtask)",return removed;,Subtasks
+src/main/java/service/TaskService.java,deleteTask(Task),if (task == null || !tasks.contains(task)) return false;,DeleteTasks
+src/main/java/service/TaskService.java,deleteTask(Task),task.setTagIds(java.util.List.of());,DeleteTasks
+src/main/java/service/TaskService.java,deleteTask(Task),return tasks.remove(task);,DeleteTasks
+src/main/java/service/TaskService.java,deleteTaskOccurrence(Task),if (task == null || !tasks.contains(task) || task.getRecurrence() == Recurrence.NONE) return false;,DeleteTasks
+src/main/java/service/TaskService.java,deleteTaskOccurrence(Task),if (!task.isCompleted()) createNextOccurrence(task);,DeleteTasks
+src/main/java/service/TaskService.java,deleteTaskOccurrence(Task),return deleteTask(task);,DeleteTasks
+src/main/java/service/TaskService.java,deleteTaskSeries(Task),if (task == null || !tasks.contains(task) || task.getRecurrence() == Recurrence.NONE) return false;,DeleteTasks
+src/main/java/service/TaskService.java,deleteTaskSeries(Task),String seriesId = task.getRecurrenceSeriesId();,DeleteTasks
+src/main/java/service/TaskService.java,deleteTaskSeries(Task),tasks.removeIf((candidate)->{ boolean sameSeries = seriesId != null && seriesId.equals(candidate.getRecurrenceSeriesId()); if (sameSeries) candidate.setTagIds(java.util.List.of()); return sameSeries; });,DeleteTasks
+src/main/java/service/TaskService.java,deleteTaskSeries(Task),return true;,DeleteTasks
+src/main/java/service/TaskService.java,"assignTag(Task, Tag)",if (tag != null) task.addTagId(tag.id());,AssignTaskTags
+src/main/java/service/TaskService.java,"removeTag(Task, Tag)",if (tag != null) task.removeTagId(tag.id());,AssignTaskTags
+src/main/resources/taskmanager/styles.css,.task-title,-fx-font-size: 15px;,TaskManagement
+src/main/resources/taskmanager/styles.css,.task-title,-fx-text-fill: #1f2937;,TaskManagement
+src/main/resources/taskmanager/styles.css,.details-section,-fx-font-size: 16px;,TaskManagement
+src/main/resources/taskmanager/styles.css,.details-section,-fx-font-weight: bold;,TaskManagement
+src/main/resources/taskmanager/styles.css,.details-section,-fx-text-fill: #374151;,TaskManagement
+src/main/resources/taskmanager/styles.css,.overdue-label,-fx-font-weight: bold;,TaskDueDates
+src/main/resources/taskmanager/styles.css,.overdue-label,-fx-text-fill: #b91c1c;,TaskDueDates
+src/main/resources/taskmanager/styles.css,.overdue-label,-fx-background-color: #fee2e2;,TaskDueDates
+src/main/resources/taskmanager/styles.css,.overdue-label,-fx-padding: 4px 7px;,TaskDueDates
+src/main/resources/taskmanager/styles.css,.overdue-label,-fx-background-radius: 4px;,TaskDueDates

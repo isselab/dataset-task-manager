@@ -1,0 +1,40 @@
+file,context,statement,feature
+src/main/java/controller/MainController.java,createView(),TextField taskInput = new TextField();,CreateTasks
+src/main/java/controller/MainController.java,createView(),"taskInput.setPromptText(""New task"");",CreateTasks
+src/main/java/controller/MainController.java,createView(),TextField descriptionInput = new TextField();,CreateTasks
+src/main/java/controller/MainController.java,createView(),"descriptionInput.setPromptText(""Description (optional)"");",CreateTasks
+src/main/java/controller/MainController.java,createView(),"Button addTask = new Button(""Add task"");",CreateTasks
+src/main/java/controller/MainController.java,createView(),"addTask.setOnAction((event)->{ if (!taskInput.getText().trim().isEmpty()) { taskService.createTask(taskInput.getText(), descriptionInput.getText()); taskInput.clear(); descriptionInput.clear(); persistence.save(taskService, labelService); } });",CreateTasks
+src/main/java/controller/MainController.java,createView(),taskInput.setOnAction((event)->addTask.fire());,CreateTasks
+src/main/java/controller/MainController.java,createView(),TextField searchInput = new TextField();,KeywordSearch
+src/main/java/controller/MainController.java,createView(),"searchInput.setPromptText(""Search tasks by title or description"");",KeywordSearch
+src/main/java/controller/MainController.java,createView(),FilteredList<Task> filteredTasks = new FilteredList<>(taskService.getTasks());,KeywordSearch
+src/main/java/controller/MainController.java,createView(),ComboBox<String> statusFilter = new ComboBox<>();,StatusFilter
+src/main/java/controller/MainController.java,createView(),"statusFilter.getItems().addAll(""All tasks"", ""Open tasks"", ""Completed tasks"");",StatusFilter
+src/main/java/controller/MainController.java,createView(),statusFilter.getSelectionModel().selectFirst();,StatusFilter
+src/main/java/controller/MainController.java,createView(),"Runnable applyTaskFilters = ()->{ String keyword = searchInput.getText().trim().toLowerCase(); String status = statusFilter.getValue(); filteredTasks.setPredicate((task)->(keyword.isEmpty() || task.getTitle().toLowerCase().contains(keyword) || task.getDescription().toLowerCase().contains(keyword)) && (!""Open tasks"".equals(status) || !task.isCompleted()) && (!""Completed tasks"".equals(status) || task.isCompleted())); };",StatusFilter
+src/main/java/controller/MainController.java,createView(),"statusFilter.valueProperty().addListener((observable,oldValue,newValue)->applyTaskFilters.run());",StatusFilter
+src/main/java/controller/MainController.java,createView(),"searchInput.textProperty().addListener((observable,oldValue,newValue)->{ applyTaskFilters.run(); });",StatusFilter
+src/main/java/controller/MainController.java,createView(),TextField labelInput = new TextField();,CreateLabels
+src/main/java/controller/MainController.java,createView(),"labelInput.setPromptText(""New label"");",CreateLabels
+src/main/java/controller/MainController.java,createView(),"Button addLabel = new Button(""Create label"");",CreateLabels
+src/main/java/controller/MainController.java,createView(),"addLabel.setOnAction((event)->{ if (labelService.createLabel(labelInput.getText()) != null) { labelInput.clear(); persistence.save(taskService, labelService); taskList.refresh(); } });",CreateLabels
+src/main/java/controller/MainController.java,createView(),labelInput.setOnAction((event)->addLabel.fire());,CreateLabels
+src/main/java/controller/MainController.java,createView(),"HBox taskForm = new HBox(8, taskInput, descriptionInput, addTask);",CreateTasks
+src/main/java/controller/MainController.java,createView(),"HBox taskFilters = new HBox(8, searchInput, statusFilter);",StatusFilter
+src/main/java/controller/MainController.java,createView(),"VBox content = new VBox(16, title, taskForm, taskFilters, new Label(""Labels""), labelForm, taskList);",KeywordSearch
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)","CheckBox completed = new CheckBox(""Completed"");",StatusFilter
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)",completed.setSelected(task.isCompleted());,StatusFilter
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)","completed.setOnAction((event)->{ task.setCompleted(completed.isSelected()); persistence.save(taskService, labelService); });",StatusFilter
+src/main/java/service/LabelService.java,createLabel(String),String normalized = name.trim();,CreateLabels
+src/main/java/service/LabelService.java,createLabel(String),if (normalized.isEmpty() || labels.stream().anyMatch((label)->label.name().equalsIgnoreCase(normalized))) { return null; },CreateLabels
+src/main/java/service/LabelService.java,createLabel(String),"Label label = new Label(UUID.randomUUID().toString(), normalized);",CreateLabels
+src/main/java/service/LabelService.java,createLabel(String),labels.add(label);,CreateLabels
+src/main/java/service/LabelService.java,createLabel(String),return label;,CreateLabels
+src/main/java/service/TaskService.java,createTask(String),"return createTask(title, """");",CreateTasks
+src/main/java/service/TaskService.java,"createTask(String, String)","Task task = new Task(UUID.randomUUID().toString(), title.trim(), description == null ? """" : description.trim(), null);",CreateTasks
+src/main/java/service/TaskService.java,"createTask(String, String)",tasks.add(task);,CreateTasks
+src/main/java/service/TaskService.java,"createTask(String, String)",return task;,CreateTasks
+src/main/java/service/TaskService.java,"assignLabel(Task, Label)",task.setLabelId(label == null ? null : label.id());,AssignTaskLabels
+src/main/resources/taskmanager/styles.css,.task-title,-fx-font-size: 15px;,TaskManagement
+src/main/resources/taskmanager/styles.css,.task-title,-fx-text-fill: #1f2937;,TaskManagement

@@ -1,0 +1,9 @@
+file,feature
+src/main/java/controller/MainController.java,TaskManagement
+src/main/java/repository/JsonFileStore.java,PersistTasks
+src/main/java/repository/JsonTagRepository.java,PersistTags
+src/main/java/repository/JsonTaskRepository.java,PersistTasks
+src/main/java/repository/TagRepository.java,PersistTags
+src/main/java/repository/TaskRepository.java,PersistTasks
+src/main/java/service/TagService.java,Tags
+src/main/java/service/TaskService.java,TaskManagement

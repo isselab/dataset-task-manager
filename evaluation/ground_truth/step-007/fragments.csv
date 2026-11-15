@@ -1,0 +1,89 @@
+file,context,statement,feature
+src/main/java/controller/MainController.java,createView(),TextField taskInput = new TextField();,CreateTasks
+src/main/java/controller/MainController.java,createView(),"taskInput.setPromptText(""New task"");",CreateTasks
+src/main/java/controller/MainController.java,createView(),TextField descriptionInput = new TextField();,CreateTasks
+src/main/java/controller/MainController.java,createView(),"descriptionInput.setPromptText(""Description (optional)"");",CreateTasks
+src/main/java/controller/MainController.java,createView(),"Button addTask = new Button(""Add task"");",CreateTasks
+src/main/java/controller/MainController.java,createView(),"addTask.setOnAction((event)->{ if (!taskInput.getText().trim().isEmpty()) { taskService.createTask(taskInput.getText(), descriptionInput.getText()); taskInput.clear(); descriptionInput.clear(); taskService.save(); tagService.save(); } });",CreateTasks
+src/main/java/controller/MainController.java,createView(),taskInput.setOnAction((event)->addTask.fire());,CreateTasks
+src/main/java/controller/MainController.java,createView(),TextField searchInput = new TextField();,TaskQuery
+src/main/java/controller/MainController.java,createView(),"searchInput.setPromptText(""Search tasks by title or description"");",TaskQuery
+src/main/java/controller/MainController.java,createView(),FilteredList<Task> filteredTasks = new FilteredList<>(taskService.getTasks());,TaskQuery
+src/main/java/controller/MainController.java,createView(),ComboBox<String> statusSelection = new ComboBox<>();,TaskQuery
+src/main/java/controller/MainController.java,createView(),"statusSelection.getItems().addAll(TaskQuery.ALL_TASKS, TaskQuery.OPEN_TASKS, TaskQuery.COMPLETED_TASKS);",TaskQuery
+src/main/java/controller/MainController.java,createView(),statusSelection.getSelectionModel().selectFirst();,TaskQuery
+src/main/java/controller/MainController.java,createView(),"Runnable applyTaskQuery = ()->{ filteredTasks.setPredicate(new TaskQuery(searchInput.getText(), statusSelection.getValue())); };",TaskQuery
+src/main/java/controller/MainController.java,createView(),SortedList<Task> sortedTasks = new SortedList<>(filteredTasks);,TaskPriority
+src/main/java/controller/MainController.java,createView(),"sortedTasks.setComparator(Comparator.comparing(Task::isCompleted).thenComparing(Task::getPriority, Comparator.reverseOrder()));",TaskPriority
+src/main/java/controller/MainController.java,createView(),TextField tagInput = new TextField();,CreateTags
+src/main/java/controller/MainController.java,createView(),"tagInput.setPromptText(""New tag"");",CreateTags
+src/main/java/controller/MainController.java,createView(),"ColorPicker tagColor = new ColorPicker(javafx.scene.paint.Color.web(""#4f46e5""));",CreateTags
+src/main/java/controller/MainController.java,createView(),"Button addTag = new Button(""Create tag"");",CreateTags
+src/main/java/controller/MainController.java,createView(),"addTag.setOnAction((event)->{ if (tagService.createTag(tagInput.getText(), tagColor.getValue().toString()) != null) { tagInput.clear(); tagService.save(); taskService.save(); taskList.refresh(); } });",CreateTags
+src/main/java/controller/MainController.java,createView(),tagInput.setOnAction((event)->addTag.fire());,CreateTags
+src/main/java/controller/MainController.java,createView(),ComboBox<model.Tag> tagSelector = new ComboBox<>(tagService.getTags());,RenameTags
+src/main/java/controller/MainController.java,createView(),"tagSelector.setPromptText(""Select tag"");",RenameTags
+src/main/java/controller/MainController.java,createView(),"tagSelector.setCellFactory((view)->new ListCell<>(){ @Override protected void updateItem(model.Tag tag, boolean empty) { super.updateItem(tag, empty); setText(empty || tag == null ? null : tag.name()); } });",RenameTags
+src/main/java/controller/MainController.java,createView(),"tagSelector.setButtonCell(new ListCell<>(){ @Override protected void updateItem(model.Tag tag, boolean empty) { super.updateItem(tag, empty); setText(empty || tag == null ? null : tag.name()); } });",RenameTags
+src/main/java/controller/MainController.java,createView(),TextField renameInput = new TextField();,RenameTags
+src/main/java/controller/MainController.java,createView(),"renameInput.setPromptText(""New tag name"");",RenameTags
+src/main/java/controller/MainController.java,createView(),"Button rename = new Button(""Rename"");",RenameTags
+src/main/java/controller/MainController.java,createView(),"rename.setOnAction((event)->{ model.Tag selected = tagSelector.getValue(); if (tagService.renameTag(selected, renameInput.getText(), taskService.getTasks())) { tagService.save(); taskService.save(); tagService.getTags().stream().filter((tag)->tag.id().equals(selected.id())).findFirst().ifPresent((tag)->tagSelector.getSelectionModel().select(tag)); taskList.refresh(); } });",RenameTags
+src/main/java/controller/MainController.java,createView(),"tagSelector.valueProperty().addListener((observable,oldValue,newValue)->renameInput.setText(newValue == null ? """" : newValue.name()));",RenameTags
+src/main/java/controller/MainController.java,createView(),"Button delete = new Button(""Delete"");",DeleteTags
+src/main/java/controller/MainController.java,createView(),"delete.setOnAction((event)->{ model.Tag selected = tagSelector.getValue(); if (tagService.deleteTag(selected, taskService.getTasks())) { taskService.save(); tagService.save(); tagSelector.getSelectionModel().clearSelection(); renameInput.clear(); taskList.refresh(); } });",DeleteTags
+src/main/java/controller/MainController.java,createView(),"HBox taskForm = new HBox(8, taskInput, descriptionInput, addTask);",CreateTasks
+src/main/java/controller/MainController.java,createView(),"HBox tagManagement = new HBox(8, tagSelector, renameInput, rename, delete);",RenameTags
+src/main/java/controller/MainController.java,createView(),"HBox taskFilters = new HBox(8, searchInput, statusSelection);",TaskQuery
+src/main/java/controller/MainController.java,createView(),"VBox content = new VBox(16, title, taskForm, taskFilters, new Label(""Tags""), tagForm, tagManagement, taskList);",TaskQuery
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)",ChoiceBox<TaskPriority> prioritySelector = new ChoiceBox<>();,TaskPriority
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)",prioritySelector.getItems().addAll(TaskPriority.values());,TaskPriority
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)",prioritySelector.setValue(task.getPriority());,TaskPriority
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)",prioritySelector.setOnAction((event)->{ task.setPriority(prioritySelector.getValue()); taskService.refreshTask(task); taskService.save(); tagService.save(); });,TaskPriority
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)",ChoiceBox<TagOption> selector = new ChoiceBox<>();,AssignTaskTags
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)","selector.getItems().add(new TagOption(null, ""Add tag...""));",AssignTaskTags
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)","tagService.getTags().stream().map((tag)->new TagOption(tag.id(), tag.name())).forEach(selector.getItems()::add);",AssignTaskTags
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)",selector.getSelectionModel().selectFirst();,AssignTaskTags
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)",HBox tagChips = new HBox(4);,AssignTaskTags
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)",tagService.getTags().stream().filter((tag)->task.getTagIds().contains(tag.id())).map(this::createTagChip).forEach(tagChips.getChildren()::add);,AssignTaskTags
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)","selector.setOnAction((event)->{ TagOption option = selector.getValue(); if (option.id() != null) { tagService.getTags().stream().filter((tag)->tag.id().equals(option.id())).findFirst().ifPresent((tag)->taskService.assignTag(task, tag)); taskService.save(); tagService.save(); updateItem(task, false); } });",AssignTaskTags
+src/main/java/controller/TaskDialogController.java,"updateItem(Task, boolean)","HBox row = new HBox(12, taskTitle, prioritySelector, completed, tags);",TaskPriority
+src/main/java/repository/JsonFileStore.java,"write(List<Tag>, List<Task>)","StringBuilder json = new StringBuilder(""{\""labels\"":["");",PersistTags
+src/main/java/repository/JsonFileStore.java,"write(List<Tag>, List<Task>)","for (int i = 0; i < tags.size(); i++) { if (i > 0) json.append(','); Tag tag = tags.get(i); json.append(""{\""id\"":\"""").append(escape(tag.id())).append(""\"",\""name\"":\"""").append(escape(tag.name())).append(""\"",\""color\"":\"""").append(escape(tag.color())).append(""\""}""); }",PersistTags
+src/main/java/repository/JsonFileStore.java,"write(List<Tag>, List<Task>)","json.append(""],\""tasks\"":["");",PersistTags
+src/main/java/repository/JsonFileStore.java,"write(List<Tag>, List<Task>)","for (int i = 0; i < tasks.size(); i++) { if (i > 0) json.append(','); Task task = tasks.get(i); json.append(""{\""id\"":\"""").append(escape(task.getId())).append(""\"",\""title\"":\"""").append(escape(task.getTitle())).append(""\"",\""description\"":\"""").append(escape(task.getDescription())).append(""\"",\""priority\"":\"""").append(task.getPriority().name()).append(""\"",\""labelIds\"":[""); for (int j = 0; j < task.getTagIds().size(); j++) { if (j > 0) json.append(','); json.append('""').append(escape(task.getTagIds().get(j))).append('""'); } json.append(""],\""completed\"":"").append(task.isCompleted()).append('}'); }",PersistTags
+src/main/java/repository/JsonFileStore.java,"write(List<Tag>, List<Task>)","json.append(""]}"");",PersistTags
+src/main/java/repository/JsonFileStore.java,"write(List<Tag>, List<Task>)","try { Files.createDirectories(file.getParent()); Files.writeString(file, json.toString(), StandardCharsets.UTF_8); } catch (IOException ignored) { }",PersistTags
+src/main/java/repository/JsonFileStore.java,readTags(),"position = json.indexOf(""\""labels\"""");",PersistTags
+src/main/java/repository/JsonFileStore.java,readTags(),if (position < 0) throw new IllegalArgumentException();,PersistTags
+src/main/java/repository/JsonFileStore.java,readTags(),"position = json.indexOf('[', position) + 1;",PersistTags
+src/main/java/repository/JsonFileStore.java,readTags(),List<Tag> result = new ArrayList<>();,PersistTags
+src/main/java/repository/JsonFileStore.java,readTags(),"while (!at(']')) { expect('{'); String id = readStringField(""id""); expect(','); String name = readStringField(""name""); String color = ""#4f46e5""; if (at(',')) { expect(','); color = readStringField(""color""); } expect('}'); result.add(new Tag(id, name, color)); consumeComma(); }",PersistTags
+src/main/java/repository/JsonFileStore.java,readTags(),return result;,PersistTags
+src/main/java/service/TagService.java,,import model.Task;,RenameTags
+src/main/java/service/TagService.java,createTag(String),"return createTag(name, ""#4f46e5"");",CreateTags
+src/main/java/service/TagService.java,"createTag(String, String)",String normalized = name.trim();,CreateTags
+src/main/java/service/TagService.java,"createTag(String, String)",if (normalized.isEmpty() || tags.stream().anyMatch((tag)->tag.name().equalsIgnoreCase(normalized))) { return null; },CreateTags
+src/main/java/service/TagService.java,"createTag(String, String)","Tag tag = new Tag(UUID.randomUUID().toString(), normalized, color);",CreateTags
+src/main/java/service/TagService.java,"createTag(String, String)",tags.add(tag);,CreateTags
+src/main/java/service/TagService.java,"createTag(String, String)",return tag;,CreateTags
+src/main/java/service/TagService.java,"renameTag(Tag, String, ObservableList<Task>)",if (tag == null || name == null) return false;,RenameTags
+src/main/java/service/TagService.java,"renameTag(Tag, String, ObservableList<Task>)",String normalized = name.trim();,RenameTags
+src/main/java/service/TagService.java,"renameTag(Tag, String, ObservableList<Task>)",if (normalized.isEmpty() || tags.stream().anyMatch((existing)->existing != tag && existing.name().equalsIgnoreCase(normalized))) { return false; },RenameTags
+src/main/java/service/TagService.java,"renameTag(Tag, String, ObservableList<Task>)","Tag renamed = new Tag(tag.id(), normalized, tag.color());",RenameTags
+src/main/java/service/TagService.java,"renameTag(Tag, String, ObservableList<Task>)",int index = tags.indexOf(tag);,RenameTags
+src/main/java/service/TagService.java,"renameTag(Tag, String, ObservableList<Task>)",if (index < 0) return false;,RenameTags
+src/main/java/service/TagService.java,"renameTag(Tag, String, ObservableList<Task>)","tags.set(index, renamed);",RenameTags
+src/main/java/service/TagService.java,"renameTag(Tag, String, ObservableList<Task>)",return true;,RenameTags
+src/main/java/service/TagService.java,"deleteTag(Tag, ObservableList<Task>)",if (tag == null || !tags.remove(tag)) return false;,DeleteTags
+src/main/java/service/TagService.java,"deleteTag(Tag, ObservableList<Task>)",if (tasks != null) { tasks.forEach((task)->task.removeTagId(tag.id())); },DeleteTags
+src/main/java/service/TagService.java,"deleteTag(Tag, ObservableList<Task>)",return true;,DeleteTags
+src/main/java/service/TaskService.java,createTask(String),"return createTask(title, """");",CreateTasks
+src/main/java/service/TaskService.java,"createTask(String, String)","Task task = new Task(UUID.randomUUID().toString(), title.trim(), description == null ? """" : description.trim(), null, false, TaskPriority.MEDIUM);",CreateTasks
+src/main/java/service/TaskService.java,"createTask(String, String)","Task task = new Task(UUID.randomUUID().toString(), title.trim(), description == null ? """" : description.trim(), null, false, TaskPriority.MEDIUM);",TaskPriority
+src/main/java/service/TaskService.java,"createTask(String, String)",tasks.add(task);,CreateTasks
+src/main/java/service/TaskService.java,"createTask(String, String)",return task;,CreateTasks
+src/main/java/service/TaskService.java,"assignTag(Task, Tag)",if (tag != null) task.addTagId(tag.id());,AssignTaskTags
+src/main/java/service/TaskService.java,"removeTag(Task, Tag)",if (tag != null) task.removeTagId(tag.id());,AssignTaskTags
+src/main/resources/taskmanager/styles.css,.task-title,-fx-font-size: 15px;,TaskManagement
+src/main/resources/taskmanager/styles.css,.task-title,-fx-text-fill: #1f2937;,TaskManagement
