@@ -1,0 +1,15 @@
+metric,tp,fp,fn,precision,recall,f1,status,notes
+features_raw_names,23,2,0,0.92,1.0,0.9583333333333334,evaluated,
+hierarchy_raw_names,44,5,0,0.8979591836734694,1.0,0.946236559139785,evaluated,
+file_presence_raw_names,45,6,7,0.8823529411764706,0.8653846153846154,0.8737864077669902,reference_overlap,Union of explicit/expanded mappings and fragment projections. Sparse reference and implementation/file layout differences affect this diagnostic.
+features_aligned,23,2,0,0.92,1.0,0.9583333333333334,evaluated,
+hierarchy_aligned,44,5,0,0.8979591836734694,1.0,0.946236559139785,evaluated,
+file_presence_aligned,45,6,7,0.8823529411764706,0.8653846153846154,0.8737864077669902,reference_overlap,Union of explicit/expanded mappings and fragment projections. Sparse reference and implementation/file layout differences affect this diagnostic.
+explicit_file_mappings_aligned,13,1,2,0.9285714285714286,0.8666666666666667,0.896551724137931,reference_overlap,Explicit mapping representation only; combined file-presence scores provide abstraction across annotation types.
+fragment_file_presence_aligned,34,5,7,0.8717948717948718,0.8292682926829268,0.85,reference_overlap,"Only fragment-to-file projections, excluding explicit file ownership mappings."
+folder_mappings,,,,,,,not_applicable,Neither side has folder mappings.
+fragments_raw_names,138,68,31,0.6699029126213593,0.8165680473372781,0.736,lexical_diagnostic,Closed-reference overlap; not pure annotation accuracy on a common implementation. All features.
+fragments_feature_aligned_exact,138,68,31,0.6699029126213593,0.8165680473372781,0.736,lexical_diagnostic,Closed-reference overlap; not pure annotation accuracy on a common implementation. All features.
+fragments_reviewed_role_alignment,149,57,20,0.7233009708737864,0.8816568047337278,0.7946666666666666,reviewed_role_alignment,Closed-reference overlap; not pure annotation accuracy on a common implementation. All features.
+focus_fragments_reviewed_role_alignment,0,0,0,,,,reviewed_role_alignment,"Closed-reference overlap; not pure annotation accuracy on a common implementation. Focus: ArchiveTasks, ShowArchivedTasks"
+removed_feature_references,,,,,,,count_check,"Removed features: ['ArchiveTasks', 'ShowArchivedTasks']; retained model features: []; retained file associations: 0; retained fragment associations: 0. Compatibility parsing of old archive data is not itself a stale annotation."
