@@ -1,0 +1,14 @@
+metric,tp,fp,fn,precision,recall,f1,status,notes
+features_raw_names,15,1,1,0.9375,0.9375,0.9375,evaluated,
+hierarchy_raw_names,22,2,2,0.9166666666666666,0.9166666666666666,0.9166666666666666,evaluated,
+file_presence_raw_names,21,16,3,0.5675675675675675,0.875,0.6885245901639344,partial_reference,"Reference explicit file mappings are empty; FP means unsupported by supplied reference, not proven wrong."
+features_aligned,16,0,0,1.0,1.0,1.0,evaluated,
+hierarchy_aligned,24,0,0,1.0,1.0,1.0,evaluated,
+file_presence_aligned,24,13,0,0.6486486486486487,1.0,0.7868852459016393,partial_reference,"Reference explicit file mappings are empty; FP means unsupported by supplied reference, not proven wrong."
+fragment_file_presence_aligned,24,3,0,0.8888888888888888,1.0,0.9411764705882353,partial_reference,Projects only inline fragments to files; reference may omit legitimate relationships.
+explicit_file_mappings,,,,,,,not_evaluable,"Reference has 0 explicit mappings, generated has 10; empty oracle is unresolved, not treated as proof every generated mapping is wrong."
+folder_mappings,,,,,,,not_applicable,Neither side supplies folder mappings.
+fragments_raw_names,106,32,19,0.7681159420289855,0.848,0.8060836501901141,lexical_diagnostic,Closed-reference overlap; unaligned implementation changes are counted FP/FN. Not pure annotation accuracy on a shared implementation.
+fragments_feature_aligned_exact,109,29,16,0.7898550724637681,0.872,0.8288973384030418,lexical_diagnostic,Closed-reference overlap; unaligned implementation changes are counted FP/FN. Not pure annotation accuracy on a shared implementation.
+fragments_reviewed_role_alignment,122,16,3,0.8840579710144928,0.976,0.9277566539923955,reviewed_role_alignment,Closed-reference overlap; unaligned implementation changes are counted FP/FN. Not pure annotation accuracy on a shared implementation.
+due_dates_fragments_reviewed_role_alignment,15,15,3,0.5,0.8333333333333334,0.625,reviewed_role_alignment,Closed-reference overlap; unaligned implementation changes are counted FP/FN. Not pure annotation accuracy on a shared implementation.
