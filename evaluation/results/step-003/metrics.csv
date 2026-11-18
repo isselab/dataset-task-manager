@@ -1,0 +1,14 @@
+metric,tp,fp,fn,precision,recall,f1,status,notes
+features_raw_names,11,1,0,0.9166666666666666,1.0,0.9565217391304348,evaluated,
+hierarchy_raw_names,18,2,0,0.9,1.0,0.9473684210526315,evaluated,
+file_presence_raw_names,16,7,0,0.6956521739130435,1.0,0.8205128205128205,reference_overlap,Union of explicit/expanded mappings and fragment projections. Sparse reference and implementation/file layout differences affect this diagnostic.
+features_aligned,11,1,0,0.9166666666666666,1.0,0.9565217391304348,evaluated,
+hierarchy_aligned,18,2,0,0.9,1.0,0.9473684210526315,evaluated,
+file_presence_aligned,16,7,0,0.6956521739130435,1.0,0.8205128205128205,reference_overlap,Union of explicit/expanded mappings and fragment projections. Sparse reference and implementation/file layout differences affect this diagnostic.
+explicit_file_mappings_aligned,2,0,0,1.0,1.0,1.0,reference_overlap,Explicit mapping representation only; combined file-presence scores provide abstraction across annotation types.
+fragment_file_presence_aligned,14,7,0,0.6666666666666666,1.0,0.8,reference_overlap,"Only fragment-to-file projections, excluding explicit file ownership mappings."
+folder_mappings,,,,,,,not_applicable,Neither side has folder mappings.
+fragments_raw_names,37,46,37,0.4457831325301205,0.5,0.4713375796178344,lexical_diagnostic,Closed-reference overlap; not pure annotation accuracy on a common implementation. All features.
+fragments_feature_aligned_exact,37,46,37,0.4457831325301205,0.5,0.4713375796178344,lexical_diagnostic,Closed-reference overlap; not pure annotation accuracy on a common implementation. All features.
+fragments_reviewed_role_alignment,58,25,16,0.6987951807228916,0.7837837837837838,0.7388535031847133,reviewed_role_alignment,Closed-reference overlap; not pure annotation accuracy on a common implementation. All features.
+focus_fragments_reviewed_role_alignment,30,25,16,0.5454545454545454,0.6521739130434783,0.594059405940594,reviewed_role_alignment,"Closed-reference overlap; not pure annotation accuracy on a common implementation. Focus: Labels, CreateLabels, RenameLabels, DeleteLabels, AssignTaskLabels, PersistLabels, LabelColors"
