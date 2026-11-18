@@ -1,0 +1,14 @@
+metric,tp,fp,fn,precision,recall,f1,status,notes
+features_raw_names,12,1,0,0.9230769230769231,1.0,0.96,evaluated,
+hierarchy_raw_names,20,2,0,0.9090909090909091,1.0,0.9523809523809523,evaluated,
+file_presence_raw_names,20,5,0,0.8,1.0,0.8888888888888888,reference_overlap,Union of explicit/expanded mappings and fragment projections. Sparse reference and implementation/file layout differences affect this diagnostic.
+features_aligned,12,1,0,0.9230769230769231,1.0,0.96,evaluated,
+hierarchy_aligned,20,2,0,0.9090909090909091,1.0,0.9523809523809523,evaluated,
+file_presence_aligned,20,5,0,0.8,1.0,0.8888888888888888,reference_overlap,Union of explicit/expanded mappings and fragment projections. Sparse reference and implementation/file layout differences affect this diagnostic.
+explicit_file_mappings_aligned,2,1,0,0.6666666666666666,1.0,0.8,reference_overlap,Explicit mapping representation only; combined file-presence scores provide abstraction across annotation types.
+fragment_file_presence_aligned,18,4,0,0.8181818181818182,1.0,0.9,reference_overlap,"Only fragment-to-file projections, excluding explicit file ownership mappings."
+folder_mappings,,,,,,,not_applicable,Neither side has folder mappings.
+fragments_raw_names,70,30,12,0.7,0.8536585365853658,0.7692307692307693,lexical_diagnostic,Closed-reference overlap; not pure annotation accuracy on a common implementation. All features.
+fragments_feature_aligned_exact,70,30,12,0.7,0.8536585365853658,0.7692307692307693,lexical_diagnostic,Closed-reference overlap; not pure annotation accuracy on a common implementation. All features.
+fragments_reviewed_role_alignment,79,21,3,0.79,0.9634146341463414,0.8681318681318682,reviewed_role_alignment,Closed-reference overlap; not pure annotation accuracy on a common implementation. All features.
+focus_fragments_reviewed_role_alignment,6,17,3,0.2608695652173913,0.6666666666666666,0.375,reviewed_role_alignment,"Closed-reference overlap; not pure annotation accuracy on a common implementation. Focus: TaskPriority, PrioritySort"
