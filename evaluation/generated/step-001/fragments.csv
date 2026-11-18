@@ -1,0 +1,81 @@
+file,context,statement,feature
+src/main/java/LabelService.java,,private final ObservableList<Label> labels = FXCollections.observableArrayList();,Labels
+src/main/java/LabelService.java,<init>(List<Label>),labels.addAll(initialLabels);,Labels
+src/main/java/LabelService.java,getLabels(),return labels;,Labels
+src/main/java/LabelService.java,addLabel(String),"Label label = new Label(UUID.randomUUID().toString(), name);",CreateLabel
+src/main/java/LabelService.java,addLabel(String),labels.add(label);,CreateLabel
+src/main/java/LabelService.java,addLabel(String),return label;,CreateLabel
+src/main/java/MainController.java,buildTaskSection(),"javafx.scene.control.Label heading = new javafx.scene.control.Label(""Tasks"");",AddTask
+src/main/java/MainController.java,buildTaskSection(),"heading.getStyleClass().add(""section-title"");",AddTask
+src/main/java/MainController.java,buildTaskSection(),"Button addTaskButton = new Button(""Add Task"");",AddTask
+src/main/java/MainController.java,buildTaskSection(),"addTaskButton.setOnAction((e)->{ TaskDialogController dialog = new TaskDialogController(labelService.getLabels()); Optional<TaskDialogController.Result> result = dialog.showAndWait(null); result.ifPresent((r)->{ if (!r.title.isEmpty()) { Task task = taskService.addTask(r.title); taskService.setTaskLabel(task, r.label); persistAll(); } }); });",AddTask
+src/main/java/MainController.java,buildTaskSection(),ListView<Task> taskListView = new ListView<>(taskService.getTasks());,AddTask
+src/main/java/MainController.java,buildTaskSection(),taskListView.setCellFactory((list)->new TaskListCell());,AddTask
+src/main/java/MainController.java,buildTaskSection(),"VBox.setVgrow(taskListView, Priority.ALWAYS);",AddTask
+src/main/java/MainController.java,buildTaskSection(),"VBox section = new VBox(8, heading, addTaskButton, taskListView);",AddTask
+src/main/java/MainController.java,buildTaskSection(),"HBox.setHgrow(section, Priority.ALWAYS);",AddTask
+src/main/java/MainController.java,buildTaskSection(),return section;,AddTask
+src/main/java/MainController.java,buildLabelSection(),"javafx.scene.control.Label heading = new javafx.scene.control.Label(""Labels"");",CreateLabel
+src/main/java/MainController.java,buildLabelSection(),"heading.getStyleClass().add(""section-title"");",CreateLabel
+src/main/java/MainController.java,buildLabelSection(),TextField labelInput = new TextField();,CreateLabel
+src/main/java/MainController.java,buildLabelSection(),"labelInput.setPromptText(""New label name"");",CreateLabel
+src/main/java/MainController.java,buildLabelSection(),"Button addLabelButton = new Button(""Add Label"");",CreateLabel
+src/main/java/MainController.java,buildLabelSection(),addLabelButton.setOnAction((e)->{ String nameText = labelInput.getText().trim(); if (!nameText.isEmpty()) { labelService.addLabel(nameText); labelInput.clear(); persistAll(); } });,CreateLabel
+src/main/java/MainController.java,buildLabelSection(),"HBox inputRow = new HBox(8, labelInput, addLabelButton);",CreateLabel
+src/main/java/MainController.java,buildLabelSection(),"HBox.setHgrow(labelInput, Priority.ALWAYS);",CreateLabel
+src/main/java/MainController.java,buildLabelSection(),ListView<Label> labelListView = new ListView<>(labelService.getLabels());,CreateLabel
+src/main/java/MainController.java,buildLabelSection(),"VBox.setVgrow(labelListView, Priority.ALWAYS);",CreateLabel
+src/main/java/MainController.java,buildLabelSection(),"VBox section = new VBox(8, heading, inputRow, labelListView);",CreateLabel
+src/main/java/MainController.java,buildLabelSection(),return section;,CreateLabel
+src/main/java/MainController.java,persistAll(),"persistence.save(taskService.getTasks(), labelService.getLabels());",Persistence
+src/main/java/MainController.java,,private final javafx.scene.control.Label titleLabel = new javafx.scene.control.Label();,AssignLabel
+src/main/java/MainController.java,,private final javafx.scene.control.Label labelChip = new javafx.scene.control.Label();,AssignLabel
+src/main/java/MainController.java,,"private final Button editButton = new Button(""Edit Label"");",AssignLabel
+src/main/java/MainController.java,,"private final HBox container = new HBox(12, titleLabel, labelChip, editButton);",AssignLabel
+src/main/java/MainController.java,<init>(),"HBox.setHgrow(titleLabel, Priority.ALWAYS);",AssignLabel
+src/main/java/MainController.java,<init>(),container.setAlignment(Pos.CENTER_LEFT);,AssignLabel
+src/main/java/MainController.java,<init>(),"labelChip.getStyleClass().add(""label-chip"");",AssignLabel
+src/main/java/MainController.java,<init>(),"editButton.setOnAction((e)->{ Task task = getItem(); if (task == null) { return; } TaskDialogController dialog = new TaskDialogController(labelService.getLabels()); Optional<TaskDialogController.Result> result = dialog.showAndWait(task); result.ifPresent((r)->{ task.setTitle(r.title); taskService.setTaskLabel(task, r.label); getListView().refresh(); persistAll(); }); });",AssignLabel
+src/main/java/MainController.java,"updateItem(Task, boolean)","super.updateItem(task, empty);",AssignLabel
+src/main/java/MainController.java,"updateItem(Task, boolean)",if (empty || task == null) { setGraphic(null); return; },AssignLabel
+src/main/java/MainController.java,"updateItem(Task, boolean)",titleLabel.setText(task.getTitle());,AssignLabel
+src/main/java/MainController.java,"updateItem(Task, boolean)",Label current = labelService.getLabels().stream().filter((l)->l.getId().equals(task.getLabelId())).findFirst().orElse(null);,AssignLabel
+src/main/java/MainController.java,"updateItem(Task, boolean)","labelChip.setText(current == null ? ""No Label"" : current.getName());",AssignLabel
+src/main/java/MainController.java,"updateItem(Task, boolean)",setGraphic(container);,AssignLabel
+src/main/java/Task.java,,private String labelId;,AssignLabel
+src/main/java/Task.java,getLabelId(),return labelId;,AssignLabel
+src/main/java/Task.java,setLabelId(String),this.labelId = labelId;,AssignLabel
+src/main/java/TaskDialogController.java,buildLabelCombo(Task),ComboBox<Label> combo = new ComboBox<>();,AssignLabel
+src/main/java/TaskDialogController.java,buildLabelCombo(Task),List<Label> items = new ArrayList<>();,AssignLabel
+src/main/java/TaskDialogController.java,buildLabelCombo(Task),items.add(noLabel);,AssignLabel
+src/main/java/TaskDialogController.java,buildLabelCombo(Task),items.addAll(labels);,AssignLabel
+src/main/java/TaskDialogController.java,buildLabelCombo(Task),combo.getItems().setAll(items);,AssignLabel
+src/main/java/TaskDialogController.java,buildLabelCombo(Task),Label current = noLabel;,AssignLabel
+src/main/java/TaskDialogController.java,buildLabelCombo(Task),if (existingTask != null) { current = labels.stream().filter((l)->l.getId().equals(existingTask.getLabelId())).findFirst().orElse(noLabel); },AssignLabel
+src/main/java/TaskDialogController.java,buildLabelCombo(Task),combo.setValue(current);,AssignLabel
+src/main/java/TaskDialogController.java,buildLabelCombo(Task),return combo;,AssignLabel
+src/main/java/TaskDialogController.java,showAndWait(Task),Dialog<Result> dialog = new Dialog<>();,AddTask
+src/main/java/TaskDialogController.java,showAndWait(Task),"dialog.setTitle(existingTask == null ? ""Add Task"" : ""Edit Task"");",AddTask
+src/main/java/TaskDialogController.java,showAndWait(Task),"TextField titleField = new TextField(existingTask == null ? """" : existingTask.getTitle());",AddTask
+src/main/java/TaskDialogController.java,showAndWait(Task),ComboBox<Label> labelCombo = buildLabelCombo(existingTask);,AddTask
+src/main/java/TaskDialogController.java,showAndWait(Task),GridPane grid = new GridPane();,AddTask
+src/main/java/TaskDialogController.java,showAndWait(Task),grid.setHgap(8);,AddTask
+src/main/java/TaskDialogController.java,showAndWait(Task),grid.setVgap(8);,AddTask
+src/main/java/TaskDialogController.java,showAndWait(Task),grid.setPadding(new Insets(16));,AddTask
+src/main/java/TaskDialogController.java,showAndWait(Task),"grid.add(new javafx.scene.control.Label(""Title:""), 0, 0);",AddTask
+src/main/java/TaskDialogController.java,showAndWait(Task),"grid.add(titleField, 1, 0);",AddTask
+src/main/java/TaskDialogController.java,showAndWait(Task),"grid.add(new javafx.scene.control.Label(""Label:""), 0, 1);",AddTask
+src/main/java/TaskDialogController.java,showAndWait(Task),"grid.add(labelCombo, 1, 1);",AddTask
+src/main/java/TaskDialogController.java,showAndWait(Task),dialog.getDialogPane().setContent(grid);,AddTask
+src/main/java/TaskDialogController.java,showAndWait(Task),"dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);",AddTask
+src/main/java/TaskDialogController.java,showAndWait(Task),"dialog.setResultConverter((buttonType)->{ if (buttonType != ButtonType.OK) { return null; } Label selected = labelCombo.getValue(); Label chosen = (selected == null || selected.getId() == null) ? null : selected; return new Result(titleField.getText().trim(), chosen); });",AddTask
+src/main/java/TaskDialogController.java,showAndWait(Task),return dialog.showAndWait();,AddTask
+src/main/java/TaskManagerApplication.java,start(Stage),JsonTaskPersistence persistence = new JsonTaskPersistence();,Persistence
+src/main/java/TaskManagerApplication.java,start(Stage),JsonTaskPersistence.Snapshot snapshot = persistence.load();,Persistence
+src/main/java/TaskService.java,,private final ObservableList<Task> tasks = FXCollections.observableArrayList();,Tasks
+src/main/java/TaskService.java,<init>(List<Task>),tasks.addAll(initialTasks);,Tasks
+src/main/java/TaskService.java,getTasks(),return tasks;,Tasks
+src/main/java/TaskService.java,addTask(String),"Task task = new Task(UUID.randomUUID().toString(), title);",AddTask
+src/main/java/TaskService.java,addTask(String),tasks.add(task);,AddTask
+src/main/java/TaskService.java,addTask(String),return task;,AddTask
+src/main/java/TaskService.java,"setTaskLabel(Task, Label)",task.setLabelId(label == null ? null : label.getId());,AssignLabel

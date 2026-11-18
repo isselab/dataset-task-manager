@@ -1,0 +1,14 @@
+metric,tp,fp,fn,precision,recall,f1,status,notes
+features_raw_names,2,5,5,0.2857142857142857,0.2857142857142857,0.2857142857142857,evaluated,
+hierarchy_raw_names,1,8,9,0.1111111111111111,0.1,0.10526315789473684,evaluated,
+file_presence_raw_names,0,16,6,0.0,0.0,0.0,reference_overlap,Union of explicit/expanded mappings and fragment projections. Sparse reference and implementation/file layout differences affect this diagnostic.
+features_aligned,6,1,1,0.8571428571428571,0.8571428571428571,0.8571428571428571,evaluated,
+hierarchy_aligned,8,1,2,0.8888888888888888,0.8,0.8421052631578947,evaluated,
+file_presence_aligned,3,13,3,0.1875,0.5,0.2727272727272727,reference_overlap,Union of explicit/expanded mappings and fragment projections. Sparse reference and implementation/file layout differences affect this diagnostic.
+explicit_file_mappings_aligned,0,3,2,0.0,0.0,0.0,reference_overlap,Explicit mapping representation only; combined file-presence scores provide abstraction across annotation types.
+fragment_file_presence_aligned,3,10,1,0.23076923076923078,0.75,0.35294117647058826,reference_overlap,"Only fragment-to-file projections, excluding explicit file ownership mappings."
+folder_mappings,,,,,,,not_applicable,Neither side has folder mappings.
+fragments_raw_names,0,80,11,0.0,0.0,0.0,lexical_diagnostic,Closed-reference overlap; not pure annotation accuracy on a common implementation. All features.
+fragments_feature_aligned_exact,0,80,11,0.0,0.0,0.0,lexical_diagnostic,Closed-reference overlap; not pure annotation accuracy on a common implementation. All features.
+fragments_reviewed_role_alignment,7,73,4,0.0875,0.6363636363636364,0.15384615384615385,reviewed_role_alignment,Closed-reference overlap; not pure annotation accuracy on a common implementation. All features.
+focus_fragments_reviewed_role_alignment,4,44,2,0.08333333333333333,0.6666666666666666,0.14814814814814814,reviewed_role_alignment,"Closed-reference overlap; not pure annotation accuracy on a common implementation. Focus: Labels, CreateLabels, AssignTaskLabels, PersistLabels, Persistence"
