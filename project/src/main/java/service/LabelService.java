@@ -1,5 +1,8 @@
+package service;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import model.Label;
 
 import java.util.UUID;
 
@@ -21,7 +24,7 @@ public final class LabelService {
     }
     // &end[CreateLabels]
 
-    void restore(Label label) {
+    public void restore(Label label) {
         labels.add(label);
     }
 }

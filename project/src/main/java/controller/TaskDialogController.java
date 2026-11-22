@@ -1,10 +1,17 @@
+package controller;
+
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
+import javafx.scene.control.CheckBox; // &line[CompleteTasks]
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import model.Task;
+import persistence.JsonTaskPersistence;
+import service.LabelService;
+import service.TaskService;
 
 public final class TaskDialogController extends ListCell<Task> {
     private final TaskService taskService;
@@ -39,7 +46,15 @@ public final class TaskDialogController extends ListCell<Task> {
             persistence.save(taskService, labelService);
             updateItem(task, false);
         });
-        HBox row = new HBox(12, taskTitle, selector);
+        // &begin[CompleteTasks]
+        CheckBox done = new CheckBox();
+        done.setSelected(task.isCompleted());
+        done.setOnAction(event -> {
+            task.setCompleted(done.isSelected());
+            persistence.save(taskService, labelService);
+        });
+        // &end[CompleteTasks]
+        HBox row = new HBox(12, done, taskTitle, selector); // &line[CompleteTasks]
         row.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(taskTitle, Priority.ALWAYS);
         setGraphic(row);

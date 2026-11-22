@@ -1,7 +1,11 @@
 TaskManager
     TaskManagement
         CreateTasks
+        CompleteTasks
     Labels
         CreateLabels
         AssignTaskLabels
         PersistLabels
+    TaskSearch
+        KeywordSearch
+        StatusFilter
