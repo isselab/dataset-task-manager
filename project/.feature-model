@@ -2,8 +2,9 @@ TaskManager
     TaskManagement
         CreateTasks
         TaskPriority
-        KeywordSearch
-        StatusFilter
+        TaskQuery
+            KeywordSearch
+            StatusFilter
         PersistTasks
     Tags
         CreateTags

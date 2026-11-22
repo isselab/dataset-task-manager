@@ -5,6 +5,7 @@ import repository.JsonTagRepository;
 import repository.JsonTaskRepository;
 import service.TagService;
 import service.TaskService;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -54,29 +55,21 @@ public final class MainController {
         taskInput.setOnAction(event -> addTask.fire());
         // &end[CreateTasks]
 
+        // &begin[TaskQuery]
         // &begin[KeywordSearch]
         TextField searchInput = new TextField();
         searchInput.setPromptText("Search tasks by title or description");
-        FilteredList<Task> filteredTasks = new FilteredList<>(taskService.getTasks());
         // &end[KeywordSearch]
+        FilteredList<Task> filteredTasks = new FilteredList<>(taskService.getTasks());
         // &begin[StatusFilter]
         ComboBox<String> statusFilter = new ComboBox<>();
-        statusFilter.getItems().addAll("All tasks", "Open tasks", "Completed tasks");
+        statusFilter.getItems().addAll(TaskService.ALL_TASKS, TaskService.OPEN_TASKS, TaskService.COMPLETED_TASKS);
         statusFilter.getSelectionModel().selectFirst();
-        Runnable applyTaskFilters = () -> {
-            String keyword = searchInput.getText().trim().toLowerCase();
-            String status = statusFilter.getValue();
-            filteredTasks.setPredicate(task -> (keyword.isEmpty()
-                    || task.getTitle().toLowerCase().contains(keyword)
-                    || task.getDescription().toLowerCase().contains(keyword))
-                    && (!"Open tasks".equals(status) || !task.isCompleted())
-                    && (!"Completed tasks".equals(status) || task.isCompleted()));
-        };
-        statusFilter.valueProperty().addListener((observable, oldValue, newValue) -> applyTaskFilters.run());
-        searchInput.textProperty().addListener((observable, oldValue, newValue) -> {
-            applyTaskFilters.run();
-        });
         // &end[StatusFilter]
+        filteredTasks.predicateProperty().bind(Bindings.createObjectBinding(
+                () -> TaskService.taskQuery(searchInput.getText(), statusFilter.getValue()),
+                searchInput.textProperty(), statusFilter.valueProperty()));
+        // &end[TaskQuery]
         // &begin[TaskPriority]
         SortedList<Task> sortedTasks = new SortedList<>(filteredTasks);
         sortedTasks.setComparator(Comparator.comparing(Task::isCompleted)

@@ -7,6 +7,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.UUID;
+import java.util.function.Predicate;
 import repository.TaskRepository;
 
 
@@ -34,6 +35,21 @@ public final class TaskService {
         return task;
     }
     // &end[CreateTasks]
+
+    // &begin[TaskQuery]
+    public static final String ALL_TASKS = "All tasks"; // &line[StatusFilter]
+    public static final String OPEN_TASKS = "Open tasks"; // &line[StatusFilter]
+    public static final String COMPLETED_TASKS = "Completed tasks"; // &line[StatusFilter]
+
+    public static Predicate<Task> taskQuery(String searchText, String status) {
+        String keyword = searchText == null ? "" : searchText.trim().toLowerCase();
+        return task -> (keyword.isEmpty()
+                || task.getTitle().toLowerCase().contains(keyword)
+                || task.getDescription().toLowerCase().contains(keyword))
+                && (!OPEN_TASKS.equals(status) || !task.isCompleted())
+                && (!COMPLETED_TASKS.equals(status) || task.isCompleted());
+    }
+    // &end[TaskQuery]
 
     public void restore(Task task) {
         tasks.add(task);

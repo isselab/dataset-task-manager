@@ -1,0 +1,14 @@
+TaskManager
+    TaskManagement
+        CreateTasks
+        TaskPriority
+        TaskQuery
+            KeywordSearch
+            StatusFilter
+        PersistTasks
+    Tags
+        CreateTags
+        RenameTags
+        DeleteTags
+        AssignTaskTags
+        PersistTags
