@@ -5,9 +5,9 @@ TaskManager
         KeywordSearch
         StatusFilter
         PersistTasks
-    Labels
-        CreateLabels
-        RenameLabels
-        DeleteLabels
-        AssignTaskLabels
-        PersistLabels
+    Tags
+        CreateTags
+        RenameTags
+        DeleteTags
+        AssignTaskTags
+        PersistTags

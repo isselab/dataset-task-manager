@@ -2,9 +2,9 @@ TaskRepository.java
 PersistTasks
 JsonTaskRepository.java
 PersistTasks
-LabelRepository.java
-PersistLabels
-JsonLabelRepository.java
-PersistLabels
+TagRepository.java
+PersistTags
+JsonTagRepository.java
+PersistTags
 JsonFileStore.java
 PersistTasks
