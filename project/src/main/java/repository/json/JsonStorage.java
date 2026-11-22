@@ -1,10 +1,8 @@
-package persistence;
+package repository.json;
 
 import model.Label;
 import model.Task;
 import model.TaskPriority;
-import service.LabelService;
-import service.TaskService;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -13,30 +11,76 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class JsonTaskPersistence {
+/**
+ * Reads and writes the single JSON file that holds both labels and tasks.
+ * Keeps an in-memory snapshot so that saving one kind of entity rewrites the
+ * file without losing the other.
+ */
+public final class JsonStorage {
     private final Path file;
+    private boolean loaded;
+    private List<Label> labels = List.of();
+    private List<Task> tasks = List.of();
 
-    public JsonTaskPersistence() {
+    public JsonStorage() {
         this(Paths.get(System.getProperty("user.home"), ".task-manager", "tasks.json"));
     }
 
-    JsonTaskPersistence(Path file) {
+    JsonStorage(Path file) {
         this.file = file;
     }
 
-    public void save(TaskService taskService, LabelService labelService) {
+    List<Label> loadLabels() {
+        ensureLoaded();
+        return labels;
+    }
+
+    List<Task> loadTasks() {
+        ensureLoaded();
+        return tasks;
+    }
+
+    void writeLabels(List<Label> newLabels) {
+        ensureLoaded();
+        labels = List.copyOf(newLabels);
+        write();
+    }
+
+    void writeTasks(List<Task> newTasks) {
+        ensureLoaded();
+        tasks = List.copyOf(newTasks);
+        write();
+    }
+
+    private void ensureLoaded() {
+        if (loaded) return;
+        loaded = true;
+        if (!Files.exists(file)) return;
+        try {
+            String json = Files.readString(file, StandardCharsets.UTF_8);
+            JsonReader reader = new JsonReader(json);
+            List<Label> readLabels = reader.readLabels();
+            List<Task> readTasks = reader.readTasks();
+            labels = readLabels;
+            tasks = readTasks;
+        } catch (IOException | IllegalArgumentException ignored) {
+            // A malformed local file should not prevent the application from starting.
+        }
+    }
+
+    private void write() {
         StringBuilder json = new StringBuilder("{\"labels\":[");
-        for (int i = 0; i < labelService.getLabels().size(); i++) {
+        for (int i = 0; i < labels.size(); i++) {
             if (i > 0) json.append(',');
-            Label label = labelService.getLabels().get(i);
+            Label label = labels.get(i);
             json.append("{\"id\":\"").append(escape(label.id())).append("\",\"name\":\"")
                     .append(escape(label.name())).append("\",\"color\":\"")
                     .append(escape(label.color())).append("\"}");
         }
         json.append("],\"tasks\":[");
-        for (int i = 0; i < taskService.getTasks().size(); i++) {
+        for (int i = 0; i < tasks.size(); i++) {
             if (i > 0) json.append(',');
-            Task task = taskService.getTasks().get(i);
+            Task task = tasks.get(i);
             json.append("{\"id\":\"").append(escape(task.getId())).append("\",\"title\":\"")
                     .append(escape(task.getTitle())).append("\",\"description\":\"")
                     .append(escape(task.getDescription())).append("\",\"priority\":\"")
@@ -55,20 +99,6 @@ public final class JsonTaskPersistence {
             Files.writeString(file, json.toString(), StandardCharsets.UTF_8);
         } catch (IOException ignored) {
             // The current session remains usable when the local file cannot be written.
-        }
-    }
-
-    public void load(TaskService taskService, LabelService labelService) {
-        if (!Files.exists(file)) return;
-        try {
-            String json = Files.readString(file, StandardCharsets.UTF_8);
-            JsonReader reader = new JsonReader(json);
-            List<Label> labels = reader.readLabels();
-            List<Task> tasks = reader.readTasks();
-            labels.forEach(labelService::restore);
-            tasks.forEach(taskService::restore);
-        } catch (IOException | IllegalArgumentException ignored) {
-            // A malformed local file should not prevent the application from starting.
         }
     }
 

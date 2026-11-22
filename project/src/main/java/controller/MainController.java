@@ -1,7 +1,9 @@
 package controller;
 
 import model.Task;
-import persistence.JsonTaskPersistence;
+import repository.json.JsonLabelRepository;
+import repository.json.JsonStorage;
+import repository.json.JsonTaskRepository;
 import service.LabelService;
 import service.TaskService;
 import javafx.geometry.Insets;
@@ -21,12 +23,20 @@ import javafx.scene.layout.VBox;
 import java.util.Comparator;
 
 public final class MainController {
-    private final TaskService taskService = new TaskService();
-    private final LabelService labelService = new LabelService();
-    private final JsonTaskPersistence persistence = new JsonTaskPersistence();
+    private final TaskService taskService;
+    private final LabelService labelService;
 
     public MainController() {
-        persistence.load(taskService, labelService);
+        JsonStorage storage = new JsonStorage();
+        taskService = new TaskService(new JsonTaskRepository(storage));
+        labelService = new LabelService(new JsonLabelRepository(storage));
+        labelService.load();
+        taskService.load();
+    }
+
+    private void persist() {
+        labelService.save();
+        taskService.save();
     }
 
     public BorderPane createView() {
@@ -44,7 +54,7 @@ public final class MainController {
                 taskService.createTask(taskInput.getText(), descriptionInput.getText());
                 taskInput.clear();
                 descriptionInput.clear();
-                persistence.save(taskService, labelService);
+                persist();
             }
         });
         taskInput.setOnAction(event -> addTask.fire());
@@ -79,7 +89,7 @@ public final class MainController {
                 .thenComparing(Task::getPriority, Comparator.reverseOrder()));
         // &end[TaskPriority]
         ListView<Task> taskList = new ListView<>(sortedTasks);
-        taskList.setCellFactory(view -> new TaskDialogController(taskService, labelService, persistence));
+        taskList.setCellFactory(view -> new TaskDialogController(taskService, labelService, this::persist));
         VBox.setVgrow(taskList, Priority.ALWAYS);
 
         // &begin[CreateLabels]
@@ -90,7 +100,7 @@ public final class MainController {
         addLabel.setOnAction(event -> {
             if (labelService.createLabel(labelInput.getText(), labelColor.getValue().toString()) != null) {
                 labelInput.clear();
-                persistence.save(taskService, labelService);
+                persist();
                 taskList.refresh();
             }
         });
@@ -120,7 +130,7 @@ public final class MainController {
         rename.setOnAction(event -> {
             model.Label selected = labelSelector.getValue();
             if (labelService.renameLabel(selected, renameInput.getText(), taskService.getTasks())) {
-                persistence.save(taskService, labelService);
+                persist();
                 labelService.getLabels().stream()
                         .filter(label -> label.id().equals(selected.id()))
                         .findFirst()
@@ -137,7 +147,7 @@ public final class MainController {
         delete.setOnAction(event -> {
             model.Label selected = labelSelector.getValue();
             if (labelService.deleteLabel(selected, taskService.getTasks())) {
-                persistence.save(taskService, labelService);
+                persist();
                 labelSelector.getSelectionModel().clearSelection();
                 renameInput.clear();
                 taskList.refresh();

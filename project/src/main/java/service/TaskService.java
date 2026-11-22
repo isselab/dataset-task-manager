@@ -3,6 +3,7 @@ package service;
 import model.Label;
 import model.Task;
 import model.TaskPriority;
+import repository.TaskRepository;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -11,6 +12,11 @@ import java.util.UUID;
 
 public final class TaskService {
     private final ObservableList<Task> tasks = FXCollections.observableArrayList();
+    private final TaskRepository repository; // &line[PersistLabels]
+
+    public TaskService(TaskRepository repository) {
+        this.repository = repository; // &line[PersistLabels]
+    }
 
     public ObservableList<Task> getTasks() {
         return tasks;
@@ -29,9 +35,15 @@ public final class TaskService {
     }
     // &end[CreateTasks]
 
-    public void restore(Task task) {
-        tasks.add(task);
+    // &begin[PersistLabels]
+    public void load() {
+        tasks.addAll(repository.findAll());
     }
+
+    public void save() {
+        repository.saveAll(tasks);
+    }
+    // &end[PersistLabels]
 
     public void refreshTask(Task task) {
         int index = tasks.indexOf(task);

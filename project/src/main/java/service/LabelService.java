@@ -2,6 +2,7 @@ package service;
 
 import model.Label;
 import model.Task; // &line[RenameLabels]
+import repository.LabelRepository; // &line[PersistLabels]
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -9,6 +10,11 @@ import java.util.UUID;
 
 public final class LabelService {
     private final ObservableList<Label> labels = FXCollections.observableArrayList();
+    private final LabelRepository repository; // &line[PersistLabels]
+
+    public LabelService(LabelRepository repository) {
+        this.repository = repository; // &line[PersistLabels]
+    }
 
     public ObservableList<Label> getLabels() {
         return labels;
@@ -56,7 +62,13 @@ public final class LabelService {
     }
     // &end[DeleteLabels]
 
-    public void restore(Label label) {
-        labels.add(label);
+    // &begin[PersistLabels]
+    public void load() {
+        labels.addAll(repository.findAll());
     }
+
+    public void save() {
+        repository.saveAll(labels);
+    }
+    // &end[PersistLabels]
 }
