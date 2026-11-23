@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "agent-hans": {
+      "command": "node",
+      "args": [".claude/mcp/index.js"]
+    }
+  }
+}
