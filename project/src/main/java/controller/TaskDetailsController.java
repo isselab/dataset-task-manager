@@ -1,8 +1,11 @@
 package controller;
 
+import java.util.ArrayList;
+import java.util.List;
 import model.Subtask;
 import model.Task;
 import model.TaskPriority;
+import model.TaskRecurrence;
 import service.TagService;
 import service.TaskService;
 import javafx.geometry.Insets;
@@ -44,14 +47,7 @@ public final class TaskDetailsController {
         TextArea description = new TextArea(task.getDescription());
         description.setPromptText("Description");
         description.setPrefRowCount(3);
-        Button saveDetails = new Button("Save changes");
-        saveDetails.setOnAction(event -> {
-            if (taskService.renameTask(task, title.getText())) {
-                task.setDescription(description.getText());
-                saveTask(task);
-            }
-        });
-        details.getChildren().addAll(title, description, saveDetails);
+        details.getChildren().addAll(title, description);
 
         details.getChildren().add(sectionLabel("Status and scheduling"));
         CheckBox completed = new CheckBox("Completed");
@@ -61,14 +57,10 @@ public final class TaskDetailsController {
         priority.setValue(task.getPriority());
         DatePicker dueDate = new DatePicker(task.getDueDate()); // &line[TaskDueDates]
         dueDate.setPromptText("Due date");
-        Button saveStatus = new Button("Save status and schedule");
-        saveStatus.setOnAction(event -> {
-            task.setCompleted(completed.isSelected());
-            task.setPriority(priority.getValue());
-            task.setDueDate(dueDate.getValue());
-            saveTask(task);
-        });
-        details.getChildren().addAll(new HBox(8, completed, priority, dueDate), saveStatus);
+        ChoiceBox<TaskRecurrence> recurrence = new ChoiceBox<>(); // &line[RecurringTasks]
+        recurrence.getItems().addAll(TaskRecurrence.values()); // &line[RecurringTasks]
+        recurrence.setValue(task.getRecurrence()); // &line[RecurringTasks]
+        details.getChildren().add(new HBox(8, completed, priority, dueDate, new Label("Repeats:"), recurrence)); // &line[RecurringTasks]
 
         details.getChildren().add(sectionLabel("Tags"));
         HBox tagChips = new HBox(4);
@@ -77,17 +69,17 @@ public final class TaskDetailsController {
         tagService.getTags().stream().map(tag -> new TagOption(tag.id(), tag.name()))
                 .forEach(tagSelector.getItems()::add);
         tagSelector.getSelectionModel().selectFirst();
+        // Tags chosen in this window; applied to the task when the global Save button is pressed
+        List<String> pendingTagIds = new ArrayList<>(task.getTagIds()); // &line[AssignTaskTags]
         Runnable refreshTags = () -> {
             tagChips.getChildren().clear();
-            tagService.getTags().stream().filter(tag -> task.getTagIds().contains(tag.id()))
+            tagService.getTags().stream().filter(tag -> pendingTagIds.contains(tag.id()))
                     .map(tag -> new Label(tag.name())).forEach(tagChips.getChildren()::add);
         };
         tagSelector.setOnAction(event -> {
             TagOption option = tagSelector.getValue();
-            if (option.id() != null) {
-                tagService.getTags().stream().filter(tag -> tag.id().equals(option.id())).findFirst()
-                        .ifPresent(tag -> taskService.assignTag(task, tag));
-                saveTask(task);
+            if (option != null && option.id() != null) {
+                if (!pendingTagIds.contains(option.id())) pendingTagIds.add(option.id());
                 refreshTags.run();
                 tagSelector.getSelectionModel().selectFirst();
             }
@@ -102,6 +94,25 @@ public final class TaskDetailsController {
         details.getChildren().add(sectionLabel("Task actions"));
         Button delete = new Button("Delete"); // &line[DeleteTasks]
         delete.setOnAction(event -> {
+            if (task.getRecurrence().isRecurring()) { // &begin[DeleteRecurringTasks]
+                ButtonType occurrenceOnly = new ButtonType("This occurrence");
+                ButtonType wholeSeries = new ButtonType("Entire series");
+                Alert choice = new Alert(Alert.AlertType.CONFIRMATION,
+                        "\"" + task.getTitle() + "\" is a recurring task. Delete only this occurrence "
+                                + "(future occurrences continue) or the complete recurring series?",
+                        occurrenceOnly, wholeSeries, ButtonType.CANCEL);
+                choice.setTitle("Delete recurring task");
+                choice.setHeaderText("Delete this recurring task?");
+                choice.showAndWait().ifPresent(button -> {
+                    boolean deleted = button == occurrenceOnly ? taskService.deleteOccurrence(task)
+                            : button == wholeSeries && taskService.deleteSeries(task);
+                    if (deleted) {
+                        saveTask(task);
+                        stage.close();
+                    }
+                });
+                return;
+            } // &end[DeleteRecurringTasks]
             Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
                     "Delete task \"" + task.getTitle() + "\"?", ButtonType.CANCEL, ButtonType.OK);
             confirmation.setTitle("Delete task");
@@ -113,7 +124,22 @@ public final class TaskDetailsController {
                 }
             });
         });
-        HBox actions = new HBox(8, delete);
+        Button save = new Button("Save"); // &line[PersistTasks]
+        save.setOnAction(event -> {
+            if (!taskService.renameTask(task, title.getText())) {
+                new Alert(Alert.AlertType.WARNING, "The task title must not be empty.", ButtonType.OK).showAndWait();
+                return;
+            }
+            task.setDescription(description.getText());
+            task.setPriority(priority.getValue());
+            task.setDueDate(dueDate.getValue());
+            task.setRecurrence(recurrence.getValue()); // &line[RecurringTasks]
+            taskService.setTaskCompleted(task, completed.isSelected()); // &line[RecurringTasks]
+            tagService.getTags().stream().filter(tag -> pendingTagIds.contains(tag.id()))
+                    .forEach(tag -> taskService.assignTag(task, tag));
+            saveTask(task);
+        });
+        HBox actions = new HBox(8, save, delete);
         details.getChildren().add(actions);
         stage.setScene(new Scene(details, 560, 680));
         stage.show();
@@ -121,6 +147,12 @@ public final class TaskDetailsController {
     // &begin[Subtasks]
     private VBox createSubtasks(Task task) {
         VBox content = new VBox(4);
+        populateSubtasks(content, task);
+        return content;
+    }
+
+    private void populateSubtasks(VBox content, Task task) {
+        content.getChildren().clear();
         TextField input = new TextField(); // &line[AddSubtasks]
         input.setPromptText("New subtask");
         Button add = new Button("Add");
@@ -160,13 +192,10 @@ public final class TaskDetailsController {
             HBox.setHgrow(title, Priority.ALWAYS);
             content.getChildren().add(row);
         }
-        return content;
     }
 
     private void rebuildSubtasks(VBox content, Task task) {
-        content.getChildren().clear();
-        VBox rebuilt = createSubtasks(task);
-        content.getChildren().addAll(rebuilt.getChildren());
+        populateSubtasks(content, task);
     }
     // &end[Subtasks]
 

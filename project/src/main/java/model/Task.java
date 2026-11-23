@@ -13,6 +13,8 @@ public final class Task {
     private TaskPriority priority;
     private LocalDate dueDate;
     private final List<Subtask> subtasks;
+    private TaskRecurrence recurrence; // &line[RecurringTasks]
+    private String seriesId; // &line[DeleteRecurringTasks]
 
     public Task(String id, String title) {
         this(id, title, "", null);
@@ -46,6 +48,18 @@ public final class Task {
 
     public Task(String id, String title, String description, List<String> tagIds,
                 boolean completed, TaskPriority priority, LocalDate dueDate, List<Subtask> subtasks) {
+        this(id, title, description, tagIds, completed, priority, dueDate, subtasks, TaskRecurrence.NONE);
+    }
+
+    public Task(String id, String title, String description, List<String> tagIds,
+                boolean completed, TaskPriority priority, LocalDate dueDate, List<Subtask> subtasks,
+                TaskRecurrence recurrence) { // &line[RecurringTasks]
+        this(id, title, description, tagIds, completed, priority, dueDate, subtasks, recurrence, null);
+    }
+
+    public Task(String id, String title, String description, List<String> tagIds,
+                boolean completed, TaskPriority priority, LocalDate dueDate, List<Subtask> subtasks,
+                TaskRecurrence recurrence, String seriesId) { // &line[DeleteRecurringTasks]
         this.id = id;
         this.title = title;
         this.description = description == null ? "" : description;
@@ -54,7 +68,32 @@ public final class Task {
         this.priority = priority == null ? TaskPriority.MEDIUM : priority;
         this.dueDate = dueDate;
         this.subtasks = new ArrayList<>(subtasks == null ? List.of() : subtasks);
+        this.recurrence = recurrence == null ? TaskRecurrence.NONE : recurrence; // &line[RecurringTasks]
+        this.seriesId = this.recurrence.isRecurring() ? seriesId : null; // &line[DeleteRecurringTasks]
     }
+
+    // &begin[RecurringTasks]
+    public TaskRecurrence getRecurrence() {
+        return recurrence;
+    }
+
+    public void setRecurrence(TaskRecurrence recurrence) {
+        this.recurrence = recurrence == null ? TaskRecurrence.NONE : recurrence;
+        if (!this.recurrence.isRecurring()) this.seriesId = null; // &line[DeleteRecurringTasks]
+    }
+    // &end[RecurringTasks]
+
+    // &begin[DeleteRecurringTasks]
+    /** Identifier shared by all occurrences of a recurring series; defaults to this task's own id. */
+    public String getSeriesId() {
+        return seriesId == null ? id : seriesId;
+    }
+
+    public boolean isInSeriesOf(Task other) {
+        return other != null && recurrence.isRecurring() && other.recurrence.isRecurring()
+                && getSeriesId().equals(other.getSeriesId());
+    }
+    // &end[DeleteRecurringTasks]
 
     public String getId() {
         return id;

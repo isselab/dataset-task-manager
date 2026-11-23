@@ -49,7 +49,11 @@ public final class TaskDialogController extends ListCell<Task> {
         overdue.setVisible(task.isOverdue());
         overdue.setManaged(task.isOverdue());
 
-        HBox row = new HBox(12, title, status, priority, dueDate, overdue, tags);
+        Label recurrence = new Label("Repeats " + task.getRecurrence().toString().toLowerCase()); // &line[RecurringTasks]
+        recurrence.setVisible(task.getRecurrence().isRecurring()); // &line[RecurringTasks]
+        recurrence.setManaged(task.getRecurrence().isRecurring()); // &line[RecurringTasks]
+
+        HBox row = new HBox(12, title, status, priority, dueDate, overdue, recurrence, tags); // &line[RecurringTasks]
         row.setAlignment(Pos.CENTER_LEFT);
         setGraphic(row);
         row.setOnMouseClicked(event -> new TaskDetailsController(taskService, tagService).show(task)); // &line[TaskManagement]

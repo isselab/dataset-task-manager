@@ -3,6 +3,7 @@ package repository;
 import model.Tag;
 import model.Task;
 import model.TaskPriority;
+import model.TaskRecurrence;
 import model.Subtask;
 
 import java.io.IOException;
@@ -56,6 +57,7 @@ final class JsonFileStore {
                 json.append('"').append(escape(task.getTagIds().get(j))).append('"');
             }
             json.append("],\"completed\":").append(task.isCompleted());
+            // &begin[PersistSubtasks]
             json.append(",\"subtasks\":[");
             for (int j = 0; j < task.getSubtasks().size(); j++) {
                 if (j > 0) json.append(',');
@@ -66,6 +68,9 @@ final class JsonFileStore {
             }
             json.append("]");
             // &end[PersistSubtasks]
+            json.append(",\"recurrence\":\"").append(task.getRecurrence().name()).append('"'); // &line[RecurringTasks]
+            if (task.getRecurrence().isRecurring()) // &line[DeleteRecurringTasks]
+                json.append(",\"seriesId\":\"").append(escape(task.getSeriesId())).append('"'); // &line[DeleteRecurringTasks]
             json.append('}');
         }
         json.append("]}");
@@ -150,7 +155,17 @@ final class JsonFileStore {
                     expect(']');
                 }
                 // &end[PersistSubtasks]
-                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority, dueDate, subtasks)); consumeComma();
+                // &begin[RecurringTasks]
+                TaskRecurrence recurrence = TaskRecurrence.NONE;
+                if (at(',')) {
+                    expect(','); expectField("recurrence");
+                    try { recurrence = TaskRecurrence.valueOf(readString()); }
+                    catch (IllegalArgumentException ignored) { recurrence = TaskRecurrence.NONE; }
+                }
+                // &end[RecurringTasks]
+                String seriesId = null; // &line[DeleteRecurringTasks]
+                if (at(',')) { expect(','); expectField("seriesId"); seriesId = readString(); } // &line[DeleteRecurringTasks]
+                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority, dueDate, subtasks, recurrence, seriesId)); consumeComma(); // &line[RecurringTasks]
             }
             return result;
         }

@@ -115,6 +115,48 @@ public final class TaskService {
     // &end[DeleteSubtasks]
     // &end[Subtasks]
 
+    // &begin[RecurringTasks]
+    /**
+     * Sets the completed state. When a recurring task changes from open to completed,
+     * its next occurrence is created and returned; otherwise null is returned.
+     */
+    public Task setTaskCompleted(Task task, boolean completed) {
+        if (task == null) return null;
+        boolean justCompleted = completed && !task.isCompleted();
+        task.setCompleted(completed);
+        if (!justCompleted) return null;
+        return createNextOccurrence(task);
+    }
+
+    private Task createNextOccurrence(Task task) {
+        if (!task.getRecurrence().isRecurring() || !tasks.contains(task)) return null;
+        Task next = new Task(UUID.randomUUID().toString(), task.getTitle(), task.getDescription(),
+                task.getTagIds(), false, task.getPriority(),
+                task.getRecurrence().nextDueDate(task.getDueDate()), java.util.List.of(), task.getRecurrence(),
+                task.getSeriesId()); // &line[DeleteRecurringTasks]
+        tasks.add(next);
+        return next;
+    }
+    // &end[RecurringTasks]
+
+    // &begin[DeleteRecurringTasks]
+    /** Deletes only this occurrence; an open occurrence is replaced by its next one so the series continues. */
+    public boolean deleteOccurrence(Task task) {
+        if (task == null || !tasks.contains(task)) return false;
+        if (!task.isCompleted()) createNextOccurrence(task);
+        return deleteTask(task);
+    }
+
+    /** Deletes every occurrence of the task's recurring series, so no further occurrences are created. */
+    public boolean deleteSeries(Task task) {
+        if (task == null || !tasks.contains(task)) return false;
+        if (!task.getRecurrence().isRecurring()) return deleteTask(task);
+        java.util.List<Task> series = tasks.stream().filter(task::isInSeriesOf).toList();
+        series.forEach(this::deleteTask);
+        return true;
+    }
+    // &end[DeleteRecurringTasks]
+
     // &begin[DeleteTasks]
     public boolean deleteTask(Task task) {
         if (task == null || !tasks.contains(task)) return false;
