@@ -1,0 +1,30 @@
+{
+  "$schema": "../../../schema/evolution-step.schema.json",
+  "id": "step-011",
+  "sequence": 11,
+  "before_version": "v010",
+  "after_version": "v011",
+  "prompts": [
+    {
+      "order": 1,
+      "path": "prompts/001.md"
+    }
+  ],
+  "scenario_types": ["add"],
+  "expected_changes": [
+    {
+      "id": "change-001",
+      "operation": "add",
+      "features_before": [],
+      "features_after": ["Subtasks",
+        "AddSubtasks",
+        "RenameSubtasks",
+        "CompleteSubtasks",
+        "ReopenSubtasks",
+        "DeleteSubtasks",
+        "PersistSubtasks"],
+      "description": "Add subtasks"
+    }
+  ],
+  "ground_truth": "ground-truth"
+}

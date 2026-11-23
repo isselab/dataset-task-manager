@@ -1,5 +1,6 @@
 package repository;
 
+import model.Subtask; // &line[PersistSubtasks]
 import model.Tag;
 import model.Task;
 import model.TaskPriority;
@@ -54,7 +55,19 @@ final class JsonFileStore {
                 if (j > 0) json.append(',');
                 json.append('"').append(escape(task.getTagIds().get(j))).append('"');
             }
-            json.append("],\"completed\":").append(task.isCompleted()).append('}');
+            json.append("],\"completed\":").append(task.isCompleted());
+            // &begin[PersistSubtasks]
+            json.append(",\"subtasks\":[");
+            for (int j = 0; j < task.getSubtasks().size(); j++) {
+                if (j > 0) json.append(',');
+                Subtask subtask = task.getSubtasks().get(j);
+                json.append("{\"id\":\"").append(escape(subtask.getId())).append("\",\"title\":\"")
+                        .append(escape(subtask.getTitle())).append("\",\"completed\":")
+                        .append(subtask.isCompleted()).append('}');
+            }
+            json.append(']');
+            // &end[PersistSubtasks]
+            json.append('}');
         }
         json.append("]}");
         try {
@@ -116,7 +129,23 @@ final class JsonFileStore {
                 else { expectField("labelId"); String legacy = atString("null") ? readNull() : readString(); tagIds = legacy == null ? List.of() : List.of(legacy); }
                 boolean completed = false;
                 if (at(',')) { expect(','); expectField("completed"); completed = readBoolean(); }
-                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority, dueDate)); consumeComma();
+                // &begin[PersistSubtasks]
+                List<Subtask> subtasks = new ArrayList<>();
+                if (at(',')) {
+                    expect(','); expectField("subtasks"); expect('[');
+                    while (!at(']')) {
+                        expect('{'); String subtaskId = readStringField("id"); expect(',');
+                        String subtaskTitle = readStringField("title"); expect(',');
+                        expectField("completed"); boolean subtaskCompleted = readBoolean();
+                        expect('}'); subtasks.add(new Subtask(subtaskId, subtaskTitle, subtaskCompleted)); consumeComma();
+                    }
+                    expect(']');
+                }
+                // &end[PersistSubtasks]
+                expect('}');
+                Task task = new Task(id, title, description, tagIds, completed, priority, dueDate);
+                subtasks.forEach(task::addSubtask); // &line[PersistSubtasks]
+                result.add(task); consumeComma();
             }
             return result;
         }

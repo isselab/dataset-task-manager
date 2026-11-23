@@ -12,6 +12,7 @@ public final class Task {
     private boolean completed;
     private TaskPriority priority;
     private LocalDate dueDate;
+    private final List<Subtask> subtasks = new ArrayList<>(); // &line[Subtasks]
 
     public Task(String id, String title) {
         this(id, title, "", null);
@@ -114,4 +115,18 @@ public final class Task {
     public void removeTagId(String tagId) {
         tagIds.remove(tagId);
     }
+
+    // &begin[Subtasks]
+    public List<Subtask> getSubtasks() {
+        return List.copyOf(subtasks);
+    }
+
+    public void addSubtask(Subtask subtask) { // &line[AddSubtasks]
+        subtasks.add(subtask);
+    }
+
+    public boolean removeSubtask(Subtask subtask) { // &line[DeleteSubtasks]
+        return subtasks.remove(subtask);
+    }
+    // &end[Subtasks]
 }

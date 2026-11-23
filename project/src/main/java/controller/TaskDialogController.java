@@ -1,5 +1,6 @@
 package controller;
 
+import model.Subtask; // &line[Subtasks]
 import model.Task;
 import model.TaskPriority;
 import service.TagService;
@@ -139,8 +140,55 @@ public final class TaskDialogController extends ListCell<Task> {
         row.getChildren().add(rename); // &line[RenameTasks]
         row.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(titleInput, Priority.ALWAYS);
-        setGraphic(row);
+        VBox subtaskSection = createSubtaskSection(task); // &line[Subtasks]
+        setGraphic(new VBox(6, row, subtaskSection)); // &line[Subtasks]
     }
+
+    // &begin[Subtasks]
+    private VBox createSubtaskSection(Task task) {
+        VBox section = new VBox(4);
+        section.setPadding(new Insets(0, 0, 0, 24));
+        for (Subtask subtask : task.getSubtasks()) {
+            // &begin[CompleteSubtasks]
+            CheckBox done = new CheckBox();
+            done.setSelected(subtask.isCompleted());
+            done.setOnAction(event -> {
+                if (taskService.setSubtaskCompleted(task, subtask, done.isSelected())) taskService.save();
+            });
+            // &end[CompleteSubtasks]
+            // &begin[RenameSubtasks]
+            TextField subtaskTitle = new TextField(subtask.getTitle());
+            Button renameSubtask = new Button("Rename");
+            renameSubtask.setOnAction(event -> {
+                if (taskService.renameSubtask(task, subtask, subtaskTitle.getText())) taskService.save();
+            });
+            // &end[RenameSubtasks]
+            // &begin[DeleteSubtasks]
+            Button deleteSubtask = new Button("Delete");
+            deleteSubtask.setOnAction(event -> {
+                if (taskService.deleteSubtask(task, subtask)) taskService.save();
+            });
+            // &end[DeleteSubtasks]
+            HBox subtaskRow = new HBox(8, done, subtaskTitle, renameSubtask, deleteSubtask);
+            subtaskRow.setAlignment(Pos.CENTER_LEFT);
+            HBox.setHgrow(subtaskTitle, Priority.ALWAYS);
+            section.getChildren().add(subtaskRow);
+        }
+        // &begin[AddSubtasks]
+        TextField newSubtask = new TextField();
+        newSubtask.setPromptText("New subtask");
+        Button addSubtask = new Button("Add subtask");
+        addSubtask.setOnAction(event -> {
+            if (taskService.addSubtask(task, newSubtask.getText()) != null) taskService.save();
+        });
+        newSubtask.setOnAction(event -> addSubtask.fire());
+        HBox addRow = new HBox(8, newSubtask, addSubtask);
+        HBox.setHgrow(newSubtask, Priority.ALWAYS);
+        section.getChildren().add(addRow);
+        // &end[AddSubtasks]
+        return section;
+    }
+    // &end[Subtasks]
 
     private Label createTagChip(model.Tag tag) {
         Label chip = new Label(tag.name());

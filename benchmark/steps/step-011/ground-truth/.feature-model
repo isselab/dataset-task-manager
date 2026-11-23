@@ -1,0 +1,22 @@
+TaskManager
+    TaskManagement
+        CreateTasks
+        DeleteTasks
+        RenameTasks
+        TaskPriorityLevels
+        TaskOrdering
+        TaskDueDates
+        Subtasks
+            AddSubtasks
+            RenameSubtasks
+            CompleteSubtasks
+            DeleteSubtasks
+    TaskQuery
+    PersistTasks
+    PersistSubtasks
+    Tags
+        CreateTags
+        RenameTags
+        DeleteTags
+    AssignTaskTags
+    PersistTags

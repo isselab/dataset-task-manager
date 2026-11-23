@@ -1,5 +1,6 @@
 package service;
 
+import model.Subtask; // &line[Subtasks]
 import model.Tag;
 import model.Task;
 import model.TaskPriority;
@@ -70,6 +71,45 @@ public final class TaskService {
         return tasks.remove(task);
     }
     // &end[DeleteTasks]
+
+    // &begin[AddSubtasks]
+    public Subtask addSubtask(Task task, String title) {
+        if (task == null || !tasks.contains(task) || title == null || title.trim().isEmpty()) return null;
+        Subtask subtask = new Subtask(UUID.randomUUID().toString(), title.trim(), false);
+        task.addSubtask(subtask);
+        refreshTask(task);
+        return subtask;
+    }
+    // &end[AddSubtasks]
+
+    // &begin[RenameSubtasks]
+    public boolean renameSubtask(Task task, Subtask subtask, String title) {
+        if (task == null || subtask == null || !task.getSubtasks().contains(subtask)
+                || title == null || title.trim().isEmpty()) {
+            return false;
+        }
+        subtask.setTitle(title);
+        refreshTask(task);
+        return true;
+    }
+    // &end[RenameSubtasks]
+
+    // &begin[CompleteSubtasks]
+    public boolean setSubtaskCompleted(Task task, Subtask subtask, boolean completed) {
+        if (task == null || subtask == null || !task.getSubtasks().contains(subtask)) return false;
+        subtask.setCompleted(completed);
+        refreshTask(task);
+        return true;
+    }
+    // &end[CompleteSubtasks]
+
+    // &begin[DeleteSubtasks]
+    public boolean deleteSubtask(Task task, Subtask subtask) {
+        if (task == null || subtask == null || !task.removeSubtask(subtask)) return false;
+        refreshTask(task);
+        return true;
+    }
+    // &end[DeleteSubtasks]
 
     // &begin[AssignTaskTags]
     public void assignTag(Task task, Tag tag) {
