@@ -1,10 +1,8 @@
-package persistence;
+package repository;
 
 import model.Label;
 import model.Task;
 import model.TaskPriority;
-import service.LabelService;
-import service.TaskService;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -13,30 +11,53 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class JsonTaskPersistence {
+public final class JsonTaskStore {
     private final Path file;
+    private List<Label> labels = new ArrayList<>();
+    private List<Task> tasks = new ArrayList<>();
+    private boolean loaded;
 
-    public JsonTaskPersistence() {
+    public JsonTaskStore() {
         this(Paths.get(System.getProperty("user.home"), ".task-manager", "tasks.json"));
     }
 
-    JsonTaskPersistence(Path file) {
+    JsonTaskStore(Path file) {
         this.file = file;
     }
 
-    public void save(TaskService taskService, LabelService labelService) {
+    synchronized List<Label> loadLabels() {
+        ensureLoaded();
+        return List.copyOf(labels);
+    }
+
+    synchronized List<Task> loadTasks() {
+        ensureLoaded();
+        return List.copyOf(tasks);
+    }
+
+    synchronized void saveLabels(List<Label> newLabels) {
+        labels = new ArrayList<>(newLabels);
+        write();
+    }
+
+    synchronized void saveTasks(List<Task> newTasks) {
+        tasks = new ArrayList<>(newTasks);
+        write();
+    }
+
+    private void write() {
         StringBuilder json = new StringBuilder("{\"labels\":[");
-        for (int i = 0; i < labelService.getLabels().size(); i++) {
+        for (int i = 0; i < labels.size(); i++) {
             if (i > 0) json.append(',');
-            Label label = labelService.getLabels().get(i);
+            Label label = labels.get(i);
             json.append("{\"id\":\"").append(escape(label.id())).append("\",\"name\":\"")
                     .append(escape(label.name())).append("\",\"color\":\"")
                     .append(escape(label.color())).append("\"}");
         }
         json.append("],\"tasks\":[");
-        for (int i = 0; i < taskService.getTasks().size(); i++) {
+        for (int i = 0; i < tasks.size(); i++) {
             if (i > 0) json.append(',');
-            Task task = taskService.getTasks().get(i);
+            Task task = tasks.get(i);
             json.append("{\"id\":\"").append(escape(task.getId())).append("\",\"title\":\"")
                     .append(escape(task.getTitle())).append("\",\"description\":\"")
                     .append(escape(task.getDescription())).append("\",\"priority\":\"")
@@ -58,15 +79,17 @@ public final class JsonTaskPersistence {
         }
     }
 
-    public void load(TaskService taskService, LabelService labelService) {
+    private void ensureLoaded() {
+        if (loaded) return;
+        loaded = true;
         if (!Files.exists(file)) return;
         try {
             String json = Files.readString(file, StandardCharsets.UTF_8);
             JsonReader reader = new JsonReader(json);
-            List<Label> labels = reader.readLabels();
-            List<Task> tasks = reader.readTasks();
-            labels.forEach(labelService::restore);
-            tasks.forEach(taskService::restore);
+            List<Label> readLabels = reader.readLabels();
+            List<Task> readTasks = reader.readTasks();
+            labels = new ArrayList<>(readLabels);
+            tasks = new ArrayList<>(readTasks);
         } catch (IOException | IllegalArgumentException ignored) {
             // A malformed local file should not prevent the application from starting.
         }

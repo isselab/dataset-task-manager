@@ -1,0 +1,12 @@
+TaskManager
+    TaskManagement
+        CreateTasks
+        TaskPriority
+        KeywordSearch
+        StatusFilter
+    Labels
+        CreateLabels
+        RenameLabels
+        DeleteLabels
+        AssignTaskLabels
+        PersistLabels

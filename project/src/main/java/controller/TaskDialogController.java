@@ -2,7 +2,6 @@ package controller;
 
 import model.Task;
 import model.TaskPriority;
-import persistence.JsonTaskPersistence;
 import service.LabelService;
 import service.TaskService;
 import javafx.geometry.Pos;
@@ -21,12 +20,12 @@ import javafx.geometry.Insets;
 public final class TaskDialogController extends ListCell<Task> {
     private final TaskService taskService;
     private final LabelService labelService;
-    private final JsonTaskPersistence persistence;
+    private final Runnable persist;
 
-    public TaskDialogController(TaskService taskService, LabelService labelService, JsonTaskPersistence persistence) {
+    public TaskDialogController(TaskService taskService, LabelService labelService, Runnable persist) {
         this.taskService = taskService;
         this.labelService = labelService;
-        this.persistence = persistence;
+        this.persist = persist;
     }
 
     @Override
@@ -45,7 +44,7 @@ public final class TaskDialogController extends ListCell<Task> {
         prioritySelector.setOnAction(event -> {
             task.setPriority(prioritySelector.getValue());
             taskService.refreshTask(task);
-            persistence.save(taskService, labelService);
+            persist.run();
         });
         // &end[TaskPriority]
         // &begin[AssignTaskLabels]
@@ -67,7 +66,7 @@ public final class TaskDialogController extends ListCell<Task> {
                         .filter(label -> label.id().equals(option.id()))
                         .findFirst()
                         .ifPresent(label -> taskService.assignLabel(task, label));
-                persistence.save(taskService, labelService);
+                persist.run();
                 updateItem(task, false);
             }
         });
@@ -78,7 +77,7 @@ public final class TaskDialogController extends ListCell<Task> {
         completed.setOnAction(event -> {
             task.setCompleted(completed.isSelected());
             taskService.refreshTask(task);
-            persistence.save(taskService, labelService);
+            persist.run();
         });
         // &end[StatusFilter]
         VBox labels = new VBox(4, labelChips, selector);
