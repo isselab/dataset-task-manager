@@ -1,3 +1,5 @@
+TaskStatusFilter.java
+FilterTasksByStatus
 JsonTaskPersistence.java
 PersistLabels
 

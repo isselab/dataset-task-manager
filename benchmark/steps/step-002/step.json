@@ -1,0 +1,46 @@
+{
+  "$schema": "../../../schema/evolution-step.schema.json",
+  "id": "step-002",
+  "sequence": 2,
+  "before_version": "v001",
+  "after_version": "v002",
+  "prompts": [
+    {
+      "order": 1,
+      "path": "prompts/001.md"
+    },
+    {
+      "order": 2,
+      "path": "prompts/002.md"
+    },
+    {
+      "order": 3,
+      "path": "prompts/003.md"
+    }
+  ],
+  "scenario_types": ["add", "relocate"],
+  "expected_changes": [
+    {
+      "id": "change-001",
+      "operation": "add",
+      "features_before": [],
+      "features_after": ["CompleteTasks","FindTasks"],
+      "description": "Add keyword search"
+    },
+    {
+      "id": "change-002",
+      "operation": "add",
+      "features_before": [],
+      "features_after": ["SearchTasksByKeyword", "FilterTasksByStatus"],
+      "description": "Add status filter"
+    },
+    {
+      "id": "change-003",
+      "operation": "relocate",
+      "features_before": ["TaskManager"],
+      "features_after": ["TaskManager"],
+      "description": "Relocate project structure"
+    }
+  ],
+  "ground_truth": "ground-truth"
+}

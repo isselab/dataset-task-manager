@@ -1,5 +1,13 @@
+package controller;
+
+import model.Task;
+import persistence.JsonTaskPersistence;
+import service.LabelService;
+import service.TaskService;
+
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -33,7 +41,7 @@ public final class MainController {
         });
         taskInput.setOnAction(event -> addTask.fire());
 
-        ListView<Task> taskList = new ListView<>(taskService.getTasks());
+        ListView<Task> taskList = new ListView<>(taskService.getFilteredTasks()); // &line[SearchTasksByKeyword]
         taskList.setCellFactory(view -> new TaskDialogController(taskService, labelService, persistence));
         VBox.setVgrow(taskList, Priority.ALWAYS);
 
@@ -53,7 +61,23 @@ public final class MainController {
         HBox.setHgrow(taskInput, Priority.ALWAYS);
         HBox labelForm = new HBox(8, labelInput, addLabel);
         HBox.setHgrow(labelInput, Priority.ALWAYS);
-        VBox content = new VBox(16, title, taskForm, new Label("Labels"), labelForm, taskList);
+        // &begin[SearchTasksByKeyword]
+        TextField searchInput = new TextField();
+        searchInput.setPromptText("Search tasks");
+        searchInput.textProperty().addListener((observable, oldValue, newValue) -> taskService.setSearchKeyword(newValue));
+        // &end[SearchTasksByKeyword]
+
+        // &begin[FilterTasksByStatus]
+        ChoiceBox<TaskStatusFilter> statusInput = new ChoiceBox<>();
+        statusInput.getItems().addAll(TaskStatusFilter.values());
+        statusInput.setValue(TaskStatusFilter.ALL);
+        statusInput.valueProperty().addListener((observable, oldValue, newValue) -> taskService.setStatusFilter(newValue));
+        // &end[FilterTasksByStatus]
+
+        HBox findForm = new HBox(8, searchInput, statusInput); // &line[SearchTasksByKeyword,FilterTasksByStatus]
+        HBox.setHgrow(searchInput, Priority.ALWAYS); // &line[SearchTasksByKeyword]
+
+        VBox content = new VBox(16, title, taskForm, findForm, new Label("Labels"), labelForm, taskList); // &line[SearchTasksByKeyword,FilterTasksByStatus]
         content.setPadding(new Insets(24));
         content.getStyleClass().add("app-root");
         return new BorderPane(content);

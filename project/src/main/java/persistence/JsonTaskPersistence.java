@@ -1,3 +1,10 @@
+package persistence;
+
+import model.Label;
+import model.Task;
+import service.LabelService;
+import service.TaskService;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -33,6 +40,7 @@ public final class JsonTaskPersistence {
                     .append(escape(task.getTitle())).append("\",\"labelId\":");
             if (task.getLabelId() == null) json.append("null");
             else json.append('\"').append(escape(task.getLabelId())).append('\"');
+            json.append(",\"completed\":").append(task.isCompleted()); // &line[CompleteTasks]
             json.append('}');
         }
         json.append("]}");
@@ -98,8 +106,17 @@ public final class JsonTaskPersistence {
                 expect(',');
                 expectField("labelId");
                 String labelId = atString("null") ? readNull() : readString();
+                // &begin[CompleteTasks]
+                boolean completed = false;
+                if (at(',')) {
+                    position++;
+                    expectField("completed");
+                    completed = atString("true");
+                    position += completed ? 4 : 5;
+                }
+                // &end[CompleteTasks]
                 expect('}');
-                result.add(new Task(id, title, labelId));
+                result.add(new Task(id, title, labelId, completed)); // &line[CompleteTasks]
                 consumeComma();
             }
             return result;
