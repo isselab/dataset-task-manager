@@ -5,10 +5,14 @@ import model.TaskPriority;
 import service.TagService;
 import service.TaskService;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert; // &line[DeleteTasks]
+import javafx.scene.control.Button; // &line[DeleteTasks]
+import javafx.scene.control.ButtonType; // &line[DeleteTasks]
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.TextInputDialog; // &line[RenameTasks]
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -79,8 +83,38 @@ public final class TaskDialogController extends ListCell<Task> {
             taskService.save();
             tagService.save();
         });
+        // &begin[RenameTasks]
+        Button renameTask = new Button("Rename");
+        renameTask.setOnAction(event -> {
+            TextInputDialog dialog = new TextInputDialog(task.getTitle());
+            dialog.setHeaderText("Rename task");
+            dialog.setContentText("New title:");
+            dialog.showAndWait().ifPresent(newTitle -> {
+                if (taskService.renameTask(task, newTitle)) {
+                    taskService.save();
+                    tagService.save();
+                } else {
+                    new Alert(Alert.AlertType.WARNING, "The task title must not be empty.").showAndWait();
+                }
+            });
+        });
+        // &end[RenameTasks]
+        // &begin[DeleteTasks]
+        Button deleteTask = new Button("Delete");
+        deleteTask.setOnAction(event -> {
+            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
+                    "Delete task \"" + task.getTitle() + "\"? This cannot be undone.",
+                    ButtonType.OK, ButtonType.CANCEL);
+            confirmation.setHeaderText("Delete task");
+            if (confirmation.showAndWait().filter(ButtonType.OK::equals).isPresent()
+                    && taskService.deleteTask(task)) {
+                taskService.save();
+                tagService.save();
+            }
+        });
+        // &end[DeleteTasks]
         VBox tags = new VBox(4, tagChips, selector);
-        HBox row = new HBox(12, taskTitle, prioritySelector, completed, tags); // &line[TaskPriority]
+        HBox row = new HBox(12, taskTitle, prioritySelector, completed, tags, renameTask, deleteTask); // &line[TaskPriority]
         row.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(taskTitle, Priority.ALWAYS);
         setGraphic(row);

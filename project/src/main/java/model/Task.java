@@ -5,7 +5,7 @@ import java.util.List;
 
 public final class Task {
     private final String id;
-    private final String title;
+    private String title; // &line[RenameTasks]
     private final String description;
     private final List<String> tagIds;
     private boolean completed;
@@ -48,6 +48,12 @@ public final class Task {
     public String getTitle() {
         return title;
     }
+
+    // &begin[RenameTasks]
+    public void setTitle(String title) {
+        this.title = title;
+    }
+    // &end[RenameTasks]
 
     public String getDescription() {
         return description;

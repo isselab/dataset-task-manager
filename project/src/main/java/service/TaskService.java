@@ -35,6 +35,23 @@ public final class TaskService {
     }
     // &end[CreateTasks]
 
+    // &begin[DeleteTasks]
+    public boolean deleteTask(Task task) {
+        if (task == null || !tasks.remove(task)) return false;
+        new java.util.ArrayList<>(task.getTagIds()).forEach(task::removeTagId); // &line[AssignTaskTags]
+        return true;
+    }
+    // &end[DeleteTasks]
+
+    // &begin[RenameTasks]
+    public boolean renameTask(Task task, String title) {
+        if (task == null || title == null || title.trim().isEmpty()) return false;
+        task.setTitle(title.trim());
+        refreshTask(task);
+        return true;
+    }
+    // &end[RenameTasks]
+
     public void restore(Task task) {
         tasks.add(task);
     }
