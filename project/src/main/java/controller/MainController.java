@@ -11,6 +11,7 @@ import javafx.geometry.Insets;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
@@ -62,9 +63,12 @@ public final class MainController {
         ComboBox<String> statusSelection = new ComboBox<>();
         statusSelection.getItems().addAll(TaskQuery.ALL_TASKS, TaskQuery.OPEN_TASKS, TaskQuery.COMPLETED_TASKS);
         statusSelection.getSelectionModel().selectFirst();
+        CheckBox showArchived = new CheckBox("Show archived"); // &line[ArchiveTasks]
         Runnable applyTaskQuery = () -> {
-            filteredTasks.setPredicate(new TaskQuery(searchInput.getText(), statusSelection.getValue()));
+            filteredTasks.setPredicate(new TaskQuery(searchInput.getText(), statusSelection.getValue(),
+                    showArchived.isSelected())); // &line[ArchiveTasks]
         };
+        showArchived.selectedProperty().addListener((observable, oldValue, newValue) -> applyTaskQuery.run()); // &line[ArchiveTasks]
         // &end[TaskQuery]
         statusSelection.valueProperty().addListener((observable, oldValue, newValue) -> applyTaskQuery.run());
         searchInput.textProperty().addListener((observable, oldValue, newValue) -> applyTaskQuery.run());
@@ -150,7 +154,7 @@ public final class MainController {
         HBox tagManagement = new HBox(8, tagSelector, renameInput, rename, delete); // &line[RenameTags]
         HBox.setHgrow(tagSelector, Priority.ALWAYS);
         HBox.setHgrow(renameInput, Priority.ALWAYS);
-        HBox taskFilters = new HBox(8, searchInput, statusSelection); // &line[TaskQuery]
+        HBox taskFilters = new HBox(8, searchInput, statusSelection, showArchived); // &line[TaskQuery]
         HBox.setHgrow(searchInput, Priority.ALWAYS);
         VBox content = new VBox(16, title, taskForm, taskFilters, new Label("Tags"), tagForm, tagManagement, taskList); // &line[TaskQuery]
         content.setPadding(new Insets(24));

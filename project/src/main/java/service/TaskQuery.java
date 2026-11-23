@@ -12,9 +12,16 @@ public final class TaskQuery implements Predicate<Task> {
     private final String searchText;
     private final String status;
 
+    private final boolean showArchived; // &line[ArchiveTasks]
+
     public TaskQuery(String searchText, String status) {
+        this(searchText, status, false);
+    }
+
+    public TaskQuery(String searchText, String status, boolean showArchived) {
         this.searchText = searchText == null ? "" : searchText.trim().toLowerCase();
         this.status = status;
+        this.showArchived = showArchived; // &line[ArchiveTasks]
     }
 
     @Override
@@ -25,6 +32,7 @@ public final class TaskQuery implements Predicate<Task> {
         boolean matchesStatus = !OPEN_TASKS.equals(status) && !COMPLETED_TASKS.equals(status)
                 || OPEN_TASKS.equals(status) && !task.isCompleted()
                 || COMPLETED_TASKS.equals(status) && task.isCompleted();
-        return matchesSearch && matchesStatus;
+        boolean matchesArchive = showArchived || !task.isArchived(); // &line[ArchiveTasks]
+        return matchesSearch && matchesStatus && matchesArchive; // &line[ArchiveTasks]
     }
 }

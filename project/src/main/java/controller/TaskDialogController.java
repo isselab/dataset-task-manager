@@ -136,7 +136,16 @@ public final class TaskDialogController extends ListCell<Task> {
             });
         });
         // &end[DeleteTasks]
+        // &begin[ArchiveTasks]
+        Button archive = new Button(task.isArchived() ? "Restore" : "Archive");
+        archive.setOnAction(event -> {
+            if (taskService.setArchived(task, !task.isArchived())) {
+                taskService.save();
+            }
+        });
+        // &end[ArchiveTasks]
         HBox row = new HBox(12, titleInput, prioritySelector, completed, dueDatePicker, clearDueDate, overdue, tags, subtasks); // &line[TaskDueDates]
+        row.getChildren().add(archive); // &line[ArchiveTasks]
         row.getChildren().add(delete); // &line[DeleteTasks]
         row.getChildren().add(rename); // &line[RenameTasks]
         row.setAlignment(Pos.CENTER_LEFT);

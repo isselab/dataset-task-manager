@@ -13,6 +13,7 @@ public final class Task {
     private TaskPriority priority;
     private LocalDate dueDate;
     private final List<Subtask> subtasks; // &line[Subtasks]
+    private boolean archived; // &line[ArchiveTasks]
 
     public Task(String id, String title) {
         this(id, title, "", null);
@@ -44,9 +45,15 @@ public final class Task {
         this(id, title, description, tagIds, completed, priority, dueDate, List.of());
     }
 
-    // &begin[Subtasks]
     public Task(String id, String title, String description, List<String> tagIds,
                 boolean completed, TaskPriority priority, LocalDate dueDate, List<Subtask> subtasks) {
+        this(id, title, description, tagIds, completed, priority, dueDate, subtasks, false);
+    }
+
+    // &begin[Subtasks]
+    public Task(String id, String title, String description, List<String> tagIds,
+                boolean completed, TaskPriority priority, LocalDate dueDate, List<Subtask> subtasks,
+                boolean archived) {
         this.id = id;
         this.title = title;
         this.description = description == null ? "" : description;
@@ -55,6 +62,7 @@ public final class Task {
         this.priority = priority == null ? TaskPriority.MEDIUM : priority;
         this.dueDate = dueDate;
         this.subtasks = new ArrayList<>(subtasks == null ? List.of() : subtasks);
+        this.archived = archived; // &line[ArchiveTasks]
     }
     // &end[Subtasks]
 
@@ -106,6 +114,16 @@ public final class Task {
     public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
     }
+
+    // &begin[ArchiveTasks]
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
+    // &end[ArchiveTasks]
 
     public boolean isOverdue() {
         return dueDate != null && dueDate.isBefore(LocalDate.now());
