@@ -4,6 +4,7 @@ import model.Tag;
 import model.Task;
 import model.TaskPriority;
 import model.Subtask;
+import model.Recurrence;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -56,6 +57,7 @@ final class JsonFileStore {
                 json.append('"').append(escape(task.getTagIds().get(j))).append('"');
             }
             json.append("],\"completed\":").append(task.isCompleted());
+            // &begin[PersistSubtasks]
             json.append(",\"subtasks\":[");
             for (int j = 0; j < task.getSubtasks().size(); j++) {
                 if (j > 0) json.append(',');
@@ -66,6 +68,12 @@ final class JsonFileStore {
             }
             json.append("]");
             // &end[PersistSubtasks]
+            // &begin[RecurringTasks]
+            json.append(",\"recurrence\":\"").append(task.getRecurrence().name()).append('"');
+            if (task.getSeriesId() != null) {
+                json.append(",\"seriesId\":\"").append(escape(task.getSeriesId())).append('"');
+            }
+            // &end[RecurringTasks]
             json.append('}');
         }
         json.append("]}");
@@ -150,7 +158,16 @@ final class JsonFileStore {
                     expect(']');
                 }
                 // &end[PersistSubtasks]
-                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority, dueDate, subtasks)); consumeComma();
+                // &begin[RecurringTasks]
+                Recurrence recurrence = Recurrence.NONE;
+                if (at(',')) {
+                    expect(','); expectField("recurrence");
+                    try { recurrence = Recurrence.valueOf(readString()); } catch (IllegalArgumentException ignored) { }
+                }
+                String seriesId = null;
+                if (at(',')) { expect(','); expectField("seriesId"); seriesId = readString(); }
+                // &end[RecurringTasks]
+                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority, dueDate, subtasks, recurrence, seriesId)); consumeComma();
             }
             return result;
         }

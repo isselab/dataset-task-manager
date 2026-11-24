@@ -6,6 +6,8 @@ TaskManager
         TaskPriorityLevels
         TaskOrdering
         TaskDueDates
+        RecurringTasks
+            DeleteRecurringTasks
         Subtasks
             AddSubtasks
             RenameSubtasks

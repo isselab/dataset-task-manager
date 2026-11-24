@@ -4,9 +4,12 @@ import model.Tag;
 import model.Task;
 import model.TaskPriority;
 import model.Subtask;
+import model.Recurrence;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import repository.TaskRepository;
 
@@ -63,6 +66,44 @@ public final class TaskService {
         return true;
     }
     // &end[RenameTasks]
+
+    // &begin[RecurringTasks]
+    /** Marks the task completed or open; returns the newly created next occurrence, or null. */
+    public Task setTaskCompleted(Task task, boolean completed) {
+        if (task == null || !tasks.contains(task)) return null;
+        boolean justCompleted = completed && !task.isCompleted();
+        task.setCompleted(completed);
+        if (!justCompleted || task.getRecurrence() == Recurrence.NONE) return null;
+        return createNextOccurrence(task);
+    }
+
+    private Task createNextOccurrence(Task task) {
+        LocalDate nextDueDate = task.getRecurrence().next(task.getDueDate()); // &line[TaskDueDates]
+        Task next = new Task(UUID.randomUUID().toString(), task.getTitle(), task.getDescription(),
+                task.getTagIds(), false, task.getPriority(), nextDueDate, List.of(), task.getRecurrence(), task.getSeriesId()); // &line[TaskPriorityLevels,AssignTaskTags]
+        tasks.add(next);
+        return next;
+    }
+    // &end[RecurringTasks]
+
+    // &begin[DeleteRecurringTasks]
+    /** Deletes one occurrence; an open occurrence is replaced by its next one so the series continues. */
+    public boolean deleteOccurrence(Task task) {
+        if (task == null || !tasks.contains(task)) return false;
+        if (!task.isCompleted() && task.getRecurrence() != Recurrence.NONE) createNextOccurrence(task);
+        return deleteTask(task);
+    }
+
+    /** Deletes every occurrence of the task's series, so no further occurrences can be created. */
+    public boolean deleteSeries(Task task) {
+        if (task == null || !tasks.contains(task)) return false;
+        String seriesId = task.getSeriesId();
+        if (seriesId == null) return deleteTask(task);
+        List.copyOf(tasks).stream().filter(other -> seriesId.equals(other.getSeriesId()))
+                .forEach(this::deleteTask);
+        return true;
+    }
+    // &end[DeleteRecurringTasks]
 
     // &begin[Subtasks]
     // &begin[AddSubtasks]

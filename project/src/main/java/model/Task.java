@@ -13,6 +13,8 @@ public final class Task {
     private TaskPriority priority;
     private LocalDate dueDate;
     private final List<Subtask> subtasks;
+    private Recurrence recurrence;
+    private String seriesId;
 
     public Task(String id, String title) {
         this(id, title, "", null);
@@ -46,6 +48,20 @@ public final class Task {
 
     public Task(String id, String title, String description, List<String> tagIds,
                 boolean completed, TaskPriority priority, LocalDate dueDate, List<Subtask> subtasks) {
+        this(id, title, description, tagIds, completed, priority, dueDate, subtasks, Recurrence.NONE);
+    }
+
+    public Task(String id, String title, String description, List<String> tagIds,
+                boolean completed, TaskPriority priority, LocalDate dueDate, List<Subtask> subtasks,
+                Recurrence recurrence) {
+        this(id, title, description, tagIds, completed, priority, dueDate, subtasks, recurrence, null);
+    }
+
+    public Task(String id, String title, String description, List<String> tagIds,
+                boolean completed, TaskPriority priority, LocalDate dueDate, List<Subtask> subtasks,
+                Recurrence recurrence, String seriesId) {
+        this.recurrence = recurrence == null ? Recurrence.NONE : recurrence;
+        this.seriesId = this.recurrence == Recurrence.NONE ? null : (seriesId == null ? id : seriesId);
         this.id = id;
         this.title = title;
         this.description = description == null ? "" : description;
@@ -123,6 +139,22 @@ public final class Task {
     public void removeTagId(String tagId) {
         tagIds.remove(tagId);
     }
+
+    // &begin[RecurringTasks]
+    public Recurrence getRecurrence() {
+        return recurrence;
+    }
+
+    public void setRecurrence(Recurrence recurrence) {
+        this.recurrence = recurrence == null ? Recurrence.NONE : recurrence;
+        if (this.recurrence == Recurrence.NONE) seriesId = null;
+        else if (seriesId == null) seriesId = id;
+    }
+
+    public String getSeriesId() {
+        return seriesId;
+    }
+    // &end[RecurringTasks]
 
     public List<Subtask> getSubtasks() {
         return List.copyOf(subtasks);
