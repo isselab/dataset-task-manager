@@ -12,6 +12,7 @@ public final class Task {
     private boolean completed;
     private TaskPriority priority;
     private LocalDate dueDate;
+    private boolean archived;
     private final List<Subtask> subtasks; // &line[Subtasks]
 
     public Task(String id, String title) {
@@ -106,6 +107,16 @@ public final class Task {
     public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
     }
+
+    // &begin[ArchiveTasks]
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
+    // &end[ArchiveTasks]
 
     public boolean isOverdue() {
         return dueDate != null && dueDate.isBefore(LocalDate.now());

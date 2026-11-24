@@ -123,6 +123,23 @@ public final class TaskService {
     }
     // &end[DeleteTasks]
 
+    // &begin[ArchiveTasks]
+    public boolean archiveTask(Task task) {
+        return setTaskArchived(task, true);
+    }
+
+    public boolean unarchiveTask(Task task) {
+        return setTaskArchived(task, false);
+    }
+
+    private boolean setTaskArchived(Task task, boolean archived) {
+        if (task == null || !tasks.contains(task)) return false;
+        task.setArchived(archived);
+        refreshTask(task);
+        return true;
+    }
+    // &end[ArchiveTasks]
+
     // &begin[AssignTaskTags]
     public void assignTag(Task task, Tag tag) {
         if (tag != null) task.addTagId(tag.id());

@@ -67,6 +67,7 @@ final class JsonFileStore {
             }
             json.append("]");
             // &end[PersistSubtasks]
+            json.append(",\"archived\":").append(task.isArchived()); // &line[ArchiveTasks]
             json.append('}');
         }
         json.append("]}");
@@ -142,7 +143,15 @@ final class JsonFileStore {
                     expect(']');
                 }
                 // &end[PersistSubtasks]
-                expect('}'); result.add(new Task(id, title, description, tagIds, completed, priority, dueDate, subtasks)); consumeComma();
+                // &begin[ArchiveTasks]
+                boolean archived = false;
+                if (at(',')) { expect(','); expectField("archived"); archived = readBoolean(); }
+                // &end[ArchiveTasks]
+                expect('}');
+                Task task = new Task(id, title, description, tagIds, completed, priority, dueDate, subtasks);
+                task.setArchived(archived); // &line[ArchiveTasks]
+                result.add(task);
+                consumeComma();
             }
             return result;
         }

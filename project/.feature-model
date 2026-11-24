@@ -2,6 +2,7 @@ TaskManager
     TaskManagement
         CreateTasks
         DeleteTasks
+        ArchiveTasks
         RenameTasks
         TaskPriorityLevels
         TaskOrdering
