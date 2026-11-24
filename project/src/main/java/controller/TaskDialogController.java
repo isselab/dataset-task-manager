@@ -2,7 +2,7 @@ package controller;
 
 import model.Task;
 import model.TaskPriority;
-import service.LabelService;
+import service.TagService;
 import service.TaskService;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
@@ -19,11 +19,11 @@ import javafx.geometry.Insets;
 
 public final class TaskDialogController extends ListCell<Task> {
     private final TaskService taskService;
-    private final LabelService labelService;
+    private final TagService tagService;
 
-    public TaskDialogController(TaskService taskService, LabelService labelService) {
+    public TaskDialogController(TaskService taskService, TagService tagService) {
         this.taskService = taskService;
-        this.labelService = labelService;
+        this.tagService = tagService;
     }
 
     @Override
@@ -43,34 +43,34 @@ public final class TaskDialogController extends ListCell<Task> {
             task.setPriority(prioritySelector.getValue());
             taskService.refreshTask(task);
             taskService.save();
-            labelService.save();
+            tagService.save();
         });
         // &end[TaskPriority]
-        // &begin[AssignTaskLabels]
-        ChoiceBox<LabelOption> selector = new ChoiceBox<>();
-        selector.getItems().add(new LabelOption(null, "Add label..."));
-        labelService.getLabels().stream()
-                .map(label -> new LabelOption(label.id(), label.name()))
+        // &begin[AssignTaskTags]
+        ChoiceBox<TagOption> selector = new ChoiceBox<>();
+        selector.getItems().add(new TagOption(null, "Add tag..."));
+        tagService.getTags().stream()
+                .map(tag -> new TagOption(tag.id(), tag.name()))
                 .forEach(selector.getItems()::add);
         selector.getSelectionModel().selectFirst();
-        HBox labelChips = new HBox(4);
-        labelService.getLabels().stream()
-                .filter(label -> task.getLabelIds().contains(label.id()))
-                .map(this::createLabelChip)
-                .forEach(labelChips.getChildren()::add);
+        HBox tagChips = new HBox(4);
+        tagService.getTags().stream()
+                .filter(tag -> task.getTagIds().contains(tag.id()))
+                .map(this::createTagChip)
+                .forEach(tagChips.getChildren()::add);
         selector.setOnAction(event -> {
-            LabelOption option = selector.getValue();
+            TagOption option = selector.getValue();
             if (option.id() != null) {
-                labelService.getLabels().stream()
-                        .filter(label -> label.id().equals(option.id()))
+                tagService.getTags().stream()
+                        .filter(tag -> tag.id().equals(option.id()))
                         .findFirst()
-                        .ifPresent(label -> taskService.assignLabel(task, label));
+                        .ifPresent(tag -> taskService.assignTag(task, tag));
                 taskService.save();
-                labelService.save();
+                tagService.save();
                 updateItem(task, false);
             }
         });
-        // &end[AssignTaskLabels]
+        // &end[AssignTaskTags]
         // &begin[StatusFilter]
         CheckBox completed = new CheckBox("Completed");
         completed.setSelected(task.isCompleted());
@@ -78,26 +78,26 @@ public final class TaskDialogController extends ListCell<Task> {
             task.setCompleted(completed.isSelected());
             taskService.refreshTask(task);
             taskService.save();
-            labelService.save();
+            tagService.save();
         });
         // &end[StatusFilter]
-        VBox labels = new VBox(4, labelChips, selector);
-        HBox row = new HBox(12, taskTitle, prioritySelector, completed, labels); // &line[TaskPriority]
+        VBox tags = new VBox(4, tagChips, selector);
+        HBox row = new HBox(12, taskTitle, prioritySelector, completed, tags); // &line[TaskPriority]
         row.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(taskTitle, Priority.ALWAYS);
         setGraphic(row);
     }
 
-    private Label createLabelChip(model.Label label) {
-        Label chip = new Label(label.name());
+    private Label createTagChip(model.Tag tag) {
+        Label chip = new Label(tag.name());
         chip.setPadding(new Insets(2, 7, 2, 7));
         chip.setBackground(new Background(new BackgroundFill(
-                javafx.scene.paint.Color.web(label.color()), new CornerRadii(10), Insets.EMPTY)));
+                javafx.scene.paint.Color.web(tag.color()), new CornerRadii(10), Insets.EMPTY)));
         chip.setTextFill(javafx.scene.paint.Color.WHITE);
         return chip;
     }
 
-    private record LabelOption(String id, String name) {
+    private record TagOption(String id, String name) {
         @Override
         public String toString() {
             return name;

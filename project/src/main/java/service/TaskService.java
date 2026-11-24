@@ -1,6 +1,6 @@
 package service;
 
-import model.Label;
+import model.Tag;
 import model.Task;
 import model.TaskPriority;
 import javafx.collections.FXCollections;
@@ -52,13 +52,13 @@ public final class TaskService {
         if (index >= 0) tasks.set(index, task);
     }
 
-    // &begin[AssignTaskLabels]
-    public void assignLabel(Task task, Label label) {
-        if (label != null) task.addLabelId(label.id());
+    // &begin[AssignTaskTags]
+    public void assignTag(Task task, Tag tag) {
+        if (tag != null) task.addTagId(tag.id());
     }
 
-    public void removeLabel(Task task, Label label) {
-        if (label != null) task.removeLabelId(label.id());
+    public void removeTag(Task task, Tag tag) {
+        if (tag != null) task.removeTagId(tag.id());
     }
-    // &end[AssignTaskLabels]
+    // &end[AssignTaskTags]
 }

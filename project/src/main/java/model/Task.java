@@ -7,7 +7,7 @@ public final class Task {
     private final String id;
     private final String title;
     private final String description;
-    private final List<String> labelIds;
+    private final List<String> tagIds;
     private boolean completed;
     private TaskPriority priority;
 
@@ -15,28 +15,28 @@ public final class Task {
         this(id, title, "", null);
     }
 
-    public Task(String id, String title, String labelId) {
-        this(id, title, "", labelId);
+    public Task(String id, String title, String tagId) {
+        this(id, title, "", tagId);
     }
 
-    public Task(String id, String title, String description, String labelId) {
-        this(id, title, description, labelId, false);
+    public Task(String id, String title, String description, String tagId) {
+        this(id, title, description, tagId, false);
     }
 
-    public Task(String id, String title, String description, String labelId, boolean completed) {
-        this(id, title, description, labelId == null ? List.of() : List.of(labelId), completed);
+    public Task(String id, String title, String description, String tagId, boolean completed) {
+        this(id, title, description, tagId == null ? List.of() : List.of(tagId), completed);
     }
 
-    public Task(String id, String title, String description, List<String> labelIds, boolean completed) {
-        this(id, title, description, labelIds, completed, TaskPriority.MEDIUM);
+    public Task(String id, String title, String description, List<String> tagIds, boolean completed) {
+        this(id, title, description, tagIds, completed, TaskPriority.MEDIUM);
     }
 
-    public Task(String id, String title, String description, List<String> labelIds,
+    public Task(String id, String title, String description, List<String> tagIds,
                 boolean completed, TaskPriority priority) {
         this.id = id;
         this.title = title;
         this.description = description == null ? "" : description;
-        this.labelIds = new ArrayList<>(labelIds == null ? List.of() : labelIds);
+        this.tagIds = new ArrayList<>(tagIds == null ? List.of() : tagIds);
         this.completed = completed;
         this.priority = priority == null ? TaskPriority.MEDIUM : priority;
     }
@@ -53,8 +53,8 @@ public final class Task {
         return description;
     }
 
-    public List<String> getLabelIds() {
-        return List.copyOf(labelIds);
+    public List<String> getTagIds() {
+        return List.copyOf(tagIds);
     }
 
     public boolean isCompleted() {
@@ -73,16 +73,16 @@ public final class Task {
         this.priority = priority == null ? TaskPriority.MEDIUM : priority;
     }
 
-    public void setLabelIds(List<String> labelIds) {
-        this.labelIds.clear();
-        if (labelIds != null) this.labelIds.addAll(labelIds);
+    public void setTagIds(List<String> tagIds) {
+        this.tagIds.clear();
+        if (tagIds != null) this.tagIds.addAll(tagIds);
     }
 
-    public void addLabelId(String labelId) {
-        if (labelId != null && !labelIds.contains(labelId)) labelIds.add(labelId);
+    public void addTagId(String tagId) {
+        if (tagId != null && !tagIds.contains(tagId)) tagIds.add(tagId);
     }
 
-    public void removeLabelId(String labelId) {
-        labelIds.remove(labelId);
+    public void removeTagId(String tagId) {
+        tagIds.remove(tagId);
     }
 }

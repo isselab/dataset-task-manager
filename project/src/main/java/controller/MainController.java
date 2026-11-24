@@ -1,9 +1,9 @@
 package controller;
 
 import model.Task;
-import repository.JsonLabelRepository;
+import repository.JsonTagRepository;
 import repository.JsonTaskRepository;
-import service.LabelService;
+import service.TagService;
 import service.TaskService;
 import javafx.geometry.Insets;
 import javafx.collections.transformation.FilteredList;
@@ -23,12 +23,12 @@ import java.util.Comparator;
 
 public final class MainController {
     private final TaskService taskService;
-    private final LabelService labelService;
+    private final TagService tagService;
 
     public MainController() {
         taskService = new TaskService(new JsonTaskRepository());
-        labelService = new LabelService(new JsonLabelRepository());
-        labelService.load();
+        tagService = new TagService(new JsonTagRepository());
+        tagService.load();
         taskService.load();
     }
 
@@ -48,7 +48,7 @@ public final class MainController {
                 taskInput.clear();
                 descriptionInput.clear();
                 taskService.save();
-                labelService.save();
+                tagService.save();
             }
         });
         taskInput.setOnAction(event -> addTask.fire());
@@ -83,86 +83,86 @@ public final class MainController {
                 .thenComparing(Task::getPriority, Comparator.reverseOrder()));
         // &end[TaskPriority]
         ListView<Task> taskList = new ListView<>(sortedTasks);
-        taskList.setCellFactory(view -> new TaskDialogController(taskService, labelService));
+        taskList.setCellFactory(view -> new TaskDialogController(taskService, tagService));
         VBox.setVgrow(taskList, Priority.ALWAYS);
 
-        // &begin[CreateLabels]
-        TextField labelInput = new TextField();
-        labelInput.setPromptText("New label");
-        ColorPicker labelColor = new ColorPicker(javafx.scene.paint.Color.web("#4f46e5"));
-        Button addLabel = new Button("Create label");
-        addLabel.setOnAction(event -> {
-            if (labelService.createLabel(labelInput.getText(), labelColor.getValue().toString()) != null) {
-                labelInput.clear();
-                labelService.save();
+        // &begin[CreateTags]
+        TextField tagInput = new TextField();
+        tagInput.setPromptText("New tag");
+        ColorPicker tagColor = new ColorPicker(javafx.scene.paint.Color.web("#4f46e5"));
+        Button addTag = new Button("Create tag");
+        addTag.setOnAction(event -> {
+            if (tagService.createTag(tagInput.getText(), tagColor.getValue().toString()) != null) {
+                tagInput.clear();
+                tagService.save();
                 taskService.save();
                 taskList.refresh();
             }
         });
-        labelInput.setOnAction(event -> addLabel.fire());
-        // &end[CreateLabels]
+        tagInput.setOnAction(event -> addTag.fire());
+        // &end[CreateTags]
 
-        // &begin[RenameLabels]
-        ComboBox<model.Label> labelSelector = new ComboBox<>(labelService.getLabels());
-        labelSelector.setPromptText("Select label");
-        labelSelector.setCellFactory(view -> new ListCell<>() {
+        // &begin[RenameTags]
+        ComboBox<model.Tag> tagSelector = new ComboBox<>(tagService.getTags());
+        tagSelector.setPromptText("Select tag");
+        tagSelector.setCellFactory(view -> new ListCell<>() {
             @Override
-            protected void updateItem(model.Label label, boolean empty) {
-                super.updateItem(label, empty);
-                setText(empty || label == null ? null : label.name());
+            protected void updateItem(model.Tag tag, boolean empty) {
+                super.updateItem(tag, empty);
+                setText(empty || tag == null ? null : tag.name());
             }
         });
-        labelSelector.setButtonCell(new ListCell<>() {
+        tagSelector.setButtonCell(new ListCell<>() {
             @Override
-            protected void updateItem(model.Label label, boolean empty) {
-                super.updateItem(label, empty);
-                setText(empty || label == null ? null : label.name());
+            protected void updateItem(model.Tag tag, boolean empty) {
+                super.updateItem(tag, empty);
+                setText(empty || tag == null ? null : tag.name());
             }
         });
         TextField renameInput = new TextField();
-        renameInput.setPromptText("New label name");
+        renameInput.setPromptText("New tag name");
         Button rename = new Button("Rename");
         rename.setOnAction(event -> {
-            model.Label selected = labelSelector.getValue();
-            if (labelService.renameLabel(selected, renameInput.getText(), taskService.getTasks())) {
-                labelService.save();
+            model.Tag selected = tagSelector.getValue();
+            if (tagService.renameTag(selected, renameInput.getText(), taskService.getTasks())) {
+                tagService.save();
                 taskService.save();
-                labelService.getLabels().stream()
-                        .filter(label -> label.id().equals(selected.id()))
+                tagService.getTags().stream()
+                        .filter(tag -> tag.id().equals(selected.id()))
                         .findFirst()
-                        .ifPresent(label -> labelSelector.getSelectionModel().select(label));
+                        .ifPresent(tag -> tagSelector.getSelectionModel().select(tag));
                 taskList.refresh();
             }
         });
-        labelSelector.valueProperty().addListener((observable, oldValue, newValue) ->
+        tagSelector.valueProperty().addListener((observable, oldValue, newValue) ->
                 renameInput.setText(newValue == null ? "" : newValue.name()));
-        // &end[RenameLabels]
+        // &end[RenameTags]
 
-        // &begin[DeleteLabels]
+        // &begin[DeleteTags]
         Button delete = new Button("Delete");
         delete.setOnAction(event -> {
-            model.Label selected = labelSelector.getValue();
-            if (labelService.deleteLabel(selected, taskService.getTasks())) {
+            model.Tag selected = tagSelector.getValue();
+            if (tagService.deleteTag(selected, taskService.getTasks())) {
                 taskService.save();
-                labelService.save();
-                labelSelector.getSelectionModel().clearSelection();
+                tagService.save();
+                tagSelector.getSelectionModel().clearSelection();
                 renameInput.clear();
                 taskList.refresh();
             }
         });
-        // &end[DeleteLabels]
+        // &end[DeleteTags]
 
         HBox taskForm = new HBox(8, taskInput, descriptionInput, addTask); // &line[CreateTasks]
         HBox.setHgrow(taskInput, Priority.ALWAYS);
         HBox.setHgrow(descriptionInput, Priority.ALWAYS);
-        HBox labelForm = new HBox(8, labelInput, labelColor, addLabel);
-        HBox.setHgrow(labelInput, Priority.ALWAYS);
-        HBox labelManagement = new HBox(8, labelSelector, renameInput, rename, delete); // &line[RenameLabels]
-        HBox.setHgrow(labelSelector, Priority.ALWAYS);
+        HBox tagForm = new HBox(8, tagInput, tagColor, addTag);
+        HBox.setHgrow(tagInput, Priority.ALWAYS);
+        HBox tagManagement = new HBox(8, tagSelector, renameInput, rename, delete); // &line[RenameTags]
+        HBox.setHgrow(tagSelector, Priority.ALWAYS);
         HBox.setHgrow(renameInput, Priority.ALWAYS);
         HBox taskFilters = new HBox(8, searchInput, statusFilter); // &line[StatusFilter]
         HBox.setHgrow(searchInput, Priority.ALWAYS);
-        VBox content = new VBox(16, title, taskForm, taskFilters, new Label("Labels"), labelForm, labelManagement, taskList); // &line[KeywordSearch]
+        VBox content = new VBox(16, title, taskForm, taskFilters, new Label("Tags"), tagForm, tagManagement, taskList); // &line[KeywordSearch]
         content.setPadding(new Insets(24));
         content.getStyleClass().add("app-root");
         return new BorderPane(content);
