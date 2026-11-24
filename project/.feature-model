@@ -6,8 +6,14 @@ TaskManager
         TaskPriorityLevels
         TaskOrdering
         TaskDueDates
+        Subtasks
+            AddSubtasks
+            RenameSubtasks
+            ToggleSubtasks
+            DeleteSubtasks
     TaskQuery
     PersistTasks
+    PersistSubtasks
     Tags
         CreateTags
         RenameTags

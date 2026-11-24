@@ -12,6 +12,7 @@ public final class Task {
     private boolean completed;
     private TaskPriority priority;
     private LocalDate dueDate;
+    private final List<Subtask> subtasks = new ArrayList<>();
 
     public Task(String id, String title) {
         this(id, title, "", null);
@@ -40,6 +41,11 @@ public final class Task {
 
     public Task(String id, String title, String description, List<String> tagIds,
                 boolean completed, TaskPriority priority, LocalDate dueDate) {
+        this(id, title, description, tagIds, completed, priority, dueDate, null);
+    }
+
+    public Task(String id, String title, String description, List<String> tagIds,
+                boolean completed, TaskPriority priority, LocalDate dueDate, List<Subtask> subtasks) {
         this.id = id;
         this.title = title;
         this.description = description == null ? "" : description;
@@ -47,6 +53,7 @@ public final class Task {
         this.completed = completed;
         this.priority = priority == null ? TaskPriority.MEDIUM : priority;
         this.dueDate = dueDate;
+        if (subtasks != null) this.subtasks.addAll(subtasks);
     }
 
     public String getId() {
@@ -114,4 +121,26 @@ public final class Task {
     public void removeTagId(String tagId) {
         tagIds.remove(tagId);
     }
+
+    // &begin[Subtasks]
+    public List<Subtask> getSubtasks() {
+        return List.copyOf(subtasks);
+    }
+    // &end[Subtasks]
+
+    // &begin[AddSubtasks]
+    public void addSubtask(Subtask subtask) {
+        subtasks.add(subtask);
+    }
+    // &end[AddSubtasks]
+
+    // &begin[DeleteSubtasks]
+    public boolean removeSubtask(Subtask subtask) {
+        return subtasks.remove(subtask);
+    }
+
+    public void clearSubtasks() {
+        subtasks.clear();
+    }
+    // &end[DeleteSubtasks]
 }
