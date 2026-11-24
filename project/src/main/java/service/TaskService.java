@@ -39,6 +39,21 @@ public final class TaskService {
         tasks.add(task);
     }
 
+    // &begin[RenameTasks]
+    public boolean renameTask(Task task, String newTitle) {
+        if (task == null || newTitle == null || newTitle.trim().isEmpty()) return false;
+        task.setTitle(newTitle.trim());
+        refreshTask(task);
+        return true;
+    }
+    // &end[RenameTasks]
+
+    // &begin[DeleteTasks]
+    public void deleteTask(Task task) {
+        tasks.remove(task); // tag assignments are stored on the task and are removed with it
+    }
+    // &end[DeleteTasks]
+
     public void load() {
         repository.load().forEach(this::restore);
     }

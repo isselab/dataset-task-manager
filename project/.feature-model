@@ -2,6 +2,8 @@ TaskManager
     TaskManagement
         CreateTasks
         TaskPriority
+        DeleteTasks
+        RenameTasks
     TaskQuery
     PersistTasks
     Tags
