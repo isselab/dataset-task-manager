@@ -1,0 +1,16 @@
+TaskManager
+    TaskManagement
+        CreateTasks
+        DeleteTasks
+        RenameTasks
+        TaskPriorityLevels
+        TaskOrdering
+        DueDates
+    TaskQuery
+    PersistTasks
+    Tags
+        CreateTags
+        RenameTags
+        DeleteTags
+    AssignTaskTags
+    PersistTags

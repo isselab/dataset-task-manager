@@ -1,5 +1,6 @@
 package model;
 
+import java.time.LocalDate; // &line[DueDates]
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ public final class Task {
     private final List<String> tagIds;
     private boolean completed;
     private TaskPriority priority;
+    private LocalDate dueDate; // &line[DueDates]
 
     public Task(String id, String title) {
         this(id, title, "", null);
@@ -33,6 +35,12 @@ public final class Task {
 
     public Task(String id, String title, String description, List<String> tagIds,
                 boolean completed, TaskPriority priority) {
+        this(id, title, description, tagIds, completed, priority, null); // &line[DueDates]
+    }
+
+    public Task(String id, String title, String description, List<String> tagIds,
+                boolean completed, TaskPriority priority, LocalDate dueDate) { // &line[DueDates]
+        this.dueDate = dueDate; // &line[DueDates]
         this.id = id;
         this.title = title;
         this.description = description == null ? "" : description;
@@ -81,6 +89,20 @@ public final class Task {
     public void setPriority(TaskPriority priority) {
         this.priority = priority == null ? TaskPriority.MEDIUM : priority;
     }
+
+    // &begin[DueDates]
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    public boolean isOverdue() {
+        return !completed && dueDate != null && dueDate.isBefore(LocalDate.now());
+    }
+    // &end[DueDates]
 
     public void setTagIds(List<String> tagIds) {
         this.tagIds.clear();

@@ -14,3 +14,20 @@
     -fx-text-fill: #1f2937;
 }
 /* &end[TaskManagement] */
+
+/* &begin[DueDates] */
+.overdue-task {
+    -fx-background-color: #fee2e2;
+    -fx-padding: 4;
+    -fx-background-radius: 4;
+}
+
+.overdue-badge {
+    -fx-background-color: #dc2626;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+    -fx-padding: 2 7 2 7;
+    -fx-background-radius: 10;
+}
+/* &end[DueDates] */

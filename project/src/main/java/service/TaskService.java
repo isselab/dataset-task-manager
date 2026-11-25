@@ -63,6 +63,14 @@ public final class TaskService {
     }
     // &end[RenameTasks]
 
+    // &begin[DueDates]
+    public void setDueDate(Task task, java.time.LocalDate dueDate) {
+        if (task == null) return;
+        task.setDueDate(dueDate);
+        refreshTask(task);
+    }
+    // &end[DueDates]
+
     // &begin[DeleteTasks]
     public boolean deleteTask(Task task) {
         if (task == null || !tasks.contains(task)) return false;
